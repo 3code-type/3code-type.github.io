@@ -26,312 +26,447 @@
             align-items: center;
             background-color: var(--background-color);
             padding: 20px;
-            margin: 0;
             color: var(--text-color);
         }
 
         .container {
-            width: 100%;
+            width: 95%;
             max-width: 800px;
             background-color: var(--container-bg);
-            border: 1px solid var(--border-color);
             border-radius: 12px;
             box-shadow: var(--box-shadow);
-            padding: 24px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 5px;
+            font-weight: 700;
+            font-size: 28px;
+        }
+
+        .header-section {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 12px;
+            border-bottom: 1px dashed var(--border-color);
+        }
+
+        .download-section, .mode-switcher {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .download-section h2, .mode-switcher h2 {
+            font-size: 16px;
+            color: var(--primary-light);
+            margin: 0;
+            white-space: nowrap;
+            line-height: 1.5;
+        }
+
+        .download-section ul {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 0;
+            gap: 8px;
+        }
+
+        .download-section li {
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .download-section a, .mode-switcher label {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 700;
+            transition: color 0.2s ease-in-out;
+            font-size: 16px;
+            line-height: 1.5;
+            cursor: pointer;
+        }
+
+        .download-section a:hover {
+            color: var(--primary-light);
+            text-decoration: underline;
+        }
+
+        /* 模式切換器樣式 */
+        .mode-switcher label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .mode-switcher input[type="radio"] {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--primary-color);
+            border-radius: 50%;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            position: relative;
+        }
+        .mode-switcher input[type="radio"]:checked {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        .mode-switcher input[type="radio"]:checked::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: white;
+        }
+
+
+        /* 輸入與顯示區塊 */
+        .text-output-area,
+        .candidate-area,
+        #main-input,
+        #search-input,
+        #search-result {
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease-in-out;
             box-sizing: border-box;
+            font-size: var(--unified-font-size);
+        }
+
+        /* 統一所有主要欄位的內距 */
+        .text-output-area,
+        #main-input,
+        #search-input,
+        .candidate-area,
+        #search-result {
+            padding: 8px;
+        }
+
+        .text-output-area {
+            min-height: 150px;
+            background-color: #fafafa;
+            resize: none;
         }
 
         .input-area {
+            width: 100%;
             display: flex;
             flex-direction: column;
-            gap: 16px;
-        }
-
-        #output {
-            width: 100%;
-            height: 150px;
-            padding: 12px;
-            font-size: var(--unified-font-size);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            box-sizing: border-box;
-            resize: none;
-            line-height: 1.5;
-            transition: border-color 0.3s;
-        }
-
-        #output:focus {
-            outline: none;
-            border-color: var(--primary-color);
-        }
-
-        .action-buttons {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 10px;
-        }
-
-        .action-buttons button {
-            padding: 10px 18px;
-            font-size: var(--unified-font-size);
-            font-weight: bold;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.2s;
-            background-color: var(--primary-color);
-            color: white;
-        }
-
-        .action-buttons button:hover {
-            background-color: var(--primary-light);
-            transform: translateY(-2px);
-        }
-
-        .action-buttons button:active {
-            transform: translateY(0);
-        }
-
-        .keyboard {
-            display: grid;
-            grid-template-columns: repeat(10, 1fr);
             gap: 8px;
-            margin-top: 20px;
+        }
+
+        .search-area {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #main-input {
+            height: 40px;
+        }
+
+        /* 候選字區塊樣式 - 允許換行以避免溢出 */
+        .candidate-area {
+            min-height: 55px; /* 調整為一致的高度 */
+            display: flex;
+            flex-wrap: wrap; /* 允許換行以避免溢出 */
+            align-items: center;
+            padding: 8px;
+            gap: 8px;
+            white-space: normal;
+        }
+        .candidate-area span {
+            cursor: pointer;
+            padding: 5px 8px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            transition: all 0.2s;
+            user-select: none;
+            white-space: nowrap;
+            font-size: 18px; /* 調整字形大小 */
+            flex-shrink: 0;
+            text-align: center;
+        }
+        .candidate-area span:hover {
+            background-color: #e8eaf6;
+            border-color: #b3b9d8;
+        }
+
+        #search-input {
+            flex-grow: 0;
+            width: 160px;
+            height: 40px;
+        }
+
+        #search-result {
+            flex-grow: 1;
+            color: #555;
+            min-height: 40px;
+        }
+
+        #mode-display {
+            font-size: 16px;
+            color: #757575;
+            align-self: flex-start;
+        }
+
+        /* 鍵盤樣式 */
+        .keyboard-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
         }
 
         .key-row {
-            display: contents;
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            gap: 5px;
         }
 
         .key {
-            padding: 12px 0;
-            background-color: #f0f0f0;
-            border-radius: 8px;
-            box-shadow: var(--key-shadow);
-            font-size: var(--unified-font-size);
-            font-weight: bold;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            transition: background-color 0.2s, transform 0.1s;
-            position: relative;
-        }
-
-        .key:hover {
-            background-color: #e0e0e0;
-        }
-
-        .key:active {
-            transform: translateY(1px);
-            box-shadow: none;
-        }
-
-        .key.active {
-            background-color: var(--primary-light);
-            color: white;
-        }
-
-        .candidate-area {
-            margin-top: 20px;
-            min-height: 40px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 8px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            background-color: #fafafa;
-            align-items: center;
-        }
-
-        .candidate {
-            padding: 6px 10px;
-            background-color: #e8eaf6;
+            flex: 1;
+            padding: 8px 0;
             border-radius: 6px;
+            background-color: #e8eaf6;
+            font-size: 18px;
+            text-align: center;
             cursor: pointer;
-            font-size: var(--unified-font-size);
-            transition: background-color 0.2s;
-        }
-
-        .candidate:hover {
-            background-color: var(--primary-light);
-            color: white;
-        }
-
-        #search-container {
-            margin-top: 20px;
-            padding: 16px;
-            background-color: #fffde7;
-            border: 1px solid #ffeb3b;
-            border-radius: 8px;
-        }
-
-        #searchInput {
-            width: 100%;
-            padding: 8px;
-            font-size: var(--unified-font-size);
+            user-select: none;
+            transition: all 0.1s ease-out;
+            box-shadow: var(--key-shadow);
             border: 1px solid var(--border-color);
-            border-radius: 4px;
-            box-sizing: border-box;
         }
 
-        #searchResult {
-            margin-top: 8px;
-            font-size: var(--unified-font-size);
-            color: #757575;
+        .key.function-key {
+            flex: 1.5;
+            background-color: #c5cae9;
+            font-size: 16px;
         }
 
-        .mode-toggle-area {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 16px;
-            gap: 16px;
+        .key.space-key {
+            flex: 4;
+            background-color: #c5cae9;
         }
 
-        .mode-display {
-            font-size: 1.2em;
-            font-weight: bold;
-            color: var(--primary-color);
+        .key.page-key {
+            flex: 0.5;
+            background-color: #c5cae9;
+            font-size: 16px;
         }
 
-        .mode-buttons {
-            display: flex;
-            gap: 8px;
+        /* 按鍵互動效果 */
+        .key:hover {
+            background-color: #b3b9d8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
 
-        .mode-buttons button {
-            padding: 8px 16px;
-            font-size: 1em;
-            border: 1px solid var(--primary-color);
-            border-radius: 8px;
-            background-color: transparent;
-            color: var(--primary-color);
-            cursor: pointer;
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        .mode-buttons button.active {
-            background-color: var(--primary-color);
-            color: white;
-        }
-
-        #status-message {
-            margin-top: 10px;
-            font-size: 0.9em;
-            color: #d32f2f;
-            font-weight: bold;
+        .key:active,
+        .key.active {
+            background-color: #7986cb;
+            color: #fff;
+            transform: translateY(0);
+            box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
         }
     </style>
 </head>
 <body>
+
     <div class="container">
-        <h1>三碼中文輸入法模擬器</h1>
-        <p id="status-message"></p>
-        <div class="input-area">
-            <textarea id="output" placeholder="點擊下方鍵盤或輸入英數字..."></textarea>
-            <div id="candidate-area" class="candidate-area"></div>
-            <div class="mode-toggle-area">
-                <span id="mode-display" class="mode-display">中文模式</span>
-                <div class="mode-buttons">
-                    <button id="switchMethodPrimary" class="active">常用字</button>
-                    <button id="switchMethodSecondary">次常用字</button>
-                </div>
+        <h1>三碼中文輸入法</h1>
+        
+        <div class="header-section">
+            <div class="download-section">
+                <h2>檔案下載區：</h2>
+                <ul>
+                    <li><a href="3code.pdf" download="" target="_blank">輸入法說明檔</a></li>
+                    <li><a href="3code.zip" download="" target="_blank">輸入法壓縮檔</a></li>
+                    <li><a href="3code.txt" download="" target="_blank">常用字碼檔</a></li>
+                    <li><a href="3code2.txt" download="" target="_blank">次常用字碼檔</a></li>
+                    <li><a href="3code.cin" download="" target="_blank">CIN字碼檔</a></li>
+                </ul>
+            </div>
+            <div class="mode-switcher">
+                <h2>輸入法模式：</h2>
+                <label>
+                    <input type="radio" name="input_mode" value="primary" checked="">
+                    三碼 (常用字)
+                </label>
+                <label>
+                    <input type="radio" name="input_mode" value="secondary">
+                    三碼次常 (次常用字)
+                </label>
             </div>
         </div>
 
-        <div class="keyboard" id="keyboard"></div>
+        <div class="text-output-area" id="text-output"></div>
 
-        <div id="search-container">
-            <h3>反向查詢 (輸入單一中文字)</h3>
-            <input type="text" id="searchInput" placeholder="輸入單一漢字">
-            <p id="searchResult">查詢結果顯示在此</p>
+        <div class="input-area">
+            <input type="text" id="main-input" placeholder="編碼顯示在此" readonly="">
+            <div id="candidate-display" class="candidate-area"></div>
+        </div>
+
+        <div class="search-area">
+            <input type="text" id="search-input" placeholder="在此輸入漢字" maxlength="1">
+            <div id="search-result">查詢結果顯示在此</div>
+        </div>
+        
+        <div id="mode-display">模式：三碼</div>
+
+        <div class="keyboard-container">
+            <div class="key-row">
+                <div class="key" data-code="1">1</div>
+                <div class="key" data-code="2">2</div>
+                <div class="key" data-code="3">3</div>
+                <div class="key" data-code="4">4</div>
+                <div class="key" data-code="5">5</div>
+                <div class="key" data-code="6">6</div>
+                <div class="key" data-code="7">7</div>
+                <div class="key" data-code="8">8</div>
+                <div class="key" data-code="9">9</div>
+                <div class="key" data-code="0">0</div>
+            </div>
+            <div class="key-row">
+                <div class="key" data-code="q">Ｑ</div>
+                <div class="key" data-code="w">Ｗ</div>
+                <div class="key" data-code="e">Ｅ</div>
+                <div class="key" data-code="r">Ｒ</div>
+                <div class="key" data-code="t">Ｔ</div>
+                <div class="key" data-code="y">Ｙ</div>
+                <div class="key" data-code="u">Ｕ</div>
+                <div class="key" data-code="i">Ｉ</div>
+                <div class="key" data-code="o">Ｏ</div>
+                <div class="key" data-code="p">Ｐ</div>
+            </div>
+            <div class="key-row">
+                <div class="key" data-code="a">Ａ</div>
+                <div class="key" data-code="s">Ｓ</div>
+                <div class="key" data-code="d">Ｄ</div>
+                <div class="key" data-code="f">Ｆ</div>
+                <div class="key" data-code="g">Ｇ</div>
+                <div class="key" data-code="h">Ｈ</div>
+                <div class="key" data-code="j">Ｊ</div>
+                <div class="key" data-code="k">Ｋ</div>
+                <div class="key" data-code="l">Ｌ</div>
+                <div class="key" data-code=";">；</div>
+                <div class="key" data-code="'">〃</div>
+            </div>
+            <div class="key-row">
+                <div class="key" data-code="z">Ｚ</div>
+                <div class="key" data-code="x">Ｘ</div>
+                <div class="key" data-code="c">Ｃ</div>
+                <div class="key" data-code="v">Ｖ</div>
+                <div class="key" data-code="b">Ｂ</div>
+                <div class="key" data-code="n">Ｎ</div>
+                <div class="key" data-code="m">Ｍ</div>
+                <div class="key" data-code=",">，</div>
+                <div class="key" data-code=".">．</div>
+                <div class="key" data-code="/">／</div>
+            </div>
+            <div class="key-row">
+                <div class="key function-key" data-code="shift">Shift</div>
+                <div class="key space-key" data-code=" ">空白鍵</div>
+                <div class="key function-key" data-code="enter">Enter</div>
+                <div class="key function-key" data-code="backspace">刪除鍵</div>
+                <div class="key page-key" data-code="&lt;">＜</div>
+                <div class="key page-key" data-code="&gt;">＞</div>
+            </div>
         </div>
     </div>
-    
     <script>
-        // --- 全域變數 ---
-        let currentCode = '';
-        let currentCandidates = [];
+        // --- 資料處理與解析 ---
         let primaryCodemap = {};
         let secondaryCodemap = {};
         let currentCodemap = {};
         let currentReverseCodemap = {};
+        let currentCode = '';
+        let currentCandidates = [];
         let isEnglishMode = false;
-        const output = document.getElementById('output');
-        const candidateArea = document.getElementById('candidate-area');
-        const keyboard = document.getElementById('keyboard');
-        const searchInput = document.getElementById('searchInput');
-        const searchResult = document.getElementById('searchResult');
+        let shiftTimer = null;
+        const textOutput = document.getElementById('text-output');
+        const mainInput = document.getElementById('main-input');
+        const candidateDisplay = document.getElementById('candidate-display');
+        const searchInput = document.getElementById('search-input');
+        const searchResult = document.getElementById('search-result');
         const modeDisplay = document.getElementById('mode-display');
-        const statusMessage = document.getElementById('status-message');
+        const modeSwitcher = document.querySelector('.mode-switcher');
+        const keyboardContainer = document.querySelector('.keyboard-container');
 
         // --- 載入碼表檔案 ---
         async function loadCodemap(filePath) {
             try {
                 const response = await fetch(filePath);
                 if (!response.ok) {
-                    throw new Error(`Failed to fetch ${filePath}: ${response.statusText}`);
+                    throw new Error(`載入碼表檔案失敗：無法找到 ${filePath}。請確認所有檔案都在同一目錄下。`);
                 }
                 const text = await response.text();
-                return parseCinFile(text);
+                return parseCinLikeFile(text);
             } catch (error) {
                 console.error(error);
-                statusMessage.textContent = `載入碼表檔案失敗：無法找到 ${filePath}。請確認所有檔案都在同一目錄下。`;
+                alert(error.message);
                 return { forward: {}, reverse: {} };
             }
         }
 
-        // --- 解析 Cin 檔案內容 ---
-        function parseCinFile(text) {
+        // --- 解析 Cin 格式檔案內容 ---
+        function parseCinLikeFile(text) {
             const lines = text.split('\n');
             const codemap = {};
             const reverseCodemap = {};
-            let isChardef = false;
-            let isDataSection = false;
+            let inDataSection = false;
 
             for (const line of lines) {
                 const trimmedLine = line.trim();
-                
-                // 忽略註解行
-                if (trimmedLine.startsWith('#')) {
-                    continue;
-                }
-                
-                // 檢查 CIN 檔案的標準區段
-                if (trimmedLine.startsWith('%chardef begin')) {
-                    isChardef = true;
-                    continue;
-                }
-                if (trimmedLine.startsWith('%chardef end')) {
-                    isChardef = false;
-                    continue;
-                }
-                
-                // 檢查簡易格式的 [data] 區段
                 if (trimmedLine.startsWith('[data]')) {
-                    isDataSection = true;
+                    inDataSection = true;
                     continue;
                 }
-                
-                if ((isChardef || isDataSection) && trimmedLine) {
+                if (inDataSection && trimmedLine && !trimmedLine.startsWith('#')) {
                     const parts = trimmedLine.split(/\s+/).filter(Boolean);
                     if (parts.length >= 2) {
                         const code = parts[0];
-                        const char = parts.slice(1).join('');
+                        const chars = parts.slice(1).join('');
                         
                         if (!codemap[code]) {
                             codemap[code] = [];
                         }
-                        codemap[code].push(char);
+                        codemap[code].push(...chars.split(''));
 
-                        if (!reverseCodemap[char]) {
-                            reverseCodemap[char] = [];
-                        }
-                        reverseCodemap[char].push(code);
+                        chars.split('').forEach(char => {
+                            if (!reverseCodemap[char]) {
+                                reverseCodemap[char] = [];
+                            }
+                            // 避免重複編碼
+                            if (!reverseCodemap[char].includes(code)) {
+                                reverseCodemap[char].push(code);
+                            }
+                        });
                     }
                 }
             }
@@ -343,208 +478,228 @@
 
         // --- 輸入法核心邏輯 ---
         function updateCandidates() {
-            candidateArea.innerHTML = '';
+            candidateDisplay.innerHTML = '';
             currentCandidates = currentCodemap[currentCode] || [];
             
-            if (currentCode.length === 0) {
-                return;
+            if (currentCode.length > 0) {
+                const codeSpan = document.createElement('span');
+                codeSpan.textContent = `[${currentCode}]`;
+                codeSpan.style.color = '#7986cb';
+                codeSpan.style.fontWeight = 'bold';
+                candidateDisplay.appendChild(codeSpan);
             }
-
-            const candidateTitle = document.createElement('span');
-            candidateTitle.textContent = formatCode(currentCode);
-            candidateTitle.style.fontWeight = 'bold';
-            candidateTitle.style.marginRight = '10px';
-            candidateArea.appendChild(candidateTitle);
 
             if (currentCandidates.length > 0) {
                 currentCandidates.forEach((char, index) => {
-                    const candidateDiv = document.createElement('div');
-                    candidateDiv.classList.add('candidate');
-                    candidateDiv.textContent = `${index + 1}. ${char}`;
-                    candidateDiv.dataset.index = index;
-                    candidateArea.appendChild(candidateDiv);
+                    const candidateSpan = document.createElement('span');
+                    candidateSpan.textContent = `${index + 1}. ${char}`;
+                    candidateSpan.dataset.char = char;
+                    candidateSpan.dataset.index = index;
+                    candidateDisplay.appendChild(candidateSpan);
                 });
-            } else {
+            } else if (currentCode.length > 0) {
                 const noCandidatesSpan = document.createElement('span');
                 noCandidatesSpan.textContent = '找不到字';
-                candidateArea.appendChild(noCandidatesSpan);
+                noCandidatesSpan.style.color = 'red';
+                candidateDisplay.appendChild(noCandidatesSpan);
             }
         }
 
         function resetInputState() {
             currentCode = '';
+            mainInput.value = '';
             updateCandidates();
         }
 
-        function formatCode(code) {
-            return code.split('').join(' ');
-        }
-
-        // --- 鍵盤處理 ---
-        const keyboardLayout = [
-            ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'],
-            ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
-            ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';'],
-            ['z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/'],
-            ['shift', 'space', 'backspace']
-        ];
-
-        function createKeyboard() {
-            keyboard.innerHTML = '';
-            keyboardLayout.forEach(row => {
-                row.forEach(key => {
-                    const keyDiv = document.createElement('div');
-                    keyDiv.classList.add('key');
-                    if (key === 'shift' || key === 'space' || key === 'backspace') {
-                        keyDiv.style.gridColumn = 'span 2';
-                    }
-                    keyDiv.dataset.key = key;
-                    keyDiv.innerHTML = `<span class="key-text">${key}</span>`;
-                    keyboard.appendChild(keyDiv);
-                });
-            });
-        }
-
-        function updateKeyboardDisplay() {
-            const allKeys = keyboard.querySelectorAll('.key');
-            allKeys.forEach(keyDiv => {
-                const key = keyDiv.dataset.key;
-                if (currentCode.includes(key)) {
-                    keyDiv.classList.add('active');
-                } else {
-                    keyDiv.classList.remove('active');
-                }
-            });
-        }
-
-        // --- 輸入切換 ---
-        function switchInputMethod(method) {
-            if (method === 'primary') {
+        // --- 鍵盤與模式切換 ---
+        function switchInputMethod(mode) {
+            if (mode === 'primary') {
                 currentCodemap = primaryCodemap.forward;
                 currentReverseCodemap = primaryCodemap.reverse;
-                document.getElementById('switchMethodPrimary').classList.add('active');
-                document.getElementById('switchMethodSecondary').classList.remove('active');
+                modeDisplay.textContent = '模式：三碼';
             } else {
                 currentCodemap = secondaryCodemap.forward;
                 currentReverseCodemap = secondaryCodemap.reverse;
-                document.getElementById('switchMethodPrimary').classList.remove('active');
-                document.getElementById('switchMethodSecondary').classList.add('active');
+                modeDisplay.textContent = '模式：三碼次常';
             }
             resetInputState();
+            const radioButtons = modeSwitcher.querySelectorAll('input[type="radio"]');
+            radioButtons.forEach(radio => {
+                if (radio.value === mode) {
+                    radio.checked = true;
+                }
+            });
         }
-
-        function updateModeDisplay() {
-            modeDisplay.textContent = isEnglishMode ? '英數模式' : '中文模式';
-        }
-
+        
         // --- 事件處理 ---
         document.addEventListener('DOMContentLoaded', async () => {
-            // 在頁面載入時非同步載入碼表
             const primaryPromise = loadCodemap('3code.txt');
             const secondaryPromise = loadCodemap('3code2.txt');
             [primaryCodemap, secondaryCodemap] = await Promise.all([primaryPromise, secondaryPromise]);
             
-            // 載入完成後初始化
-            createKeyboard();
             switchInputMethod('primary');
-            updateKeyboardDisplay();
-            updateModeDisplay();
+            updateCandidates();
         });
 
-        candidateArea.addEventListener('click', (event) => {
-            const candidate = event.target.closest('.candidate');
-            if (candidate) {
-                const char = currentCandidates[candidate.dataset.index];
-                output.value += char;
+        // 監聽鍵盤點擊事件
+        keyboardContainer.addEventListener('click', (event) => {
+            const keyDiv = event.target.closest('.key');
+            if (!keyDiv) return;
+
+            const code = keyDiv.dataset.code;
+            handleKey(code);
+        });
+
+        // 監聽候選字點擊事件
+        candidateDisplay.addEventListener('click', (event) => {
+            const candidateSpan = event.target.closest('span');
+            if (candidateSpan && candidateSpan.dataset.char) {
+                textOutput.textContent += candidateSpan.dataset.char;
                 resetInputState();
             }
         });
 
-        document.addEventListener('keydown', (event) => {
-            const key = event.key.toLowerCase();
-            const keys = "abcdefghijklmnopqrstuvwxyz;,.";
-            
-            // 使用 Shift 鍵切換模式
-            if (event.key === "Shift") {
-                if (event.repeat) return; // 避免在長按時重複觸發
-                isEnglishMode = !isEnglishMode;
-                updateModeDisplay();
-                updateKeyboardDisplay();
-                resetInputState();
-                event.preventDefault();
-                return;
-            }
-
-            // 在英數模式下直接輸出
-            if (isEnglishMode) {
-                if (keys.includes(key) || key === '/' || key === ' ' || event.key === 'Backspace' || event.key.length === 1) {
-                     output.value += event.key;
-                }
-                return;
-            }
-
-            // 中文模式邏輯
-            if (keys.includes(key)) {
-                if (currentCode.length < 3) {
-                    currentCode += key;
-                    updateCandidates();
-                    updateKeyboardDisplay();
-                }
-                event.preventDefault();
-            } else if (event.key === 'Backspace') {
-                if (currentCode.length > 0) {
-                    currentCode = currentCode.slice(0, -1);
-                    updateCandidates();
-                    updateKeyboardDisplay();
-                } else if (output.value.length > 0) {
-                    output.value = output.value.slice(0, -1);
-                }
-                event.preventDefault();
-            } else if (event.key === ' ') {
-                if (currentCandidates.length > 0) {
-                    output.value += currentCandidates[0];
-                    resetInputState();
-                } else {
-                    output.value += ' ';
-                }
-                event.preventDefault();
-            } else if (event.key >= '1' && event.key <= '9') {
-                const index = parseInt(event.key, 10) - 1;
-                if (index < currentCandidates.length) {
-                    output.value += currentCandidates[index];
-                    resetInputState();
-                }
-            } else if (event.key.length === 1) {
-                 output.value += event.key;
+        // 監聽模式切換
+        modeSwitcher.addEventListener('change', (event) => {
+            if (event.target.name === 'input_mode') {
+                switchInputMethod(event.target.value);
             }
         });
 
-        document.getElementById('switchMethodPrimary').addEventListener('click', () => switchInputMethod('primary'));
-        document.getElementById('switchMethodSecondary').addEventListener('click', () => switchInputMethod('secondary'));
-
-        // --- 反向查詢事件處理 ---
-        searchInput.addEventListener('input', (event) => {
-            const charToSearch = searchInput.value;
+        // 監聽反向查詢輸入
+        searchInput.addEventListener('input', () => {
+            const charToSearch = searchInput.value.trim();
+            searchResult.textContent = '查詢結果顯示在此';
             if (charToSearch.length === 1) {
-                const codes = currentReverseCodemap[charToSearch];
-                if (codes && codes.length > 0) {
-                    const formattedCodes = codes.map(code => formatCode(code));
-                    searchResult.textContent = `編碼：　${formattedCodes.join('　')}`;
+                const codes = currentReverseCodemap[charToSearch] || [];
+                if (codes.length > 0) {
+                    searchResult.textContent = `編碼：${codes.join('、')}`;
                 } else {
                     searchResult.textContent = '找不到該漢字編碼。';
                 }
-            } else {
-                searchResult.textContent = '查詢結果顯示在此';
             }
         });
-        
-        // 額外處理 Backspace 鍵清除
-        searchInput.addEventListener('keydown', (event) => {
-            if (event.key === 'Backspace') {
-                event.stopPropagation();
-                searchInput.value = '';
-                searchResult.textContent = '查詢結果顯示在此';
+
+        // 處理鍵盤輸入事件
+        function handleKey(key) {
+            if (isEnglishMode) {
+                if (key === 'backspace') {
+                    textOutput.textContent = textOutput.textContent.slice(0, -1);
+                } else if (key === 'enter') {
+                    textOutput.textContent += '\n';
+                } else if (key === 'shift') {
+                    isEnglishMode = false;
+                    modeDisplay.textContent = '模式：三碼';
+                } else {
+                    textOutput.textContent += key;
+                }
+                return;
+            }
+
+            // 中文模式
+            const validKeys = "abcdefghijklmnopqrstuvwxyz;,.";
+            if (validKeys.includes(key) && currentCode.length < 3) {
+                currentCode += key;
+                mainInput.value = currentCode;
+                updateCandidates();
+            } else if (key === 'backspace') {
+                if (currentCode.length > 0) {
+                    currentCode = currentCode.slice(0, -1);
+                    mainInput.value = currentCode;
+                    updateCandidates();
+                } else {
+                    textOutput.textContent = textOutput.textContent.slice(0, -1);
+                }
+            } else if (key === ' ') {
+                if (currentCandidates.length > 0) {
+                    textOutput.textContent += currentCandidates[0];
+                    resetInputState();
+                } else {
+                    textOutput.textContent += ' ';
+                }
+            } else if (!isNaN(parseInt(key, 10))) {
+                const index = parseInt(key, 10) - 1;
+                if (index >= 0 && index < currentCandidates.length) {
+                    textOutput.textContent += currentCandidates[index];
+                    resetInputState();
+                }
+            } else if (key === 'shift') {
+                isEnglishMode = true;
+                modeDisplay.textContent = '模式：英數';
+                resetInputState();
+            } else if (key === 'enter') {
+                textOutput.textContent += '\n';
+                resetInputState();
+            } else {
+                textOutput.textContent += key;
+            }
+        }
+
+        // 監聽實體鍵盤
+        document.addEventListener('keydown', (event) => {
+            const key = event.key.toLowerCase();
+            const keyMap = {
+                'backspace': 'backspace',
+                'enter': 'enter',
+                ' ': ' ',
+                'shift': 'shift',
+                '~': '`',
+                '!': '1',
+                '@': '2',
+                '#': '3',
+                '$': '4',
+                '%': '5',
+                '^': '6',
+                '&': '7',
+                '*': '8',
+                '(': '9',
+                ')': '0',
+                '-': '-',
+                '=': '=',
+                '[': '[',
+                ']': ']',
+                '\\': '\\',
+                ';': ';',
+                "'": "'",
+                ',': ',',
+                '.': '.',
+                '/': '/',
+                'q': 'q', 'w': 'w', 'e': 'e', 'r': 'r', 't': 't', 'y': 'y', 'u': 'u', 'i': 'i', 'o': 'o', 'p': 'p',
+                'a': 'a', 's': 's', 'd': 'd', 'f': 'f', 'g': 'g', 'h': 'h', 'j': 'j', 'k': 'k', 'l': 'l',
+                'z': 'z', 'x': 'x', 'c': 'c', 'v': 'v', 'b': 'b', 'n': 'n', 'm': 'm'
+            };
+
+            if (event.key === "Shift") {
+                if (event.repeat) return;
+                isEnglishMode = !isEnglishMode;
+                modeDisplay.textContent = isEnglishMode ? '模式：英數' : '模式：三碼';
+                resetInputState();
+                return;
+            }
+
+            // 在英數模式下處理所有輸入
+            if (isEnglishMode) {
+                if (event.key.length === 1 || event.key === 'Backspace' || event.key === 'Enter') {
+                    textOutput.textContent += event.key;
+                }
+                return;
+            }
+
+            // 在中文模式下處理
+            const inputKey = keyMap[key];
+            if (inputKey) {
+                event.preventDefault(); // 阻止瀏覽器默認行為
+                handleKey(inputKey);
+            } else if (event.key >= '1' && event.key <= '9') {
+                const index = parseInt(event.key, 10) - 1;
+                if (index < currentCandidates.length) {
+                    textOutput.textContent += currentCandidates[index];
+                    resetInputState();
+                }
+            } else if (event.key.length === 1) { // 處理未映射的單個字元
+                 textOutput.textContent += event.key;
             }
         });
     </script>
+
 </body></html>
