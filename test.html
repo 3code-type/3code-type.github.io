@@ -1,12 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-Hant"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    
-    <title>三碼中文輸入法</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com/">
-    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
-    <link href="./3code2_files/css2" rel="stylesheet">
+<html lang="zh-Hant">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>三碼中文輸入法模擬器</title>
     <style>
-        /* 基礎樣式與變數定義 */
         :root {
             --primary-color: #3f51b5;
             --primary-light: #5c6bc0;
@@ -26,1978 +23,495 @@
             align-items: center;
             background-color: var(--background-color);
             padding: 20px;
+            margin: 0;
             color: var(--text-color);
         }
 
         .container {
-            width: 95%;
+            width: 100%;
             max-width: 800px;
             background-color: var(--container-bg);
+            border: 1px solid var(--border-color);
             border-radius: 12px;
             box-shadow: var(--box-shadow);
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-        }
-
-        h1 {
-            color: var(--primary-color);
-            margin-bottom: 5px;
-            font-weight: 700;
-            font-size: 28px;
-        }
-
-        .header-section {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            padding-bottom: 12px;
-            border-bottom: 1px dashed var(--border-color);
-        }
-
-        .download-section, .mode-switcher {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .download-section h2, .mode-switcher h2 {
-            font-size: 16px;
-            color: var(--primary-light);
-            margin: 0;
-            white-space: nowrap;
-            line-height: 1.5;
-        }
-
-        .download-section ul {
-            list-style: none;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin: 0;
-            gap: 8px;
-        }
-
-        .download-section li {
-            font-size: 16px;
-            line-height: 1.5;
-        }
-
-        .download-section a, .mode-switcher label {
-            color: var(--primary-color);
-            text-decoration: none;
-            font-weight: 700;
-            transition: color 0.2s ease-in-out;
-            font-size: 16px;
-            line-height: 1.5;
-            cursor: pointer;
-        }
-
-        .download-section a:hover {
-            color: var(--primary-light);
-            text-decoration: underline;
-        }
-
-        /* 模式切換器樣式 */
-        .mode-switcher label {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .mode-switcher input[type="radio"] {
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            width: 16px;
-            height: 16px;
-            border: 2px solid var(--primary-color);
-            border-radius: 50%;
-            transition: all 0.2s ease-in-out;
-            cursor: pointer;
-            position: relative;
-        }
-        .mode-switcher input[type="radio"]:checked {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-        .mode-switcher input[type="radio"]:checked::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background-color: white;
-        }
-
-
-        /* 輸入與顯示區塊 */
-        .text-output-area,
-        .candidate-area,
-        #main-input,
-        #search-input,
-        #search-result {
-            width: 100%;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
-            transition: all 0.2s ease-in-out;
+            padding: 24px;
             box-sizing: border-box;
-            font-size: var(--unified-font-size);
-        }
-
-        /* 統一所有主要欄位的內距 */
-        .text-output-area,
-        #main-input,
-        #search-input,
-        .candidate-area,
-        #search-result {
-            padding: 8px;
-        }
-
-        .text-output-area {
-            min-height: 150px;
-            background-color: #fafafa;
-            resize: none;
         }
 
         .input-area {
-            width: 100%;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 16px;
         }
 
-        .search-area {
+        #output {
             width: 100%;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            height: 150px;
+            padding: 12px;
+            font-size: var(--unified-font-size);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-sizing: border-box;
+            resize: none;
+            line-height: 1.5;
+            transition: border-color 0.3s;
         }
 
-        #main-input {
-            height: 40px;
+        #output:focus {
+            outline: none;
+            border-color: var(--primary-color);
         }
 
-        /* 候選字區塊樣式 - 允許換行以避免溢出 */
-        .candidate-area {
-            min-height: 55px; /* 調整為一致的高度 */
+        .action-buttons {
             display: flex;
-            flex-wrap: wrap; /* 允許換行以避免溢出 */
+            justify-content: space-between;
             align-items: center;
-            padding: 8px;
-            gap: 8px;
-            white-space: normal;
+            margin-top: 10px;
         }
-        .candidate-area span {
+
+        .action-buttons button {
+            padding: 10px 18px;
+            font-size: var(--unified-font-size);
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
             cursor: pointer;
-            padding: 5px 8px;
-            border: 1px solid transparent;
-            border-radius: 4px;
-            transition: all 0.2s;
-            user-select: none;
-            white-space: nowrap;
-            font-size: 18px; /* 調整字形大小 */
-            flex-shrink: 0;
-            text-align: center;
-        }
-        .candidate-area span:hover {
-            background-color: #e8eaf6;
-            border-color: #b3b9d8;
+            transition: background-color 0.3s, transform 0.2s;
+            background-color: var(--primary-color);
+            color: white;
         }
 
-        #search-input {
-            flex-grow: 0;
-            width: 160px;
-            height: 40px;
+        .action-buttons button:hover {
+            background-color: var(--primary-light);
+            transform: translateY(-2px);
         }
 
-        #search-result {
-            flex-grow: 1;
-            color: #555;
-            min-height: 40px;
+        .action-buttons button:active {
+            transform: translateY(0);
         }
 
-        #mode-display {
-            font-size: 16px;
-            color: #757575;
-            align-self: flex-start;
-        }
-
-        /* 鍵盤樣式 */
-        .keyboard-container {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
+        .keyboard {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 8px;
+            margin-top: 20px;
         }
 
         .key-row {
-            display: flex;
-            justify-content: center;
-            width: 100%;
-            gap: 5px;
+            display: contents;
         }
 
         .key {
-            flex: 1;
-            padding: 8px 0;
-            border-radius: 6px;
-            background-color: #e8eaf6;
-            font-size: 18px;
-            text-align: center;
-            cursor: pointer;
-            user-select: none;
-            transition: all 0.1s ease-out;
+            padding: 12px 0;
+            background-color: #f0f0f0;
+            border-radius: 8px;
             box-shadow: var(--key-shadow);
-            border: 1px solid var(--border-color);
+            font-size: var(--unified-font-size);
+            font-weight: bold;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            position: relative;
         }
 
-        .key.function-key {
-            flex: 1.5;
-            background-color: #c5cae9;
-            font-size: 16px;
-        }
-
-        .key.space-key {
-            flex: 4;
-            background-color: #c5cae9;
-        }
-
-        .key.page-key {
-            flex: 0.5;
-            background-color: #c5cae9;
-            font-size: 16px;
-        }
-
-        /* 按鍵互動效果 */
         .key:hover {
-            background-color: #b3b9d8;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            background-color: #e0e0e0;
         }
 
-        .key:active,
+        .key:active {
+            transform: translateY(1px);
+            box-shadow: none;
+        }
+
         .key.active {
-            background-color: #7986cb;
-            color: #fff;
-            transform: translateY(0);
-            box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+            background-color: var(--primary-light);
+            color: white;
+        }
+
+        .candidate-area {
+            margin-top: 20px;
+            min-height: 40px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            background-color: #fafafa;
+            align-items: center;
+        }
+
+        .candidate {
+            padding: 6px 10px;
+            background-color: #e8eaf6;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: var(--unified-font-size);
+            transition: background-color 0.2s;
+        }
+
+        .candidate:hover {
+            background-color: var(--primary-light);
+            color: white;
+        }
+
+        #search-container {
+            margin-top: 20px;
+            padding: 16px;
+            background-color: #fffde7;
+            border: 1px solid #ffeb3b;
+            border-radius: 8px;
+        }
+
+        #searchInput {
+            width: 100%;
+            padding: 8px;
+            font-size: var(--unified-font-size);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        #searchResult {
+            margin-top: 8px;
+            font-size: var(--unified-font-size);
+            color: #757575;
+        }
+
+        .mode-toggle-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 16px;
+            gap: 16px;
+        }
+
+        .mode-display {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .mode-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .mode-buttons button {
+            padding: 8px 16px;
+            font-size: 1em;
+            border: 1px solid var(--primary-color);
+            border-radius: 8px;
+            background-color: transparent;
+            color: var(--primary-color);
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .mode-buttons button.active {
+            background-color: var(--primary-color);
+            color: white;
         }
     </style>
 </head>
 <body>
-
     <div class="container">
-        <h1>三碼中文輸入法</h1>
-        
-        <div class="header-section">
-            <div class="download-section">
-                <h2>檔案下載區：</h2>
-                <ul>
-                    <li><a href="3code.pdf" download="" target="_blank">輸入法說明檔</a></li>
-                    <li><a href="3code.zip" download="" target="_blank">輸入法壓縮檔</a></li>
-                    <li><a href="3code.txt" download="" target="_blank">常用字碼檔</a></li>
-                    <li><a href="3code2.txt" download="" target="_blank">次常用字碼檔</a></li>
-                    <li><a href="3code.cin" download="" target="_blank">CIN字碼檔</a></li>
-                </ul>
-            </div>
-            <div class="mode-switcher">
-                <h2>輸入法模式：</h2>
-                <label>
-                    <input type="radio" name="input_mode" value="primary" checked="">
-                    三碼 (常用字)
-                </label>
-                <label>
-                    <input type="radio" name="input_mode" value="secondary">
-                    三碼次常 (次常用字)
-                </label>
-            </div>
-        </div>
-
-        <div class="text-output-area" id="text-output"></div>
-
+        <h1>三碼中文輸入法模擬器</h1>
         <div class="input-area">
-            <input type="text" id="main-input" placeholder="編碼顯示在此" readonly="">
-            <div id="candidate-display" class="candidate-area"></div>
+            <textarea id="output" placeholder="點擊下方鍵盤或輸入英數字..."></textarea>
+            <div id="candidate-area" class="candidate-area"></div>
+            <div class="mode-toggle-area">
+                <span id="mode-display" class="mode-display">中文模式</span>
+                <div class="mode-buttons">
+                    <button id="switchMethodPrimary" class="active">常用字</button>
+                    <button id="switchMethodSecondary">次常用字</button>
+                </div>
+            </div>
         </div>
 
-        <div class="search-area">
-            <input type="text" id="search-input" placeholder="在此輸入漢字" maxlength="1">
-            <div id="search-result">查詢結果顯示在此</div>
-        </div>
-        
-        <div id="mode-display">模式：三碼</div>
+        <div class="keyboard" id="keyboard"></div>
 
-        <div class="keyboard-container">
-            <div class="key-row">
-                <div class="key" data-code="1">1</div>
-                <div class="key" data-code="2">2</div>
-                <div class="key" data-code="3">3</div>
-                <div class="key" data-code="4">4</div>
-                <div class="key" data-code="5">5</div>
-                <div class="key" data-code="6">6</div>
-                <div class="key" data-code="7">7</div>
-                <div class="key" data-code="8">8</div>
-                <div class="key" data-code="9">9</div>
-                <div class="key" data-code="0">0</div>
-            </div>
-            <div class="key-row">
-                <div class="key" data-code="q">Ｑ</div>
-                <div class="key" data-code="w">Ｗ</div>
-                <div class="key" data-code="e">Ｅ</div>
-                <div class="key" data-code="r">Ｒ</div>
-                <div class="key" data-code="t">Ｔ</div>
-                <div class="key" data-code="y">Ｙ</div>
-                <div class="key" data-code="u">Ｕ</div>
-                <div class="key" data-code="i">Ｉ</div>
-                <div class="key" data-code="o">Ｏ</div>
-                <div class="key" data-code="p">Ｐ</div>
-            </div>
-            <div class="key-row">
-                <div class="key" data-code="a">Ａ</div>
-                <div class="key" data-code="s">Ｓ</div>
-                <div class="key" data-code="d">Ｄ</div>
-                <div class="key" data-code="f">Ｆ</div>
-                <div class="key" data-code="g">Ｇ</div>
-                <div class="key" data-code="h">Ｈ</div>
-                <div class="key" data-code="j">Ｊ</div>
-                <div class="key" data-code="k">Ｋ</div>
-                <div class="key" data-code="l">Ｌ</div>
-                <div class="key" data-code=";">；</div>
-                <div class="key" data-code="'">〃</div>
-            </div>
-            <div class="key-row">
-                <div class="key" data-code="z">Ｚ</div>
-                <div class="key" data-code="x">Ｘ</div>
-                <div class="key" data-code="c">Ｃ</div>
-                <div class="key" data-code="v">Ｖ</div>
-                <div class="key" data-code="b">Ｂ</div>
-                <div class="key" data-code="n">Ｎ</div>
-                <div class="key" data-code="m">Ｍ</div>
-                <div class="key" data-code=",">，</div>
-                <div class="key" data-code=".">．</div>
-                <div class="key" data-code="/">／</div>
-            </div>
-            <div class="key-row">
-                <div class="key function-key" data-code="shift">Shift</div>
-                <div class="key space-key" data-code=" ">空白鍵</div>
-                <div class="key function-key" data-code="enter">Enter</div>
-                <div class="key function-key" data-code="backspace">刪除鍵</div>
-                <div class="key page-key" data-code="<">＜</div>
-                <div class="key page-key" data-code=">">＞</div>
-            </div>
+        <div id="search-container">
+            <h3>反向查詢 (輸入單一中文字)</h3>
+            <input type="text" id="searchInput" placeholder="輸入單一漢字">
+            <p id="searchResult">查詢結果顯示在此</p>
         </div>
     </div>
-
-    <textarea id="cin-data-primary" style="display:none;">
-encode=UTF-8
-name=三碼中文輸入法 v.20250825.2 酞=ca. 喆=nno 囍=nno 脲=mp;
-#作者：無書自通（改編）源自王堯世先生創作之象形王碼第二代
-key=;',./abcdefghijklmnopqrstuvwxyz
-len=3
-commit=0 0 0
-match=1
-normal=normal_big5.txt
-user=3code_user.txt
-wildcard=?
-dwf=0
-[data]
-#自建、符號
-s.. …
-sc ㄛ
-sy ㄚ
-sa ㄝ
-sn ㄋ
-sf ㄏ
-st ㄒ
-sr 啊！
-sk 呵…
-su 唷！
-sn 嗯…
-sm 嗎？
-lo 囉！
-hi 哈囉～^^
-by 掰掰～^^
-lml ～^_^～
-lnl ～^_<～
-lxl ～>_<～
-.. 。
-... ．
-... ‧
-... ˙
-... ●
-... ○
-... ∵
-... ∴
-... …
-... ·
-qo ○
-oq ○
-rr （
-tt ）
-ff 「
-gg 」
-cc 『
-vv 』
-s, ，
-s. 、
-s/ ？
-s; ：
-sj ；
-si ！
-se –
-se －
-se ─
-sl ～
-sx ※
-sg 【
-sg 】
-sv ˇ
-sq ①
-sq ②
-sq ③
-sq ④
-sq ⑤
-sq ⑥
-sq ⑦
-sq ⑧
-sq ⑨
-sq ⑩
-sq ⑪
-sq ⑫
-sq ⑬
-sq ⑭
-sq ⑮
-sq ⑯
-sq ⑰
-sq ⑱
-sq ⑲
-sq ⑳
-sq ㉑
-sq ㉒
-sq ㉓
-sq ㉔
-sq ㉕
-sq ㉖
-sq ㉗
-sq ㉘
-sq ㉙
-sq ㉚
-sq ㉛
-sq ㉜
-sq ㉝
-sq ㉞
-sq ㉟
-sq ㊱
-sq ㊲
-sq ㊳
-sq ㊴
-sq ㊵
-sq ㊶
-sq ㊷
-sq ㊸
-sq ㊹
-sq ㊺
-sq ㊻
-sq ㊼
-sq ㊽
-sq ㊾
-sq ㊿
-sqq Ⓐ
-sqq Ⓑ
-sqq Ⓒ
-sqq Ⓓ
-sqq Ⓔ
-sqq Ⓕ
-sqq Ⓖ
-sqq Ⓗ
-sqq Ⓘ
-sqq Ⓙ
-sqq Ⓚ
-sqq Ⓛ
-sqq Ⓜ
-sqq Ⓝ
-sqq Ⓞ
-sqq Ⓟ
-sqq Ⓠ
-sqq Ⓡ
-sqq Ⓢ
-sqq Ⓣ
-sqq Ⓤ
-sqq Ⓥ
-sqq Ⓦ
-sqq Ⓧ
-sqq Ⓨ
-sqq Ⓩ
-s ，
-s 。
-s 、
-s ：
-s ；
-s ！
-s ？
-s – 
-s ～
-s 「
-s 」
-s 『
-s 』
-s 【
-s 】
-s （
-s ）
-s ○
-s 〔
-s 〕
-s ｛
-s ｝
-s 〈
-s 〉
-s 《
-s 》
-s ◎
-s ‵
-s ′
-s 〝
-s 〞
-s ‘
-s ’
-s “
-s ”
-s ㊣
-ss ×
-ss ÷
-ss ±
-ss ／
-ss ≠
-ss ≒
-ss ≦
-ss ≧
-ss ‧
-ss μ
-ss π
-ss θ
-ss α
-ss β
-ss γ
-ss ω
-ss ν
-ss λ
-ss ρ
-ss σ
-ss δ
-ss ε
-ss τ
-ss η
-ss ω
-ss φ
-ss ∞
-sss ℃
-sss ℉
-sss ￥
-sss ♀
-sss ♂
-sss ↑
-sss ↓
-sss ←
-sss →
-zzz ˙
-zzz ˊ
-zzz ˇ
-zzz ˋ
-zzz ㄅ
-zzz ㄆ
-zzz ㄇ
-zzz ㄈ
-zzz ㄉ
-zzz ㄊ
-zzz ㄋ
-zzz ㄌ
-zzz ㄍ
-zzz ㄎ
-zzz ㄏ
-zzz ㄐ
-zzz ㄑ
-zzz ㄒ
-zzz ㄓ
-zzz ㄔ
-zzz ㄕ
-zzz ㄖ
-zzz ㄗ
-zzz ㄘ
-zzz ㄙ
-zzz ㄧ
-zzz ㄨ
-zzz ㄩ
-zzz ㄚ
-zzz ㄛ
-zzz ㄜ
-zzz ㄝ
-zzz ㄞ
-zzz ㄟ
-zzz ㄠ
-zzz ㄡ
-zzz ㄢ
-zzz ㄣ
-zzz ㄤ
-zzz ㄥ
-zzz ㄦ
-zzz 〃
-dd ☆
-dd ★
-dd ◇
-dd ◆
-dd □
-dd ■
-dd △
-dd ▲
-dd ㊣
-dd ○
-dd ●
-dd ▽
-dd ▼
-dd ￥
-dd 〒
-dd ◎
-dd ⊕
-dd ⊙
-pp ┌
-pp ┬
-pp ┐
-pp ├
-pp ┼
-pp ┤
-pp └
-pp ┴
-pp ┘
-kk │
-ll ─
-uuu ∪
-mmm ∩
-s// ／
-s'' 〃
-' 八
-' 九
-' 儿
-' 几
-' 尢
-'' 仇
-''c 益
-''d 份
-''m 佾
-''o 俗
-''t 佩
-', 伸
-', 仲
-',' 伉
-',. 億
-',d 仿
-',d 傍
-',h 儕
-',j 停
-',k 依
-',k 偯
-',n 僮
-',o 信
-',o 倍
-',q 儲
-',v 位
-',x 倣
-',x 傚
-',x 佼
-'. 凡
-'. 尤
-'. 丸
-'.i 住
-'.i 隹
-'.m 雋
-'.o 售
-'.w 焦
-'.x 雙
-'.x 隻
-'.y 集
-'/' 傀
-'/, 風
-'/. 傯
-'// 侈
-'// 爹
-'/a 佚
-'/d 鳩
-'/d 偽
-'/i 凰
-'/j 俐
-'/l 俄
-'/m 僑
-'/n 任
-'/o 颳
-'/q 伯
-'/r 賃
-'/t 件
-'/t 仟
-'/t 俾
-'/w 係
-'/x 傻
-'/x 倭
-'/y 侏
-'/z 俘
-'a 伕
-'a 釜
-'a. 伶
-'a. 伏
-'aa 儉
-'aa 俠
-'ab 鄭
-'ah 尬
-'ai 佺
-'aj 偷
-'aj 倚
-'al 俺
-'am 倫
-'ao 谷
-'ao 傖
-'ap 伶
-'aq 儈
-'at 俸
-'aw 僚
-'b 仍
-'bb 爺
-'ca 奠
-'ca 猷
-'ce 酋
-'ci 儸
-'cj 尊
-'cp 仰
-'cq 曾
-'cq 僭
-'cr 價
-'cx 偃
-'d 分
-'d. 忿
-'d. 仞
-'d/ 伊
-'d/ 僇
-'da 候
-'da 侯
-'dc 儘
-'dc 盆
-'dd 翁
-'dh 佛
-'dl 他
-'do 伺
-'do 伽
-'do 佝
-'dr 貧
-'dr 頒
-'dt 偉
-'du 岔
-'dx 發
-'dx 侵
-'e 祭
-'e' 凳
-'e, 風
-'e/ 夙
-'ea 癸
-'ec 偭
-'ed 兮
-'ed 鳳
-'ee 仁
-'ee 俳
-'ee 僵
-'eh 發
-'ej 例
-'ej 倒
-'ek 倀
-'el 佻
-'el 儷
-'em 倆
-'em 儒
-'eq 佰
-'ev 登
-'ex 便
-'ex 優
-'ex 佞
-'fi 佐
-'fj 俯
-'fl 低
-'fm 傭
-'fm 侑
-'fo 佑
-'ft 佈
-'gi 倥
-'gj 佇
-'gl 佗
-'go 倌
-'gr 儐
-'gz 傢
-'h' 供
-'h. 憊
-'ha 僕
-'hm 備
-'hn 僅
-'ho 偌
-'hq 借
-'i 伍
-'i 仆
-'ia 似
-'io 佔
-'ir 偵
-'ix 攸
-'j 仃
-'j. 付
-'jo 何
-'kc 尷
-'kd 傷
-'ke 作
-'ko 侮
-'l 代
-'l 伐
-'l/ 化
-'lk 袋
-'ll 仳
-'lq 偕
-'lr 傾
-'lr 貨
-'lr 貸
-'lt 健
-'lu 岱
-'lw 黛
-'m 們
-'m' 俱
-'m' 颶
-'mm 僩
-'mt 佣
-'n 仕
-'n' 僥
-'n' 儳
-'n. 您
-'n. 慾
-'na 欲
-'nj 侍
-'nj 儔
-'nk 俵
-'nl 佬
-'nm 倩
-'nn 佳
-'no 咨
-'no 僖
-'nr 債
-'nt 倖
-'nw 你
-'nx 傲
-'nz 像
-'o 佃
-'o' 兌
-'o' 侃
-'o' 僎
-'oa 促
-'ok 偎
-'om 偶
-'on 堡
-'on 俚
-'oo 個
-'oo 侶
-'oo 儡
-'op 卻
-'ox 儼
-'oy 保
-'pd 侷
-'pi 僱
-'pm 偏
-'po 倨
-'pt 僻
-'pu 倔
-'px 假
-'px 伋
-'q 旭
-'qd 颺
-'qe 但
-'qk 儂
-'qq 倡
-'rj 側
-'s 公
-'sa 俟
-'sm 胤
-'so 颱
-'sr 頌
-'sx 俊
-'ew 係
-'t 什
-'te 值
-'tj 傳
-'tj 傅
-'to 估
-'tx 使
-'tx 做
-'tx 仗
-'ty 傑
-'u 仙
-'u' 倪
-'ui 催
-'ux 颼
-'v 佯
-'vb 鄧
-'vd 偽
-'vh 併
-'vl 儀
-,vm 商
-'vq 僧
-'w 伙
-'wl 倦
-'wm 倘
-'wm 俏
-'wo 儅
-'wr 償
-'wt 伴
-'ww 儻
-'x 父
-'x. 悠
-'x/ 修
-'xa 倏
-'xl 爸
-'xm 脩
-'xq 偺
-'xt 斧
-'xw 鯈
-'xy 條
-'xy 絛
-'y 休
-'y 朵
-'ye 体
-'yj 剁
-'z 仔
-'zm 俑
-, 中
-, 申
-, 虫
-,' 六
-,' 亢
-,'' 說
-,'' 兗
-,'' 蛻
-,', 諷
-,', 颯
-,'i 誰
-,'i 離
-,'i 雜
-,'k 袞
-,'k 褒
-,'l 訛
-,'n 塾
-,'s 訟
-,'s 蚣
-,'v 證
-,'w 熟
-,'x 交
-,'x 設
-,'x 夜
-,x 毅
-,, 串
-,,' 競
-,,, 蟲
-,,. 患
-,,/ 諺
-,,a 該
-,,c 蠱
-,,d 訪
-,,d 謗
-,,d 螃
-,,k 讓
-,,l 識
-,,l 虻
-,,n 堃
-,,m 謫
-,,q 諳
-,,t 辯
-,,t 諦
-,,t 誶
-,,t 蟀
-,,t 蟑
-,,w 諒
-,,x 蚊
-,,x 詨
-,,x 蛟
-,,x 婁
-,,x 螻
-,,z 諄
-</textarea>
-
-    <textarea id="cin-data-secondary" style="display:none;">
-encode=UTF-8
-name=三碼中文輸入法_次常用字版 v.20250825.2 酞=ca. 喆=nno 囍=nno 脲=mp; 次常用字排序
-#作者：無書自通（改編）源自王堯世先生創作之象形王碼第二代（收錄BIG5碼13060個漢字）
-key=;',./abcdefghijklmnopqrstuvwxyz
-len=3
-commit=0 0 0
-match=1
-normal=normal_big5.txt
-user=3code_user.txt
-wildcard=?
-dwf=0
-[data]
-#自訂、符號
-s.. …
-sc ㄛ
-sy ㄚ
-sa ㄝ
-sn ㄋ
-sf ㄏ
-st ㄒ
-sr 啊！
-sk 呵…
-su 唷！
-sn 嗯…
-sm 嗎？
-lo 囉！
-hi 哈囉～^^
-by 掰掰～^^
-lml ～^_^～
-lnl ～^_<～
-lxl ～>_<～
-.. 。
-... ．
-... ‧
-... ˙
-... ●
-... ○
-... ∵
-... ∴
-... …
-... ·
-qo ○
-oq ○
-rr （
-tt ）
-ff 「
-gg 」
-cc 『
-vv 』
-s, ，
-s. 、
-s/ ？
-s; ：
-sj ；
-si ！
-se –
-se －
-se ─
-sl ～
-sx ※
-sg 【
-sg 】
-sv ˇ
-sq ①
-sq ②
-sq ③
-sq ④
-sq ⑤
-sq ⑥
-sq ⑦
-sq ⑧
-sq ⑨
-sq ⑩
-sq ⑪
-sq ⑫
-sq ⑬
-sq ⑭
-sq ⑮
-sq ⑯
-sq ⑰
-sq ⑱
-sq ⑲
-sq ⑳
-sq ㉑
-sq ㉒
-sq ㉓
-sq ㉔
-sq ㉕
-sq ㉖
-sq ㉗
-sq ㉘
-sq ㉙
-sq ㉚
-sq ㉛
-sq ㉜
-sq ㉝
-sq ㉞
-sq ㉟
-sq ㊱
-sq ㊲
-sq ㊳
-sq ㊴
-sq ㊵
-sq ㊶
-sq ㊷
-sq ㊸
-sq ㊹
-sq ㊺
-sq ㊻
-sq ㊼
-sq ㊽
-sq ㊾
-sq ㊿
-sqq Ⓐ
-sqq Ⓑ
-sqq Ⓒ
-sqq Ⓓ
-sqq Ⓔ
-sqq Ⓕ
-sqq Ⓖ
-sqq Ⓗ
-sqq Ⓘ
-sqq Ⓙ
-sqq Ⓚ
-sqq Ⓛ
-sqq Ⓜ
-sqq Ⓝ
-sqq Ⓞ
-sqq Ⓟ
-sqq Ⓠ
-sqq Ⓡ
-sqq Ⓢ
-sqq Ⓣ
-sqq Ⓤ
-sqq Ⓥ
-sqq Ⓦ
-sqq Ⓧ
-sqq Ⓨ
-sqq Ⓩ
-s ，
-s 。
-s 、
-s ：
-s ；
-s ！
-s ？
-s – 
-s ～
-s 「
-s 」
-s 『
-s 』
-s 【
-s 】
-s （
-s ）
-s ○
-s 〔
-s 〕
-s ｛
-s ｝
-s 〈
-s 〉
-s 《
-s 》
-s ◎
-s ‵
-s ′
-s 〝
-s 〞
-s ‘
-s ’
-s “
-s ”
-s ㊣
-ss ×
-ss ÷
-ss ±
-ss ／
-ss ≠
-ss ≒
-ss ≦
-ss ≧
-ss ‧
-ss μ
-ss π
-ss θ
-ss α
-ss β
-ss γ
-ss ω
-ss ν
-ss λ
-ss ρ
-ss σ
-ss δ
-ss ε
-ss τ
-ss η
-ss ω
-ss φ
-ss ∞
-sss ℃
-sss ℉
-sss ￥
-sss ♀
-sss ♂
-sss ↑
-sss ↓
-sss ←
-sss →
-zzz ˙
-zzz ˊ
-zzz ˇ
-zzz ˋ
-zzz ㄅ
-zzz ㄆ
-zzz ㄇ
-zzz ㄈ
-zzz ㄉ
-zzz ㄊ
-zzz ㄋ
-zzz ㄌ
-zzz ㄍ
-zzz ㄎ
-zzz ㄏ
-zzz ㄐ
-zzz ㄑ
-zzz ㄒ
-zzz ㄓ
-zzz ㄔ
-zzz ㄕ
-zzz ㄖ
-zzz ㄗ
-zzz ㄘ
-zzz ㄙ
-zzz ㄧ
-zzz ㄨ
-zzz ㄩ
-zzz ㄚ
-zzz ㄛ
-zzz ㄜ
-zzz ㄝ
-zzz ㄞ
-zzz ㄟ
-zzz ㄠ
-zzz ㄡ
-zzz ㄢ
-zzz ㄣ
-zzz ㄤ
-zzz ㄥ
-zzz ㄦ
-zzz 〃
-dd ☆
-dd ★
-dd ◇
-dd ◆
-dd □
-dd ■
-dd △
-dd ▲
-dd ㊣
-dd ○
-dd ●
-dd ▽
-dd ▼
-dd ￥
-dd 〒
-dd ◎
-dd ⊕
-dd ⊙
-pp ┌
-pp ┬
-pp ┐
-pp ├
-pp ┼
-pp ┤
-pp └
-pp ┴
-pp ┘
-kk │
-ll ─
-uuu ∪
-mmm ∩
-s// ／
-s'' 〃
-' 八
-' 九
-' 儿
-' 几
-' 尢
-'' 仇
-''c 益
-''d 份
-''m 佾
-''o 俗
-''t 佩
-', 伸
-', 仲
-',' 伉
-',. 億
-',d 仿
-',d 傍
-',h 儕
-',j 停
-',k 依
-',k 偯
-',n 僮
-',o 信
-',o 倍
-',q 儲
-',v 位
-',x 倣
-',x 傚
-',x 佼
-'. 凡
-'. 尤
-'. 丸
-'.i 住
-'.i 隹
-'.m 雋
-'.o 售
-'.w 焦
-'.x 雙
-'.x 隻
-'.y 集
-'/' 傀
-'/, 風
-'/. 傯
-'// 侈
-'// 爹
-'/a 佚
-'/d 鳩
-'/d 偽
-'/i 凰
-'/j 俐
-'/l 俄
-'/m 僑
-'/n 任
-'/o 颳
-'/q 伯
-'/r 賃
-'/t 件
-'/t 仟
-'/t 俾
-'/w 係
-'/x 傻
-'/x 倭
-'/y 侏
-'/z 俘
-'a 伕
-'a 釜
-'a. 伶
-'a. 伏
-'aa 儉
-'aa 俠
-'ab 鄭
-'ah 尬
-'ai 佺
-'aj 偷
-'aj 倚
-'al 俺
-'am 倫
-'ao 谷
-'ao 傖
-'ap 伶
-'aq 儈
-'at 俸
-'aw 僚
-'b 仍
-'bb 爺
-'ca 奠
-'ca 猷
-'ce 酋
-'ci 儸
-'cj 尊
-'cp 仰
-'cq 曾
-'cq 僭
-'cr 價
-'cx 偃
-'d 分
-'d. 忿
-'d. 仞
-'d/ 伊
-'d/ 僇
-'da 候
-'da 侯
-'dc 儘
-'dc 盆
-'dd 翁
-'dh 佛
-'dl 他
-'do 伺
-'do 伽
-'do 佝
-'dr 貧
-'dr 頒
-'dt 偉
-'du 岔
-'dx 發
-'dx 侵
-'e 祭
-'e' 凳
-'e, 風
-'e/ 夙
-'ea 癸
-'ec 偭
-'ed 兮
-'ed 鳳
-'ee 仁
-'ee 俳
-'ee 僵
-'eh 發
-'ej 例
-'ej 倒
-'ek 倀
-'el 佻
-'el 儷
-'em 倆
-'em 儒
-'eq 佰
-'ev 登
-'ex 便
-'ex 優
-'ex 佞
-'fi 佐
-'fj 俯
-'fl 低
-'fm 傭
-'fm 侑
-'fo 佑
-'ft 佈
-'gi 倥
-'gj 佇
-'gl 佗
-'go 倌
-'gr 儐
-'gz 傢
-'h' 供
-'h. 憊
-'ha 僕
-'hm 備
-'hn 僅
-'ho 偌
-'hq 借
-'i 伍
-'i 仆
-'ia 似
-'io 佔
-'ir 偵
-'ix 攸
-'j 仃
-'j. 付
-'jo 何
-'kc 尷
-'kd 傷
-'ke 作
-'ko 侮
-'l 代
-'l 伐
-'l/ 化
-'lk 袋
-'ll 仳
-'lq 偕
-'lr 傾
-'lr 貨
-'lr 貸
-'lt 健
-'lu 岱
-'lw 黛
-'m 們
-'m' 俱
-'m' 颶
-'mm 僩
-'mt 佣
-'n 仕
-'n' 僥
-'n' 儳
-'n. 您
-'n. 慾
-'na 欲
-'nj 侍
-'nj 儔
-'nk 俵
-'nl 佬
-'nm 倩
-'nn 佳
-'no 咨
-'no 僖
-'nr 債
-'nt 倖
-'nw 你
-'nx 傲
-'nz 像
-'o 佃
-'o' 兌
-'o' 侃
-'o' 僎
-'oa 促
-'ok 偎
-'om 偶
-'on 堡
-'on 俚
-'oo 個
-'oo 侶
-'oo 儡
-'op 卻
-'ox 儼
-'oy 保
-'pd 侷
-'pi 僱
-'pm 偏
-'po 倨
-'pt 僻
-'pu 倔
-'px 假
-'px 伋
-'q 旭
-'qd 颺
-'qe 但
-'qk 儂
-'qq 倡
-'rj 側
-'s 公
-'sa 俟
-'sm 胤
-'so 颱
-'sr 頌
-'sx 俊
-'ew 係
-'t 什
-'te 值
-'tj 傳
-'tj 傅
-'to 估
-'tx 使
-'tx 做
-'tx 仗
-'ty 傑
-'u 仙
-'u' 倪
-'ui 催
-'ux 颼
-'v 佯
-'vb 鄧
-'vd 偽
-'vh 併
-'vl 儀
-,vm 商
-'vq 僧
-'w 伙
-'wl 倦
-'wm 倘
-'wm 俏
-'wo 儅
-'wr 償
-'wt 伴
-'ww 儻
-'x 父
-'x. 悠
-'x/ 修
-'xa 倏
-'xl 爸
-'xm 脩
-'xq 偺
-'xt 斧
-'xw 鯈
-'xy 條
-'xy 絛
-'y 休
-'y 朵
-'ye 体
-'yj 剁
-'z 仔
-'zm 俑
-, 中
-, 申
-, 虫
-,' 六
-,' 亢
-,'' 說
-,'' 兗
-,'' 蛻
-,', 諷
-,', 颯
-,'i 誰
-,'i 離
-,'i 雜
-,'k 袞
-,'k 褒
-,'l 訛
-,'n 塾
-,'s 訟
-,'s 蚣
-,'v 證
-,'w 熟
-,'x 交
-,'x 設
-,'x 夜
-,x 毅
-,, 串
-,,' 競
-,,, 蟲
-,,. 患
-,,/ 諺
-,,a 該
-,,c 蠱
-,,d 訪
-,,d 謗
-,,d 螃
-,,k 讓
-,,l 識
-,,l 虻
-,,n 堃
-,,m 謫
-,,q 諳
-,,t 辯
-,,t 諦
-,,t 誶
-,,t 蟀
-,,t 蟑
-,,w 諒
-,,x 蚊
-,,x 詨
-,,x 蛟
-,,x 婁
-,,x 螻
-,,z 諄
-</textarea>
-
+    
     <script>
-        // --- 核心變數 ---
-        let currentInput = '';
-        let candidates = [];
-        let currentPage = 0;
-        const candidatesPerPage = 10;
+        // --- 全域變數 ---
+        let currentCode = '';
+        let currentCandidates = [];
+        let primaryCodemap = {};
+        let secondaryCodemap = {};
         let currentCodemap = {};
         let currentReverseCodemap = {};
-
-        // --- 元素選擇 ---
-        const textOutput = document.getElementById('text-output');
-        const mainInput = document.getElementById('main-input');
-        const candidateDisplay = document.getElementById('candidate-display');
+        let isEnglishMode = false;
+        let shiftTimer = null;
+        const output = document.getElementById('output');
+        const candidateArea = document.getElementById('candidate-area');
+        const keyboard = document.getElementById('keyboard');
+        const searchInput = document.getElementById('searchInput');
+        const searchResult = document.getElementById('searchResult');
         const modeDisplay = document.getElementById('mode-display');
-        const searchInput = document.getElementById('search-input');
-        const searchResult = document.getElementById('search-result');
-        const modeRadios = document.querySelectorAll('input[name="input_mode"]');
 
-        // --- 輔助函式 ---
-        function formatCode(code) {
-            return code.split('').join(' ');
+        // --- 載入碼表檔案 ---
+        async function loadCodemap(filePath) {
+            try {
+                const response = await fetch(filePath);
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch ${filePath}: ${response.statusText}`);
+                }
+                const text = await response.text();
+                return parseCinFile(text);
+            } catch (error) {
+                console.error(error);
+                return { forward: {}, reverse: {} };
+            }
         }
-        
-        function updateModeDisplay() {
-            const selectedMode = document.querySelector('input[name="input_mode"]:checked').nextSibling.textContent.trim();
-            modeDisplay.textContent = `模式：${selectedMode}`;
-        }
-        
-        function parseFile(fileText) {
-            currentCodemap = {};
-            currentReverseCodemap = {};
-            
-            const lines = fileText.split(/\r?\n/);
-            let inDataSection = false;
-            
+
+        // --- 解析 Cin 檔案內容 ---
+        function parseCinFile(text) {
+            const lines = text.split('\n');
+            const codemap = {};
+            const reverseCodemap = {};
+            let isChardef = false;
+            let isDataSection = false;
+
             for (const line of lines) {
                 const trimmedLine = line.trim();
                 
-                // 檢查兩種檔案的資料區段開頭
-                if (trimmedLine.startsWith('%chardef begin') || trimmedLine.startsWith('[data]')) {
-                    inDataSection = true;
+                // 忽略註解行
+                if (trimmedLine.startsWith('#')) {
                     continue;
                 }
                 
-                // 檢查資料區段結尾
-                if (trimmedLine.startsWith('%chardef end') || trimmedLine === '') {
-                    inDataSection = false;
+                // 檢查 CIN 檔案的標準區段
+                if (trimmedLine.startsWith('%chardef begin')) {
+                    isChardef = true;
+                    continue;
+                }
+                if (trimmedLine.startsWith('%chardef end')) {
+                    isChardef = false;
+                    continue;
                 }
                 
-                if (inDataSection && trimmedLine !== '' && !trimmedLine.startsWith('#')) {
-                    const parts = trimmedLine.split(/\s+|\t/);
-                    const code = parts[0];
-                    const characters = parts.slice(1);
-                    
-                    if (code && characters.length > 0) {
-                        if (!currentCodemap[code]) {
-                            currentCodemap[code] = [];
-                        }
-                        // 確保不重複添加
-                        characters.forEach(char => {
-                            if (!currentCodemap[code].includes(char)) {
-                                currentCodemap[code].push(char);
-                            }
-                        });
+                // 檢查簡易格式的 [data] 區段
+                if (trimmedLine.startsWith('[data]')) {
+                    isDataSection = true;
+                    continue;
+                }
+                
+                if ((isChardef || isDataSection) && trimmedLine) {
+                    const parts = trimmedLine.split(/\s+/).filter(Boolean);
+                    if (parts.length >= 2) {
+                        const code = parts[0];
+                        const char = parts.slice(1).join('');
                         
-                        characters.forEach(char => {
-                            if (!currentReverseCodemap[char]) {
-                                currentReverseCodemap[char] = [];
-                            }
-                            if (!currentReverseCodemap[char].includes(code)) {
-                                currentReverseCodemap[char].push(code);
-                            }
-                        });
+                        if (!codemap[code]) {
+                            codemap[code] = [];
+                        }
+                        codemap[code].push(char);
+
+                        if (!reverseCodemap[char]) {
+                            reverseCodemap[char] = [];
+                        }
+                        reverseCodemap[char].push(code);
                     }
                 }
             }
-            console.log("編碼資料解析完成。");
-            resetInputState();
+            return {
+                forward: codemap,
+                reverse: reverseCodemap
+            };
         }
-        
-        function loadDataFromTextarea(textareaId) {
-            const textarea = document.getElementById(textareaId);
-            if (textarea) {
-                parseFile(textarea.value);
-            } else {
-                console.error(`找不到 ID 為 ${textareaId} 的 textarea。`);
-                alert(`找不到輸入法資料。`);
-            }
-        }
-        
-        // --- 更新介面 ---
+
+        // --- 輸入法核心邏輯 ---
         function updateCandidates() {
-            candidateDisplay.innerHTML = '';
-            const candidatesForInput = currentCodemap[currentInput] || [];
-            const start = currentPage * candidatesPerPage;
-            const end = start + candidatesPerPage;
+            candidateArea.innerHTML = '';
+            currentCandidates = currentCodemap[currentCode] || [];
             
-            candidates = candidatesForInput.slice(start, end);
-            
-            if (candidates.length > 0) {
-                candidates.forEach((char, index) => {
-                    const span = document.createElement('span');
-                    const displayIndex = index === 9 ? '0' : String(index + 1);
-                    span.textContent = `${displayIndex}. ${char}`;
-                    span.addEventListener('click', () => {
-                        textOutput.textContent += char;
-                        resetInputState();
-                    });
-                    candidateDisplay.appendChild(span);
+            if (currentCode.length === 0) {
+                return;
+            }
+
+            const candidateTitle = document.createElement('span');
+            candidateTitle.textContent = formatCode(currentCode);
+            candidateTitle.style.fontWeight = 'bold';
+            candidateTitle.style.marginRight = '10px';
+            candidateArea.appendChild(candidateTitle);
+
+            if (currentCandidates.length > 0) {
+                currentCandidates.forEach((char, index) => {
+                    const candidateDiv = document.createElement('div');
+                    candidateDiv.classList.add('candidate');
+                    candidateDiv.textContent = `${index + 1}. ${char}`;
+                    candidateDiv.dataset.index = index;
+                    candidateArea.appendChild(candidateDiv);
                 });
             } else {
-                candidateDisplay.innerHTML = '<span style="color:#999;">找不到候選字。</span>';
+                const noCandidatesSpan = document.createElement('span');
+                noCandidatesSpan.textContent = '找不到字';
+                candidateArea.appendChild(noCandidatesSpan);
             }
         }
 
         function resetInputState() {
-            currentInput = '';
-            mainInput.value = '';
-            currentPage = 0;
+            currentCode = '';
             updateCandidates();
         }
-        
-        function updateKeyboardDisplay() {
-            const keys = document.querySelectorAll('.key');
-            keys.forEach(key => {
-                const dataCode = key.getAttribute('data-code');
+
+        function formatCode(code) {
+            return code.split('').join(' ');
+        }
+
+        // --- 鍵盤處理 ---
+        const keyboardLayout = [
+            ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
+            ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';'],
+            ['z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/']
+        ];
+
+        function createKeyboard() {
+            keyboard.innerHTML = '';
+            keyboardLayout.forEach(row => {
+                row.forEach(key => {
+                    const keyDiv = document.createElement('div');
+                    keyDiv.classList.add('key');
+                    keyDiv.dataset.key = key;
+                    keyDiv.innerHTML = `<span class="key-text">${key}</span>`;
+                    keyboard.appendChild(keyDiv);
+                });
             });
         }
 
-        function switchInputMethod(methodName) {
-            if (methodName === 'primary') {
-                loadDataFromTextarea('cin-data-primary');
-            } else if (methodName === 'secondary') {
-                loadDataFromTextarea('cin-data-secondary');
+        function updateKeyboardDisplay() {
+            const allKeys = keyboard.querySelectorAll('.key');
+            allKeys.forEach(keyDiv => {
+                const key = keyDiv.dataset.key;
+                if (currentCode.includes(key)) {
+                    keyDiv.classList.add('active');
+                } else {
+                    keyDiv.classList.remove('active');
+                }
+            });
+        }
+
+        // --- 輸入切換 ---
+        function switchInputMethod(method) {
+            if (method === 'primary') {
+                currentCodemap = primaryCodemap.forward;
+                currentReverseCodemap = primaryCodemap.reverse;
+                document.getElementById('switchMethodPrimary').classList.add('active');
+                document.getElementById('switchMethodSecondary').classList.remove('active');
+            } else {
+                currentCodemap = secondaryCodemap.forward;
+                currentReverseCodemap = secondaryCodemap.reverse;
+                document.getElementById('switchMethodPrimary').classList.remove('active');
+                document.getElementById('switchMethodSecondary').classList.add('active');
             }
-            updateModeDisplay();
+            resetInputState();
+        }
+
+        function updateModeDisplay() {
+            modeDisplay.textContent = isEnglishMode ? '英數模式' : '中文模式';
         }
 
         // --- 事件處理 ---
-        
-        // 模式切換事件監聽
-        modeRadios.forEach(radio => {
-            radio.addEventListener('change', (event) => {
-                switchInputMethod(event.target.value);
-            });
+        document.addEventListener('DOMContentLoaded', async () => {
+            // 在頁面載入時非同步載入碼表
+            const primaryPromise = loadCodemap('3code.txt');
+            const secondaryPromise = loadCodemap('3code2.txt');
+            [primaryCodemap, secondaryCodemap] = await Promise.all([primaryPromise, secondaryPromise]);
+            
+            // 載入完成後初始化
+            createKeyboard();
+            switchInputMethod('primary');
+            updateKeyboardDisplay();
+            updateModeDisplay();
+        });
+
+        candidateArea.addEventListener('click', (event) => {
+            const candidate = event.target.closest('.candidate');
+            if (candidate) {
+                const char = currentCandidates[candidate.dataset.index];
+                output.value += char;
+                resetInputState();
+            }
         });
 
         document.addEventListener('keydown', (event) => {
             const key = event.key.toLowerCase();
-            let dataCode = key;
-            if (key === ' ') {
-                dataCode = ' ';
-            } else if (key === 'backspace') {
-                dataCode = 'backspace';
-            } else if (key === 'shift') {
-                dataCode = 'shift';
-            } else if (key === 'enter') {
-                dataCode = 'enter';
-            } else if (key === '<' || key === 'arrowup') {
-                dataCode = '<';
-            } else if (key === '>' || key === 'arrowdown') {
-                dataCode = '>';
+            const keys = 'abcdefghijklmnopqrstuvwxyz;,.';
+
+            if (isEnglishMode) {
+                if (keys.includes(key) || key === '/') {
+                    output.value += event.key;
+                }
+                return;
             }
 
-            const keyElement = document.querySelector(`.key[data-code="${dataCode}"]`);
-            if (keyElement) {
-                keyElement.classList.add('active');
-            }
-
-            // 處理數字選字或直接上字
-            if (event.key >= '0' && event.key <= '9') {
-                if (currentInput.length > 0 && candidates.length > 0) {
-                    const selectedIndex = parseInt(event.key === '0' ? '9' : event.key) - 1;
-                    if (selectedIndex >= 0 && selectedIndex < candidates.length) {
-                        textOutput.textContent += candidates[selectedIndex];
+            if (keys.includes(key)) {
+                if (currentCode.length < 3) {
+                    currentCode += key;
+                    updateCandidates();
+                    updateKeyboardDisplay();
+                }
+                event.preventDefault();
+            } else if (event.key === 'Backspace') {
+                if (currentCode.length > 0) {
+                    currentCode = currentCode.slice(0, -1);
+                    updateCandidates();
+                    updateKeyboardDisplay();
+                } else if (output.value.length > 0) {
+                    output.value = output.value.slice(0, -1);
+                }
+            } else if (event.key === ' ') {
+                if (currentCandidates.length > 0) {
+                    output.value += currentCandidates[0];
+                    resetInputState();
+                } else {
+                    output.value += ' ';
+                }
+                event.preventDefault();
+            } else if (event.key >= '1' && event.key <= '9') {
+                const index = parseInt(event.key, 10) - 1;
+                if (index < currentCandidates.length) {
+                    output.value += currentCandidates[index];
+                    resetInputState();
+                }
+            } else if (event.key === 'Shift') {
+                if (!shiftTimer) {
+                    shiftTimer = setTimeout(() => {
+                        isEnglishMode = !isEnglishMode;
+                        updateModeDisplay();
+                        updateKeyboardDisplay();
                         resetInputState();
-                    }
-                } else {
-                    textOutput.textContent += event.key;
+                        shiftTimer = null;
+                    }, 300);
                 }
-                event.preventDefault();
-                return;
-            }
-
-            if (key === 'backspace') {
-                event.preventDefault();
-                currentInput = currentInput.slice(0, -1);
-                mainInput.value = formatCode(currentInput);
-                currentPage = 0;
-                updateCandidates();
-                return;
-            }
-            
-            if (key === 'enter') {
-                event.preventDefault();
-                if (candidates.length > 0) {
-                    textOutput.textContent += candidates[0];
-                } else if (currentInput.length > 0) {
-                    textOutput.textContent += currentInput;
-                }
-                resetInputState();
-                return;
-            }
-
-            if (key === ' ' || key === 'space') {
-                event.preventDefault();
-                if (candidates.length > 0) {
-                    textOutput.textContent += candidates[0];
-                } else if (currentInput.length > 0) {
-                    textOutput.textContent += currentInput;
-                } else {
-                    textOutput.textContent += ' ';
-                }
-                resetInputState();
-                return;
-            }
-
-            // 修正：將數字從 validKeys 中移除
-            const validKeys = "qwertyuiopasdfghjkl;zxcvbnm,./'".split('');
-            if (validKeys.includes(key) && currentInput.length < 3) {
-                currentInput += key;
-                mainInput.value = formatCode(currentInput);
-                currentPage = 0;
-                updateCandidates();
-            }
-
-            // 處理換頁
-            if (key === 'pageup' || key === 'arrowup') {
-                if (currentPage > 0) {
-                    currentPage--;
-                    updateCandidates();
-                }
-            } else if (key === 'pagedown' || key === 'arrowdown') {
-                if ((currentPage + 1) * candidatesPerPage < (currentCodemap[currentInput] || []).length) {
-                    currentPage++;
-                    updateCandidates();
+            } else {
+                if (currentCandidates.length === 0) {
+                    output.value += event.key;
                 }
             }
         });
 
         document.addEventListener('keyup', (event) => {
-            const key = event.key.toLowerCase();
-            let dataCode = key;
-            if (key === ' ') {
-                dataCode = ' ';
-            } else if (key === 'backspace') {
-                dataCode = 'backspace';
-            } else if (key === 'shift') {
-                dataCode = 'shift';
-            } else if (key === 'enter') {
-                dataCode = 'enter';
-            } else if (key === '<' || key === 'arrowup') {
-                dataCode = '<';
-            } else if (key === '>' || key === 'arrowdown') {
-                dataCode = '>';
-            }
-            
-            const keyElement = document.querySelector(`.key[data-code="${dataCode}"]`);
-            if (keyElement) {
-                keyElement.classList.remove('active');
+            if (event.key === 'Shift') {
+                if (shiftTimer) {
+                    clearTimeout(shiftTimer);
+                    shiftTimer = null;
+                }
             }
         });
-        
-        // 點擊鍵盤按鈕的處理
-        document.querySelectorAll('.key').forEach(keyElement => {
-            keyElement.addEventListener('click', () => {
-                const code = keyElement.getAttribute('data-code');
-                const isNumberKey = code >= '0' && code <= '9';
-                
-                if (isNumberKey) {
-                    if (currentInput.length > 0 && candidates.length > 0) {
-                        const selectedIndex = parseInt(code === '0' ? '9' : code) - 1;
-                        if (selectedIndex >= 0 && selectedIndex < candidates.length) {
-                            textOutput.textContent += candidates[selectedIndex];
-                            resetInputState();
-                        }
-                    } else {
-                        textOutput.textContent += code;
-                    }
-                    return;
-                }
 
-                if (code === 'backspace') {
-                    currentInput = currentInput.slice(0, -1);
-                    mainInput.value = formatCode(currentInput);
-                    currentPage = 0;
-                    updateCandidates();
-                    return;
-                }
+        document.getElementById('switchMethodPrimary').addEventListener('click', () => switchInputMethod('primary'));
+        document.getElementById('switchMethodSecondary').addEventListener('click', () => switchInputMethod('secondary'));
 
-                if (code === 'enter') {
-                    if (candidates.length > 0) {
-                        textOutput.textContent += candidates[0];
-                    } else if (currentInput.length > 0) {
-                        textOutput.textContent += currentInput;
-                    }
-                    resetInputState();
-                    return;
-                }
-
-                if (code === ' ') {
-                    if (candidates.length > 0) {
-                        textOutput.textContent += candidates[0];
-                    } else if (currentInput.length > 0) {
-                        textOutput.textContent += currentInput;
-                    } else {
-                        textOutput.textContent += ' ';
-                    }
-                    resetInputState();
-                    return;
-                }
-                
-                if (code === '<') {
-                    if (currentPage > 0) {
-                        currentPage--;
-                        updateCandidates();
-                    }
-                } else if (code === '>') {
-                    if ((currentPage + 1) * candidatesPerPage < (currentCodemap[currentInput] || []).length) {
-                        currentPage++;
-                        updateCandidates();
-                    }
-                }
-                
-                const validKeys = "qwertyuiopasdfghjkl;zxcvbnm,./'".split('');
-                if (validKeys.includes(code) && currentInput.length < 3) {
-                    currentInput += code;
-                    mainInput.value = formatCode(currentInput);
-                    currentPage = 0;
-                    updateCandidates();
-                }
-            });
-        });
-        
         // --- 反向查詢事件處理 ---
         searchInput.addEventListener('input', (event) => {
             const charToSearch = searchInput.value;
@@ -2023,8 +537,6 @@ s'' 〃
             }
         });
         
-        // 頁面載入時先初始化顯示
-        switchInputMethod('primary');
-        updateKeyboardDisplay();
     </script>
-</body></html>
+</body>
+</html>
