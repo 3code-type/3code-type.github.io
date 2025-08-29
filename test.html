@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <title>三碼中文輸入法</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+    <link href="./3code2_files/css2" rel="stylesheet">
+    <style>
+        /* 基礎樣式與變數定義 */
+        :root {
+            --primary-color: #3f51b5;
+            --primary-light: #5c6bc0;
+            --text-color: #212121;
+            --background-color: #f5f6fa;
+            --container-bg: #ffffff;
+            --border-color: #e0e0e0;
+            --box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            --key-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            --unified-font-size: 20px;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: var(--background-color);
+            padding: 20px;
+            color: var(--text-color);
+        }
+
+        .container {
+            width: 95%;
+            max-width: 800px;
+            background-color: var(--container-bg);
+            border-radius: 12px;
+            box-shadow: var(--box-shadow);
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 5px;
+            font-weight: 700;
+            font-size: 28px;
+        }
+
+        .header-section {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 12px;
+            border-bottom: 1px dashed var(--border-color);
+        }
+
+        .download-section, .mode-switcher {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .download-section h2, .mode-switcher h2 {
+            font-size: 16px;
+            color: var(--primary-light);
+            margin: 0;
+            white-space: nowrap;
+            line-height: 1.5;
+        }
+
+        .download-section ul {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 0;
+            gap: 8px;
+        }
+
+        .download-section li {
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .download-section a, .mode-switcher label {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 700;
+            transition: color 0.2s ease-in-out;
+            font-size: 16px;
+            line-height: 1.5;
+            cursor: pointer;
+        }
+
+        .download-section a:hover {
+            color: var(--primary-light);
+            text-decoration: underline;
+        }
+
+        /* 模式切換器樣式 */
+        .mode-switcher label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .mode-switcher input[type="radio"] {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--primary-color);
+            border-radius: 50%;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            position: relative;
+        }
+        .mode-switcher input[type="radio"]:checked {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        .mode-switcher input[type="radio"]:checked::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: white;
+        }
+
+        /* 輸入與顯示區塊 */
+        .text-output-area,
+        .candidate-area,
+        #main-input,
+        #search-input,
+        #search-result {
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease-in-out;
+            box-sizing: border-box;
+            font-size: var(--unified-font-size);
+        }
+
+        /* 統一所有主要欄位的內距 */
+        .text-output-area,
+        #main-input,
+        #search-input,
+        .candidate-area,
+        #search-result {
+            padding: 8px;
+        }
+
+        .text-output-area {
+            min-height: 150px;
+            background-color: #fafafa;
+            resize: none;
+        }
+
+        .input-area {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .search-area {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #main-input {
+            height: 40px;
+        }
+
+        /* 候選字區塊樣式 - 允許換行以避免溢出 */
+        .candidate-area {
+            min-height: 55px; /* 調整為一致的高度 */
+            display: flex;
+            flex-wrap: wrap; /* 允許換行以避免溢出 */
+            align-items: center;
+            padding: 8px;
+            gap: 8px;
+            white-space: normal;
+        }
+        .candidate-area span {
+            cursor: pointer;
+            padding: 5px 8px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            transition: all 0.2s;
+            user-select: none;
+            white-space: nowrap;
+            font-size: 18px; /* 調整字形大小 */
+            flex-shrink: 0;
+            text-align: center;
+        }
+        .candidate-area span:hover {
+            background-color: #e8eaf6;
+            border-color: #b3b9d8;
+        }
+
+        #search-input {
+            flex-grow: 0;
+            width: 160px;
+            height: 40px;
+        }
+
+        #search-result {
+            flex-grow: 1;
+            color: #555;
+            min-height: 40px;
+        }
+
+        #mode-display {
+            font-size: 16px;
+            color: #757575;
+            align-self: flex-start;
+        }
+
+        /* 鍵盤樣式 */
+        .keyboard-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .key-row {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            gap: 5px;
+        }
+
+        .key {
+            flex: 1;
+            padding: 8px 0;
+            border-radius: 6px;
+            background-color: #e8eaf6;
+            font-size: 18px;
+            text-align: center;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.1s ease-out;
+            box-shadow: var(--key-shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .key.function-key {
+            flex: 1.5;
+            background-color: #c5cae9;
+            font-size: 16px;
+        }
+
+        .key.space-key {
+            flex: 4;
+            background-color: #c5cae9;
+        }
+
+        .key.page-key {
+            flex: 0.5;
+            background-color: #c5cae9;
+            font-size: 16px;
+        }
+
+        /* 按鍵互動效果 */
+        .key:hover {
+            background-color: #b3b9d8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .key:active,
+        .key.active {
+            background-color: #7986cb;
+            color: #fff;
+            transform: translateY(0);
+            box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>三碼中文輸入法</h1>
+        
+        <div class="header-section">
+            <div class="download-section">
+                <h2>檔案下載區：</h2>
+                <ul>
+                    <li><a href="3code.pdf" download="" target="_blank">輸入法說明檔</a></li>
+                    <li><a href="3code.zip" download="" target="_blank">輸入法壓縮檔</a></li>
+                    <li><a href="3code.txt" download="" target="_blank">常用字碼檔</a></li>
+                    <li><a href="3code2.txt" download="" target="_blank">次常用字碼檔</a></li>
+                    <li><a href="3code.cin" download="" target="_blank">CIN字碼檔</a></li>
+                </ul>
+            </div>
+            <div class="mode-switcher">
+                <h2>輸入法模式：</h2>
+                <label>
+                    <input type="radio" name="input_mode" value="primary" checked="">
+                    三碼 (常用字)
+                </label>
+                <label>
+                    <input type="radio" name="input_mode" value="secondary">
+                    三碼次常 (次常用字)
+                </label>
+            </div>
+        </div>
+
+        <div class="text-output-area" id="text-output"></div>
+
+        <div class="input-area">
+            <input type="text" id="main-input" placeholder="編碼顯示在此" readonly="">
+            <div id="candidate-display" class="candidate-area"></div>
+        </div>
+
+        <div class="search-area">
+            <input type="text" id="search-input" placeholder="在此輸入漢字" maxlength="1">
+            <div id="search-result">查詢結果顯示在此</div>
+        </div>
+        
+        <div id="mode-display">模式：三碼</div>
+
+        <div class="keyboard-container">
+            <div class="key-row">
+                <div class="key" data-code="1">1</div>
+                <div class="key" data-code="2">2</div>
+                <div class="key" data-code="3">3</div>
+                <div class="key" data-code="4">4</div>
+                <div class="key" data-code="5">5</div>
+                <div class="key" data-code="6">6</div>
+                <div class="key" data-code="7">7</div>
+                <div class="key" data-code="8">8</div>
+                <div class="key" data-code="9">9</div>
+                <div class="key" data-code="0">0</div>
+            </div>
+            <div class="key-row">
+                <div class="key" data-code="q">Ｑ</div>
+                <div class="key" data-code="w">Ｗ</div>
+                <div class="key" data-code="e">Ｅ</div>
+                <div class="key" data-code="r">Ｒ</div>
+                <div class="key" data-code="t">Ｔ</div>
+                <div class="key" data-code="y">Ｙ</div>
+                <div class="key" data-code="u">Ｕ</div>
+                <div class="key" data-code="i">Ｉ</div>
+                <div class="key" data-code="o">Ｏ</div>
+                <div class="key" data-code="p">Ｐ</div>
+            </div>
+            <div class="key-row">
+                <div class="key" data-code="a">Ａ</div>
+                <div class="key" data-code="s">Ｓ</div>
+                <div class="key" data-code="d">Ｄ</div>
+                <div class="key" data-code="f">Ｆ</div>
+                <div class="key" data-code="g">Ｇ</div>
+                <div class="key" data-code="h">Ｈ</div>
+                <div class="key" data-code="j">Ｊ</div>
+                <div class="key" data-code="k">Ｋ</div>
+                <div class="key" data-code="l">Ｌ</div>
+                <div class="key" data-code=";">；</div>
+                <div class="key" data-code="'">〃</div>
+            </div>
+            <div class="key-row">
+                <div class="key" data-code="z">Ｚ</div>
+                <div class="key" data-code="x">Ｘ</div>
+                <div class="key" data-code="c">Ｃ</div>
+                <div class="key" data-code="v">Ｖ</div>
+                <div class="key" data-code="b">Ｂ</div>
+                <div class="key" data-code="n">Ｎ</div>
+                <div class="key" data-code="m">Ｍ</div>
+                <div class="key" data-code=",">，</div>
+                <div class="key" data-code=".">．</div>
+                <div class="key" data-code="/">／</div>
+            </div>
+            <div class="key-row">
+                <div class="key function-key" data-code="shift">SHIFT</div>
+                <div class="key function-key" data-code="space">SPACE</div>
+                <div class="key function-key" data-code="backspace">BACKSPACE</div>
+                <div class="key page-key" data-code="page_up">▲</div>
+                <div class="key page-key" data-code="page_down">▼</div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- 核心變數 ---
+        let currentInput = '';
+        let candidates = [];
+        let currentPage = 0;
+        const candidatesPerPage = 10;
+        let isEnglishMode = false;
+        let shiftTimer = null;
+        let currentCodemap = {};
+        let currentReverseCodemap = {};
+
+        // --- 元素選擇 ---
+        const textOutput = document.getElementById('text-output');
+        const mainInput = document.getElementById('main-input');
+        const candidateDisplay = document.getElementById('candidate-display');
+        const modeDisplay = document.getElementById('mode-display');
+        const searchInput = document.getElementById('search-input');
+        const searchResult = document.getElementById('search-result');
+        const modeRadios = document.querySelectorAll('input[name="input_mode"]');
+
+        // --- 輔助函式 ---
+        function formatCode(code) {
+            return code.split('').join(' ');
+        }
+        
+        function updateModeDisplay() {
+            const selectedMode = document.querySelector('input[name="input_mode"]:checked').nextSibling.textContent.trim();
+            modeDisplay.textContent = `模式：${selectedMode}`;
+        }
+        
+        function parseCin(cinText) {
+            currentCodemap = {};
+            currentReverseCodemap = {};
+            
+            const lines = cinText.split(/\r?\n/);
+            let inDataSection = false;
+            
+            for (const line of lines) {
+                const trimmedLine = line.trim();
+                if (trimmedLine === '%chardef begin') {
+                    inDataSection = true;
+                    continue;
+                }
+                if (trimmedLine === '%chardef end') {
+                    inDataSection = false;
+                    break;
+                }
+                
+                if (inDataSection && trimmedLine !== '' && !trimmedLine.startsWith('#')) {
+                    const parts = trimmedLine.split(/\s+|\t/);
+                    const code = parts[0];
+                    const characters = parts.slice(1);
+                    
+                    if (code && characters.length > 0) {
+                        if (!currentCodemap[code]) {
+                            currentCodemap[code] = [];
+                        }
+                        currentCodemap[code].push(...characters);
+                        
+                        characters.forEach(char => {
+                            if (!currentReverseCodemap[char]) {
+                                currentReverseCodemap[char] = [];
+                            }
+                            if (!currentReverseCodemap[char].includes(code)) {
+                                currentReverseCodemap[char].push(code);
+                            }
+                        });
+                    }
+                }
+            }
+            console.log("編碼資料解析完成。");
+            resetInputState();
+        }
+        
+        function loadCinFile(filename) {
+            fetch(filename)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('載入編碼檔失敗，請檢查檔案路徑。');
+                    }
+                    return response.text();
+                })
+                .then(text => {
+                    parseCin(text);
+                })
+                .catch(error => {
+                    console.error(error);
+                    alert(error.message);
+                });
+        }
+        
+        // --- 更新介面 ---
+        function updateCandidates() {
+            candidateDisplay.innerHTML = '';
+            const candidatesForInput = currentCodemap[currentInput] || [];
+            const start = currentPage * candidatesPerPage;
+            const end = start + candidatesPerPage;
+            
+            candidates = candidatesForInput.slice(start, end);
+            
+            if (candidates.length > 0) {
+                candidates.forEach((char, index) => {
+                    const span = document.createElement('span');
+                    span.textContent = `${index + 1}. ${char}`;
+                    span.addEventListener('click', () => {
+                        textOutput.textContent += char;
+                        resetInputState();
+                    });
+                    candidateDisplay.appendChild(span);
+                });
+            } else {
+                candidateDisplay.innerHTML = '<span style="color:#999;">找不到候選字。</span>';
+            }
+        }
+
+        function resetInputState() {
+            currentInput = '';
+            mainInput.value = '';
+            currentPage = 0;
+            updateCandidates();
+        }
+        
+        function updateKeyboardDisplay() {
+            const keys = document.querySelectorAll('.key');
+            keys.forEach(key => {
+                const dataCode = key.getAttribute('data-code');
+            });
+        }
+
+        // --- 事件處理 ---
+        
+        // 模式切換事件監聽
+        modeRadios.forEach(radio => {
+            radio.addEventListener('change', (event) => {
+                const mode = event.target.value;
+                if (mode === 'primary') {
+                    loadCinFile('3code.cin'); // 這裡可以根據需要調整成不同的檔案
+                } else {
+                    loadCinFile('3code2.cin'); // 例如次常用字檔案
+                }
+                updateModeDisplay();
+            });
+        });
+
+        document.addEventListener('keydown', (event) => {
+            const key = event.key.toLowerCase();
+            const code = key === ' ' ? 'space' : key;
+            const keyElement = document.querySelector(`.key[data-code="${code}"]`);
+
+            if (keyElement) {
+                keyElement.classList.add('active');
+            }
+            
+            // 處理數字選字
+            if (event.key >= '1' && event.key <= '9') {
+                const selectedIndex = parseInt(event.key) - 1;
+                if (selectedIndex < candidates.length) {
+                    textOutput.textContent += candidates[selectedIndex].substring(candidates[selectedIndex].indexOf('.') + 2);
+                    resetInputState();
+                }
+                return;
+            }
+
+            if (key === 'backspace') {
+                event.preventDefault();
+                currentInput = currentInput.slice(0, -1);
+                mainInput.value = formatCode(currentInput);
+                currentPage = 0;
+                updateCandidates();
+                return;
+            }
+
+            if (key === ' ' || key === 'space') {
+                event.preventDefault();
+                if (candidates.length > 0) {
+                    textOutput.textContent += candidates[0].substring(candidates[0].indexOf('.') + 2);
+                }
+                resetInputState();
+                return;
+            }
+
+            const validKeys = "1234567890qwertyuiopasdfghjkl;zxcvbnm,./'".split('');
+            if (validKeys.includes(key) && currentInput.length < 3) {
+                currentInput += key;
+                mainInput.value = formatCode(currentInput);
+                currentPage = 0;
+                updateCandidates();
+            }
+
+            // 處理換頁
+            if (key === 'pageup' || key === 'arrowup') {
+                if (currentPage > 0) {
+                    currentPage--;
+                    updateCandidates();
+                }
+            } else if (key === 'pagedown' || key === 'arrowdown') {
+                if ((currentPage + 1) * candidatesPerPage < (currentCodemap[currentInput] || []).length) {
+                    currentPage++;
+                    updateCandidates();
+                }
+            }
+        });
+
+        document.addEventListener('keyup', (event) => {
+            const key = event.key.toLowerCase();
+            const code = key === ' ' ? 'space' : key;
+            const keyElement = document.querySelector(`.key[data-code="${code}"]`);
+            if (keyElement) {
+                keyElement.classList.remove('active');
+            }
+        });
+        
+        // 點擊鍵盤按鈕的處理
+        document.querySelectorAll('.key').forEach(keyElement => {
+            keyElement.addEventListener('click', () => {
+                const code = keyElement.getAttribute('data-code');
+
+                if (code === 'backspace') {
+                    currentInput = currentInput.slice(0, -1);
+                    mainInput.value = formatCode(currentInput);
+                    currentPage = 0;
+                    updateCandidates();
+                    return;
+                }
+
+                if (code === 'space') {
+                    if (candidates.length > 0) {
+                        textOutput.textContent += candidates[0].substring(candidates[0].indexOf('.') + 2);
+                    }
+                    resetInputState();
+                    return;
+                }
+                
+                if (code === 'page_up') {
+                    if (currentPage > 0) {
+                        currentPage--;
+                        updateCandidates();
+                    }
+                } else if (code === 'page_down') {
+                    if ((currentPage + 1) * candidatesPerPage < (currentCodemap[currentInput] || []).length) {
+                        currentPage++;
+                        updateCandidates();
+                    }
+                }
+                
+                const validKeys = "1234567890qwertyuiopasdfghjkl;zxcvbnm,./'".split('');
+                if (validKeys.includes(code) && currentInput.length < 3) {
+                    currentInput += code;
+                    mainInput.value = formatCode(currentInput);
+                    currentPage = 0;
+                    updateCandidates();
+                }
+            });
+        });
+        
+        // --- 反向查詢事件處理 ---
+        searchInput.addEventListener('input', (event) => {
+            const charToSearch = searchInput.value;
+            if (charToSearch.length === 1) {
+                const codes = currentReverseCodemap[charToSearch];
+                if (codes && codes.length > 0) {
+                    const formattedCodes = codes.map(code => formatCode(code));
+                    searchResult.textContent = `編碼：　${formattedCodes.join('　')}`;
+                } else {
+                    searchResult.textContent = '找不到該漢字編碼。';
+                }
+            } else {
+                searchResult.textContent = '查詢結果顯示在此';
+            }
+        });
+        
+        // 額外處理 Backspace 鍵清除
+        searchInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Backspace') {
+                event.stopPropagation();
+                searchInput.value = '';
+                searchResult.textContent = '查詢結果顯示在此';
+            }
+        });
+        
+        // 頁面載入時先初始化顯示
+        loadCinFile('3code.cin'); // 載入預設的檔案
+        updateKeyboardDisplay();
+        updateModeDisplay();
+    </script>
+</body></html>
