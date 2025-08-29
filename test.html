@@ -400,25 +400,24 @@
         </div>
     </div>
     <script>
-        // --- 資料處理與解析 ---
+        // --- 核心變數與元素 ---
+        let currentCode = '';
+        let currentCandidates = [];
         let primaryCodemap = {};
         let secondaryCodemap = {};
         let currentCodemap = {};
         let currentReverseCodemap = {};
-        let currentCode = '';
-        let currentCandidates = [];
         let isEnglishMode = false;
-        let shiftTimer = null;
-        const textOutput = document.getElementById('text-output');
+        
+        const output = document.getElementById('text-output');
         const mainInput = document.getElementById('main-input');
-        const candidateDisplay = document.getElementById('candidate-display');
+        const candidateArea = document.getElementById('candidate-display');
+        const keyboard = document.querySelector('.keyboard-container');
         const searchInput = document.getElementById('search-input');
         const searchResult = document.getElementById('search-result');
         const modeDisplay = document.getElementById('mode-display');
-        const modeSwitcher = document.querySelector('.mode-switcher');
-        const keyboardContainer = document.querySelector('.keyboard-container');
 
-        // --- 載入碼表檔案 ---
+        // --- 載入碼表檔案（已修復） ---
         async function loadCodemap(filePath) {
             try {
                 const response = await fetch(filePath);
@@ -433,14 +432,14 @@
                 return { forward: {}, reverse: {} };
             }
         }
-
-        // --- 解析 Cin 格式檔案內容 ---
+        
+        // --- 解析 Cin 格式檔案內容（已修復） ---
         function parseCinLikeFile(text) {
             const lines = text.split('\n');
             const codemap = {};
             const reverseCodemap = {};
             let inDataSection = false;
-
+        
             for (const line of lines) {
                 const trimmedLine = line.trim();
                 if (trimmedLine.startsWith('[data]')) {
@@ -457,12 +456,11 @@
                             codemap[code] = [];
                         }
                         codemap[code].push(...chars.split(''));
-
+        
                         chars.split('').forEach(char => {
                             if (!reverseCodemap[char]) {
                                 reverseCodemap[char] = [];
                             }
-                            // 避免重複編碼
                             if (!reverseCodemap[char].includes(code)) {
                                 reverseCodemap[char].push(code);
                             }
@@ -478,15 +476,15 @@
 
         // --- 輸入法核心邏輯 ---
         function updateCandidates() {
-            candidateDisplay.innerHTML = '';
+            candidateArea.innerHTML = '';
             currentCandidates = currentCodemap[currentCode] || [];
-            
+
             if (currentCode.length > 0) {
                 const codeSpan = document.createElement('span');
                 codeSpan.textContent = `[${currentCode}]`;
                 codeSpan.style.color = '#7986cb';
                 codeSpan.style.fontWeight = 'bold';
-                candidateDisplay.appendChild(codeSpan);
+                candidateArea.appendChild(codeSpan);
             }
 
             if (currentCandidates.length > 0) {
@@ -495,13 +493,13 @@
                     candidateSpan.textContent = `${index + 1}. ${char}`;
                     candidateSpan.dataset.char = char;
                     candidateSpan.dataset.index = index;
-                    candidateDisplay.appendChild(candidateSpan);
+                    candidateArea.appendChild(candidateSpan);
                 });
             } else if (currentCode.length > 0) {
                 const noCandidatesSpan = document.createElement('span');
                 noCandidatesSpan.textContent = '找不到字';
                 noCandidatesSpan.style.color = 'red';
-                candidateDisplay.appendChild(noCandidatesSpan);
+                candidateArea.appendChild(noCandidatesSpan);
             }
         }
 
@@ -511,24 +509,22 @@
             updateCandidates();
         }
 
-        // --- 鍵盤與模式切換 ---
-        function switchInputMethod(mode) {
-            if (mode === 'primary') {
+        // --- 模式與鍵盤處理 ---
+        function switchInputMethod(method) {
+            if (method === 'primary') {
                 currentCodemap = primaryCodemap.forward;
                 currentReverseCodemap = primaryCodemap.reverse;
-                modeDisplay.textContent = '模式：三碼';
             } else {
                 currentCodemap = secondaryCodemap.forward;
                 currentReverseCodemap = secondaryCodemap.reverse;
-                modeDisplay.textContent = '模式：三碼次常';
             }
             resetInputState();
-            const radioButtons = modeSwitcher.querySelectorAll('input[type="radio"]');
-            radioButtons.forEach(radio => {
-                if (radio.value === mode) {
-                    radio.checked = true;
-                }
-            });
+            updateModeDisplay();
+        }
+
+        function updateModeDisplay() {
+            const modeName = document.querySelector('input[name="input_mode"]:checked').nextElementSibling.textContent;
+            modeDisplay.textContent = `模式：${isEnglishMode ? '英數' : modeName}`;
         }
         
         // --- 事件處理 ---
@@ -541,32 +537,114 @@
             updateCandidates();
         });
 
-        // 監聽鍵盤點擊事件
-        keyboardContainer.addEventListener('click', (event) => {
-            const keyDiv = event.target.closest('.key');
-            if (!keyDiv) return;
-
-            const code = keyDiv.dataset.code;
-            handleKey(code);
-        });
-
-        // 監聽候選字點擊事件
-        candidateDisplay.addEventListener('click', (event) => {
-            const candidateSpan = event.target.closest('span');
-            if (candidateSpan && candidateSpan.dataset.char) {
-                textOutput.textContent += candidateSpan.dataset.char;
-                resetInputState();
-            }
-        });
-
-        // 監聽模式切換
-        modeSwitcher.addEventListener('change', (event) => {
+        document.querySelector('.mode-switcher').addEventListener('change', (event) => {
             if (event.target.name === 'input_mode') {
                 switchInputMethod(event.target.value);
             }
         });
+        
+        candidateArea.addEventListener('click', (event) => {
+            const candidate = event.target.closest('span[data-char]');
+            if (candidate) {
+                const char = candidate.dataset.char;
+                output.textContent += char;
+                resetInputState();
+            }
+        });
 
-        // 監聽反向查詢輸入
+        // 監聽鍵盤點擊事件
+        keyboard.addEventListener('click', (event) => {
+            const keyDiv = event.target.closest('.key');
+            if (!keyDiv) return;
+            const key = keyDiv.dataset.code;
+            handleKey(key);
+        });
+
+        // 監聽實體鍵盤事件
+        document.addEventListener('keydown', (event) => {
+            const key = event.key.toLowerCase();
+            const keyMap = {
+                'backspace': 'backspace',
+                'enter': 'enter',
+                ' ': ' ',
+                'shift': 'shift',
+                '~': '~',
+                '!' : '1', '@' : '2', '#' : '3', '$' : '4', '%' : '5', '^' : '6', '&' : '7', '*' : '8', '(' : '9', ')' : '0',
+                '-': '-', '=': '=', '[': '[', ']': ']', '\\': '\\', ';': ';', "'": "'", ',': ',', '.': '.', '/': '/',
+                'q': 'q', 'w': 'w', 'e': 'e', 'r': 'r', 't': 't', 'y': 'y', 'u': 'u', 'i': 'i', 'o': 'o', 'p': 'p',
+                'a': 'a', 's': 's', 'd': 'd', 'f': 'f', 'g': 'g', 'h': 'h', 'j': 'j', 'k': 'k', 'l': 'l',
+                'z': 'z', 'x': 'x', 'c': 'c', 'v': 'v', 'b': 'b', 'n': 'n', 'm': 'm'
+            };
+
+            const inputKey = keyMap[key] || key;
+            
+            // 處理 Shift 鍵切換模式
+            if (event.key === "Shift") {
+                if (event.repeat) return; // 避免長按時重複觸發
+                isEnglishMode = !isEnglishMode;
+                updateModeDisplay();
+                resetInputState();
+                event.preventDefault(); // 阻止瀏覽器默認行為
+                return;
+            }
+
+            // 在英數模式下處理所有輸入
+            if (isEnglishMode) {
+                if (event.key.length === 1) {
+                    output.textContent += event.key;
+                } else if (event.key === 'Backspace') {
+                    output.textContent = output.textContent.slice(0, -1);
+                } else if (event.key === 'Enter') {
+                    output.textContent += '\n';
+                }
+                return;
+            }
+
+            // 在中文模式下處理
+            if (inputKey) {
+                event.preventDefault(); // 阻止瀏覽器默認行為
+                handleKey(inputKey);
+            } else if (event.key >= '1' && event.key <= '9') {
+                const index = parseInt(event.key, 10) - 1;
+                if (index < currentCandidates.length) {
+                    output.textContent += currentCandidates[index];
+                    resetInputState();
+                }
+            } else if (event.key.length === 1) { // 處理未映射的單個字元
+                 output.textContent += event.key;
+            }
+        });
+
+        // 處理鍵盤與物理鍵盤的共用邏輯
+        function handleKey(key) {
+            const validCodeKeys = "1234567890abcdefghijklmnopqrstuvwxyz;',./";
+            
+            if (validCodeKeys.includes(key) && currentCode.length < 3) {
+                currentCode += key;
+                mainInput.value = currentCode;
+                updateCandidates();
+            } else if (key === 'backspace') {
+                if (currentCode.length > 0) {
+                    currentCode = currentCode.slice(0, -1);
+                    mainInput.value = currentCode;
+                    updateCandidates();
+                } else {
+                    output.textContent = output.textContent.slice(0, -1);
+                }
+            } else if (key === ' ') {
+                if (currentCandidates.length > 0) {
+                    output.textContent += currentCandidates[0];
+                    resetInputState();
+                } else {
+                    output.textContent += ' ';
+                }
+            } else if (key === 'enter') {
+                output.textContent += '\n';
+                resetInputState();
+            }
+        }
+
+        // --- 反向查詢事件處理 ---
         searchInput.addEventListener('input', () => {
             const charToSearch = searchInput.value.trim();
             searchResult.textContent = '查詢結果顯示在此';
@@ -580,126 +658,5 @@
             }
         });
 
-        // 處理鍵盤輸入事件
-        function handleKey(key) {
-            if (isEnglishMode) {
-                if (key === 'backspace') {
-                    textOutput.textContent = textOutput.textContent.slice(0, -1);
-                } else if (key === 'enter') {
-                    textOutput.textContent += '\n';
-                } else if (key === 'shift') {
-                    isEnglishMode = false;
-                    modeDisplay.textContent = '模式：三碼';
-                } else {
-                    textOutput.textContent += key;
-                }
-                return;
-            }
-
-            // 中文模式
-            const validKeys = "abcdefghijklmnopqrstuvwxyz;,.";
-            if (validKeys.includes(key) && currentCode.length < 3) {
-                currentCode += key;
-                mainInput.value = currentCode;
-                updateCandidates();
-            } else if (key === 'backspace') {
-                if (currentCode.length > 0) {
-                    currentCode = currentCode.slice(0, -1);
-                    mainInput.value = currentCode;
-                    updateCandidates();
-                } else {
-                    textOutput.textContent = textOutput.textContent.slice(0, -1);
-                }
-            } else if (key === ' ') {
-                if (currentCandidates.length > 0) {
-                    textOutput.textContent += currentCandidates[0];
-                    resetInputState();
-                } else {
-                    textOutput.textContent += ' ';
-                }
-            } else if (!isNaN(parseInt(key, 10))) {
-                const index = parseInt(key, 10) - 1;
-                if (index >= 0 && index < currentCandidates.length) {
-                    textOutput.textContent += currentCandidates[index];
-                    resetInputState();
-                }
-            } else if (key === 'shift') {
-                isEnglishMode = true;
-                modeDisplay.textContent = '模式：英數';
-                resetInputState();
-            } else if (key === 'enter') {
-                textOutput.textContent += '\n';
-                resetInputState();
-            } else {
-                textOutput.textContent += key;
-            }
-        }
-
-        // 監聽實體鍵盤
-        document.addEventListener('keydown', (event) => {
-            const key = event.key.toLowerCase();
-            const keyMap = {
-                'backspace': 'backspace',
-                'enter': 'enter',
-                ' ': ' ',
-                'shift': 'shift',
-                '~': '`',
-                '!': '1',
-                '@': '2',
-                '#': '3',
-                '$': '4',
-                '%': '5',
-                '^': '6',
-                '&': '7',
-                '*': '8',
-                '(': '9',
-                ')': '0',
-                '-': '-',
-                '=': '=',
-                '[': '[',
-                ']': ']',
-                '\\': '\\',
-                ';': ';',
-                "'": "'",
-                ',': ',',
-                '.': '.',
-                '/': '/',
-                'q': 'q', 'w': 'w', 'e': 'e', 'r': 'r', 't': 't', 'y': 'y', 'u': 'u', 'i': 'i', 'o': 'o', 'p': 'p',
-                'a': 'a', 's': 's', 'd': 'd', 'f': 'f', 'g': 'g', 'h': 'h', 'j': 'j', 'k': 'k', 'l': 'l',
-                'z': 'z', 'x': 'x', 'c': 'c', 'v': 'v', 'b': 'b', 'n': 'n', 'm': 'm'
-            };
-
-            if (event.key === "Shift") {
-                if (event.repeat) return;
-                isEnglishMode = !isEnglishMode;
-                modeDisplay.textContent = isEnglishMode ? '模式：英數' : '模式：三碼';
-                resetInputState();
-                return;
-            }
-
-            // 在英數模式下處理所有輸入
-            if (isEnglishMode) {
-                if (event.key.length === 1 || event.key === 'Backspace' || event.key === 'Enter') {
-                    textOutput.textContent += event.key;
-                }
-                return;
-            }
-
-            // 在中文模式下處理
-            const inputKey = keyMap[key];
-            if (inputKey) {
-                event.preventDefault(); // 阻止瀏覽器默認行為
-                handleKey(inputKey);
-            } else if (event.key >= '1' && event.key <= '9') {
-                const index = parseInt(event.key, 10) - 1;
-                if (index < currentCandidates.length) {
-                    textOutput.textContent += currentCandidates[index];
-                    resetInputState();
-                }
-            } else if (event.key.length === 1) { // 處理未映射的單個字元
-                 textOutput.textContent += event.key;
-            }
-        });
     </script>
-
 </body></html>
