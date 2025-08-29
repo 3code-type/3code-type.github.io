@@ -408,6 +408,8 @@
         let currentCodemap = {};
         let currentReverseCodemap = {};
         let isEnglishMode = false;
+        let currentPage = 0;
+        const candidatesPerPage = 10;
         
         const output = document.getElementById('text-output');
         const mainInput = document.getElementById('main-input');
@@ -423,7 +425,7 @@
             ';': '；', "'": '〃', ',': '，', '.': '．', '/': '／'
         };
 
-        // --- 載入碼表檔案（已修復） ---
+        // --- 載入碼表檔案 ---
         async function loadCodemap(filePath) {
             try {
                 const response = await fetch(filePath);
@@ -439,7 +441,7 @@
             }
         }
         
-        // --- 解析 Cin 格式檔案內容（已修復） ---
+        // --- 解析 Cin 格式檔案內容 ---
         function parseCinLikeFile(text) {
             const lines = text.split('\n');
             const codemap = {};
@@ -484,11 +486,23 @@
         function updateCandidates() {
             candidateArea.innerHTML = '';
             currentCandidates = currentCodemap[currentCode] || [];
+            
+            if (currentCandidates.length === 1 && currentCode.length === 3) {
+                output.textContent += currentCandidates[0];
+                resetInputState();
+                return;
+            }
 
-            if (currentCandidates.length > 0) {
-                currentCandidates.forEach((char, index) => {
+            const totalPages = Math.ceil(currentCandidates.length / candidatesPerPage);
+            const startIndex = currentPage * candidatesPerPage;
+            const endIndex = startIndex + candidatesPerPage;
+            const displayedCandidates = currentCandidates.slice(startIndex, endIndex);
+
+            if (displayedCandidates.length > 0) {
+                displayedCandidates.forEach((char, index) => {
                     const candidateSpan = document.createElement('span');
-                    candidateSpan.textContent = `${index + 1}. ${char}`;
+                    const displayIndex = (index === 9) ? 0 : index + 1;
+                    candidateSpan.textContent = `${displayIndex}. ${char}`;
                     candidateSpan.dataset.char = char;
                     candidateSpan.dataset.index = index;
                     candidateArea.appendChild(candidateSpan);
@@ -496,11 +510,29 @@
             } else if (currentCode.length === 3) {
                 resetInputState();
             }
+
+            if (totalPages > 1) {
+                if (currentPage > 0) {
+                    const prevSpan = document.createElement('span');
+                    prevSpan.textContent = '上一頁';
+                    prevSpan.className = 'page-nav';
+                    prevSpan.dataset.page = 'prev';
+                    candidateArea.prepend(prevSpan);
+                }
+                if (currentPage < totalPages - 1) {
+                    const nextSpan = document.createElement('span');
+                    nextSpan.textContent = '下一頁';
+                    nextSpan.className = 'page-nav';
+                    nextSpan.dataset.page = 'next';
+                    candidateArea.appendChild(nextSpan);
+                }
+            }
         }
 
         function resetInputState() {
             currentCode = '';
             mainInput.value = '';
+            currentPage = 0;
             updateCandidates();
         }
 
@@ -540,10 +572,18 @@
         
         candidateArea.addEventListener('click', (event) => {
             const candidate = event.target.closest('span[data-char]');
+            const pageNav = event.target.closest('span[data-page]');
             if (candidate) {
                 const char = candidate.dataset.char;
                 output.textContent += char;
                 resetInputState();
+            } else if (pageNav) {
+                if (pageNav.dataset.page === 'next') {
+                    currentPage++;
+                } else if (pageNav.dataset.page === 'prev') {
+                    currentPage--;
+                }
+                updateCandidates();
             }
         });
 
@@ -555,42 +595,38 @@
             handleKey(key);
         });
 
+        const specialKeys = ["backspace", "enter", " "];
+        const pageKeys = ["<", ">"];
+        const numKeys = "1234567890";
+        const codeKeys = "abcdefghijklmnopqrstuvwxyz;',./";
+        
         // 監聽實體鍵盤事件
         document.addEventListener('keydown', (event) => {
             const key = event.key.toLowerCase();
-            const keyMap = {
-                'backspace': 'backspace',
-                'enter': 'enter',
-                ' ': ' ',
-                'shift': 'shift',
-                '~': '~',
-                '1': '1', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6', '7': '7', '8': '8', '9': '9', '0': '0',
-                ';': ';', "'": "'", ',': ',', '.': '.', '/': '/',
-                'q': 'q', 'w': 'w', 'e': 'e', 'r': 'r', 't': 't', 'y': 'y', 'u': 'u', 'i': 'i', 'o': 'o', 'p': 'p',
-                'a': 'a', 's': 's', 'd': 'd', 'f': 'f', 'g': 'g', 'h': 'h', 'j': 'j', 'k': 'K', 'l': 'l',
-                'z': 'z', 'x': 'x', 'c': 'c', 'v': 'v', 'b': 'b', 'n': 'n', 'm': 'm'
-            };
-            const inputKey = keyMap[key] || key;
             
             // 處理按鍵反白效果
-            const pressedKey = document.querySelector(`.key[data-code='${inputKey}']`);
-            if (pressedKey) {
-                pressedKey.classList.add('active');
+            let pressedKeyDiv;
+            if (key === '<') {
+                pressedKeyDiv = document.querySelector(`.key[data-code='&lt;']`);
+            } else if (key === '>') {
+                pressedKeyDiv = document.querySelector(`.key[data-code='&gt;']`);
+            } else {
+                pressedKeyDiv = document.querySelector(`.key[data-code='${key}']`);
+            }
+            if (pressedKeyDiv) {
+                pressedKeyDiv.classList.add('active');
             }
             
-            // 處理 Shift 鍵切換模式
             if (event.key === "Shift") {
-                if (event.repeat) return; // 避免長按時重複觸發
+                if (event.repeat) return;
                 isEnglishMode = !isEnglishMode;
                 updateModeDisplay();
                 resetInputState();
-                event.preventDefault(); // 阻止瀏覽器默認行為
-                return;
+                return; 
             }
 
-            // 在英數模式下處理所有輸入
             if (isEnglishMode) {
-                if (event.key.length === 1) {
+                if (key.length === 1 && !event.ctrlKey && !event.altKey) {
                     output.textContent += event.key;
                 } else if (event.key === 'Backspace') {
                     output.textContent = output.textContent.slice(0, -1);
@@ -600,47 +636,31 @@
                 return;
             }
 
-            // 在中文模式下處理
-            // 數字鍵處理邏輯：有候選字則選字，無候選字則上字
-            if (event.key >= '1' && event.key <= '9') {
-                event.preventDefault(); // 阻止瀏覽器默認行為
-                const index = parseInt(event.key, 10) - 1;
-                if (currentCandidates.length > 0 && index >= 0 && index < currentCandidates.length) {
-                    output.textContent += currentCandidates[index];
-                    resetInputState();
-                } else {
-                    output.textContent += event.key;
-                    resetInputState();
-                }
-            } else if (event.key === '0') {
-                 event.preventDefault();
-                 output.textContent += event.key;
-                 resetInputState();
-            } else if (inputKey) {
-                event.preventDefault(); // 阻止瀏覽器默認行為
-                handleKey(inputKey);
-            } else if (event.key.length === 1) { // 處理未映射的單個字元
-                 output.textContent += event.key;
+            if (specialKeys.includes(key)) {
+                event.preventDefault();
+                handleKey(key);
+            } else if (pageKeys.includes(key)) {
+                event.preventDefault();
+                handlePageKey(key);
+            } else if (numKeys.includes(key)) {
+                event.preventDefault();
+                handleNumKey(key);
+            } else if (codeKeys.includes(key)) {
+                handleKey(key);
             }
         });
         
         // 監聽實體鍵盤放開事件，移除按鍵反白
         document.addEventListener('keyup', (event) => {
             const key = event.key.toLowerCase();
-            const keyMap = {
-                'backspace': 'backspace',
-                'enter': 'enter',
-                ' ': ' ',
-                'shift': 'shift',
-                '~': '~',
-                '1': '1', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6', '7': '7', '8': '8', '9': '9', '0': '0',
-                ';': ';', "'": "'", ',': ',', '.': '.', '/': '/',
-                'q': 'q', 'w': 'w', 'e': 'e', 'r': 'r', 't': 't', 'y': 'y', 'u': 'u', 'i': 'i', 'o': 'o', 'p': 'p',
-                'a': 'a', 's': 's', 'd': 'd', 'f': 'f', 'g': 'g', 'h': 'h', 'j': 'j', 'k': 'K', 'l': 'l',
-                'z': 'z', 'x': 'x', 'c': 'c', 'v': 'v', 'b': 'b', 'n': 'n', 'm': 'm'
-            };
-            const releasedKey = keyMap[key] || key;
-            const releasedKeyDiv = document.querySelector(`.key[data-code='${releasedKey}']`);
+            let releasedKeyDiv;
+            if (key === '<') {
+                releasedKeyDiv = document.querySelector(`.key[data-code='&lt;']`);
+            } else if (key === '>') {
+                releasedKeyDiv = document.querySelector(`.key[data-code='&gt;']`);
+            } else {
+                releasedKeyDiv = document.querySelector(`.key[data-code='${key}']`);
+            }
             if (releasedKeyDiv) {
                 releasedKeyDiv.classList.remove('active');
             }
@@ -648,9 +668,9 @@
 
         // 處理鍵盤與物理鍵盤的共用邏輯
         function handleKey(key) {
-            const validCodeKeys = "1234567890abcdefghijklmnopqrstuvwxyz;',./";
+            const codeKeys = "abcdefghijklmnopqrstuvwxyz;',./";
             
-            if (validCodeKeys.includes(key) && currentCode.length < 3) {
+            if (codeKeys.includes(key) && currentCode.length < 3) {
                 currentCode += key;
                 const fullWidthCode = Array.from(currentCode).map(char => fullWidthMap[char] || char).join('');
                 mainInput.value = fullWidthCode;
@@ -673,6 +693,35 @@
                 }
             } else if (key === 'enter') {
                 output.textContent += '\n';
+                resetInputState();
+            }
+        }
+        
+        function handlePageKey(key) {
+            if (key === '<') {
+                if (currentPage > 0) {
+                    currentPage--;
+                    updateCandidates();
+                }
+            } else if (key === '>') {
+                const totalPages = Math.ceil(currentCandidates.length / candidatesPerPage);
+                if (currentPage < totalPages - 1) {
+                    currentPage++;
+                    updateCandidates();
+                }
+            }
+        }
+
+        function handleNumKey(key) {
+            let index = parseInt(key, 10);
+            if (index === 0) index = 10;
+            
+            const candidateIndex = (currentPage * candidatesPerPage) + (index - 1);
+            if (candidateIndex >= 0 && candidateIndex < currentCandidates.length) {
+                output.textContent += currentCandidates[candidateIndex];
+                resetInputState();
+            } else {
+                output.textContent += key;
                 resetInputState();
             }
         }
