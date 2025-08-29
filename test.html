@@ -416,7 +416,12 @@
         const searchInput = document.getElementById('search-input');
         const searchResult = document.getElementById('search-result');
         const modeDisplay = document.getElementById('mode-display');
-        const allKeys = document.querySelectorAll('.key');
+
+        const fullWidthMap = {
+            '0': '０', '1': '１', '2': '２', '3': '３', '4': '４', '5': '５', '6': '６', '7': '７', '8': '８', '9': '９',
+            'a': 'Ａ', 'b': 'Ｂ', 'c': 'Ｃ', 'd': 'Ｄ', 'e': 'Ｅ', 'f': 'Ｆ', 'g': 'Ｇ', 'h': 'Ｈ', 'i': 'Ｉ', 'j': 'Ｊ', 'k': 'Ｋ', 'l': 'Ｌ', 'm': 'Ｍ', 'n': 'Ｎ', 'o': 'Ｏ', 'p': 'Ｐ', 'q': 'Ｑ', 'r': 'Ｒ', 's': 'Ｓ', 't': 'Ｔ', 'u': 'Ｕ', 'v': 'Ｖ', 'w': 'Ｗ', 'x': 'Ｘ', 'y': 'Ｙ', 'z': 'Ｚ',
+            ';': '；', "'": '〃', ',': '，', '.': '．', '/': '／'
+        };
 
         // --- 載入碼表檔案（已修復） ---
         async function loadCodemap(filePath) {
@@ -480,14 +485,6 @@
             candidateArea.innerHTML = '';
             currentCandidates = currentCodemap[currentCode] || [];
 
-            if (currentCode.length > 0) {
-                const codeSpan = document.createElement('span');
-                codeSpan.textContent = `[${currentCode}]`;
-                codeSpan.style.color = '#7986cb';
-                codeSpan.style.fontWeight = 'bold';
-                candidateArea.appendChild(codeSpan);
-            }
-
             if (currentCandidates.length > 0) {
                 currentCandidates.forEach((char, index) => {
                     const candidateSpan = document.createElement('span');
@@ -496,11 +493,8 @@
                     candidateSpan.dataset.index = index;
                     candidateArea.appendChild(candidateSpan);
                 });
-            } else if (currentCode.length > 0) {
-                const noCandidatesSpan = document.createElement('span');
-                noCandidatesSpan.textContent = '找不到字';
-                noCandidatesSpan.style.color = 'red';
-                candidateArea.appendChild(noCandidatesSpan);
+            } else if (currentCode.length === 3) {
+                resetInputState();
             }
         }
 
@@ -570,14 +564,14 @@
                 ' ': ' ',
                 'shift': 'shift',
                 '~': '~',
-                '!' : '1', '@' : '2', '#' : '3', '$' : '4', '%' : '5', '^' : '6', '&' : '7', '*' : '8', '(' : '9', ')' : '0',
-                '-': '-', '=': '=', '[': '[', ']': ']', '\\': '\\', ';': ';', "'": "'", ',': ',', '.': '.', '/': '/',
+                '1': '1', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6', '7': '7', '8': '8', '9': '9', '0': '0',
+                ';': ';', "'": "'", ',': ',', '.': '.', '/': '/',
                 'q': 'q', 'w': 'w', 'e': 'e', 'r': 'r', 't': 't', 'y': 'y', 'u': 'u', 'i': 'i', 'o': 'o', 'p': 'p',
-                'a': 'a', 's': 's', 'd': 'd', 'f': 'f', 'g': 'g', 'h': 'h', 'j': 'j', 'k': 'k', 'l': 'l',
+                'a': 'a', 's': 's', 'd': 'd', 'f': 'f', 'g': 'g', 'h': 'h', 'j': 'j', 'k': 'K', 'l': 'l',
                 'z': 'z', 'x': 'x', 'c': 'c', 'v': 'v', 'b': 'b', 'n': 'n', 'm': 'm'
             };
             const inputKey = keyMap[key] || key;
-
+            
             // 處理按鍵反白效果
             const pressedKey = document.querySelector(`.key[data-code='${inputKey}']`);
             if (pressedKey) {
@@ -607,19 +601,21 @@
             }
 
             // 在中文模式下處理
-            // 修正：處理數字鍵的邏輯
-            if (event.key >= '0' && event.key <= '9') {
+            // 數字鍵處理邏輯：有候選字則選字，無候選字則上字
+            if (event.key >= '1' && event.key <= '9') {
                 event.preventDefault(); // 阻止瀏覽器默認行為
                 const index = parseInt(event.key, 10) - 1;
                 if (currentCandidates.length > 0 && index >= 0 && index < currentCandidates.length) {
-                    // 有候選字，且數字鍵在範圍內，則選字
                     output.textContent += currentCandidates[index];
                     resetInputState();
                 } else {
-                    // 無候選字，直接輸出數字
                     output.textContent += event.key;
                     resetInputState();
                 }
+            } else if (event.key === '0') {
+                 event.preventDefault();
+                 output.textContent += event.key;
+                 resetInputState();
             } else if (inputKey) {
                 event.preventDefault(); // 阻止瀏覽器默認行為
                 handleKey(inputKey);
@@ -632,7 +628,16 @@
         document.addEventListener('keyup', (event) => {
             const key = event.key.toLowerCase();
             const keyMap = {
-                // ... key mappings
+                'backspace': 'backspace',
+                'enter': 'enter',
+                ' ': ' ',
+                'shift': 'shift',
+                '~': '~',
+                '1': '1', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6', '7': '7', '8': '8', '9': '9', '0': '0',
+                ';': ';', "'": "'", ',': ',', '.': '.', '/': '/',
+                'q': 'q', 'w': 'w', 'e': 'e', 'r': 'r', 't': 't', 'y': 'y', 'u': 'u', 'i': 'i', 'o': 'o', 'p': 'p',
+                'a': 'a', 's': 's', 'd': 'd', 'f': 'f', 'g': 'g', 'h': 'h', 'j': 'j', 'k': 'K', 'l': 'l',
+                'z': 'z', 'x': 'x', 'c': 'c', 'v': 'v', 'b': 'b', 'n': 'n', 'm': 'm'
             };
             const releasedKey = keyMap[key] || key;
             const releasedKeyDiv = document.querySelector(`.key[data-code='${releasedKey}']`);
@@ -643,16 +648,18 @@
 
         // 處理鍵盤與物理鍵盤的共用邏輯
         function handleKey(key) {
-            const validCodeKeys = "abcdefghijklmnopqrstuvwxyz;',./";
+            const validCodeKeys = "1234567890abcdefghijklmnopqrstuvwxyz;',./";
             
             if (validCodeKeys.includes(key) && currentCode.length < 3) {
                 currentCode += key;
-                mainInput.value = currentCode;
+                const fullWidthCode = Array.from(currentCode).map(char => fullWidthMap[char] || char).join('');
+                mainInput.value = fullWidthCode;
                 updateCandidates();
             } else if (key === 'backspace') {
                 if (currentCode.length > 0) {
                     currentCode = currentCode.slice(0, -1);
-                    mainInput.value = currentCode;
+                    const fullWidthCode = Array.from(currentCode).map(char => fullWidthMap[char] || char).join('');
+                    mainInput.value = fullWidthCode;
                     updateCandidates();
                 } else {
                     output.textContent = output.textContent.slice(0, -1);
