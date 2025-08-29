@@ -139,6 +139,7 @@
             background-color: white;
         }
 
+
         /* 輸入與顯示區塊 */
         .text-output-area,
         .candidate-area,
@@ -438,11 +439,11 @@
             
             for (const line of lines) {
                 const trimmedLine = line.trim();
-                if (trimmedLine === '%chardef begin') {
+                if (trimmedLine.includes('[data]') || trimmedLine.includes('%chardef begin')) {
                     inDataSection = true;
                     continue;
                 }
-                if (trimmedLine === '%chardef end') {
+                if (trimmedLine.includes('%chardef end')) {
                     inDataSection = false;
                     break;
                 }
@@ -472,12 +473,12 @@
             console.log("編碼資料解析完成。");
             resetInputState();
         }
-        
+
         function loadCinFile(filename) {
             fetch(filename)
                 .then(response => {
                     if (!response.ok) {
-                        throw new Error('載入編碼檔失敗，請檢查檔案路徑。');
+                        throw new Error(`載入編碼檔失敗，請檢查檔案路徑。`);
                     }
                     return response.text();
                 })
@@ -528,18 +529,21 @@
             });
         }
 
+        function switchInputMethod(methodName) {
+            if (methodName === 'primary') {
+                loadCinFile('3code.cin');
+            } else if (methodName === 'secondary') {
+                loadCinFile('3code2.txt');
+            }
+            updateModeDisplay();
+        }
+
         // --- 事件處理 ---
         
         // 模式切換事件監聽
         modeRadios.forEach(radio => {
             radio.addEventListener('change', (event) => {
-                const mode = event.target.value;
-                if (mode === 'primary') {
-                    loadCinFile('3code.cin'); // 這裡可以根據需要調整成不同的檔案
-                } else {
-                    loadCinFile('3code2.cin'); // 例如次常用字檔案
-                }
-                updateModeDisplay();
+                switchInputMethod(event.target.value);
             });
         });
 
@@ -680,8 +684,7 @@
         });
         
         // 頁面載入時先初始化顯示
-        loadCinFile('3code.cin'); // 載入預設的檔案
+        switchInputMethod('primary');
         updateKeyboardDisplay();
-        updateModeDisplay();
     </script>
 </body></html>
