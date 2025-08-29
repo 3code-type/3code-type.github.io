@@ -564,12 +564,23 @@
                 keyElement.classList.add('active');
             }
             
-            // 處理數字選字
-            if (event.key >= '1' && event.key <= '9') {
-                const selectedIndex = parseInt(event.key) - 1;
-                if (selectedIndex < candidates.length) {
-                    textOutput.textContent += candidates[selectedIndex];
-                    resetInputState();
+            // 處理數字選字或直接上字
+            if (event.key >= '0' && event.key <= '9') {
+                if (candidates.length > 0) {
+                    const selectedIndex = parseInt(event.key === '0' ? '9' : event.key) - 1; // '0' for 10th candidate
+                    if (event.key === '0') {
+                        if (candidates.length > 9) {
+                            textOutput.textContent += candidates[9];
+                            resetInputState();
+                        }
+                    } else {
+                        if (selectedIndex < candidates.length) {
+                            textOutput.textContent += candidates[selectedIndex];
+                            resetInputState();
+                        }
+                    }
+                } else {
+                    textOutput.textContent += event.key;
                 }
                 return;
             }
