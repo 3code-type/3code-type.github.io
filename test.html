@@ -416,6 +416,7 @@
         const searchInput = document.getElementById('search-input');
         const searchResult = document.getElementById('search-result');
         const modeDisplay = document.getElementById('mode-display');
+        const allKeys = document.querySelectorAll('.key');
 
         // --- 載入碼表檔案（已修復） ---
         async function loadCodemap(filePath) {
@@ -575,8 +576,13 @@
                 'a': 'a', 's': 's', 'd': 'd', 'f': 'f', 'g': 'g', 'h': 'h', 'j': 'j', 'k': 'k', 'l': 'l',
                 'z': 'z', 'x': 'x', 'c': 'c', 'v': 'v', 'b': 'b', 'n': 'n', 'm': 'm'
             };
-
             const inputKey = keyMap[key] || key;
+
+            // 處理按鍵反白效果
+            const pressedKey = document.querySelector(`.key[data-code='${inputKey}']`);
+            if (pressedKey) {
+                pressedKey.classList.add('active');
+            }
             
             // 處理 Shift 鍵切換模式
             if (event.key === "Shift") {
@@ -601,23 +607,43 @@
             }
 
             // 在中文模式下處理
-            if (inputKey) {
+            // 修正：處理數字鍵的邏輯
+            if (event.key >= '0' && event.key <= '9') {
                 event.preventDefault(); // 阻止瀏覽器默認行為
-                handleKey(inputKey);
-            } else if (event.key >= '1' && event.key <= '9') {
                 const index = parseInt(event.key, 10) - 1;
-                if (index < currentCandidates.length) {
+                if (currentCandidates.length > 0 && index >= 0 && index < currentCandidates.length) {
+                    // 有候選字，且數字鍵在範圍內，則選字
                     output.textContent += currentCandidates[index];
                     resetInputState();
+                } else {
+                    // 無候選字，直接輸出數字
+                    output.textContent += event.key;
+                    resetInputState();
                 }
+            } else if (inputKey) {
+                event.preventDefault(); // 阻止瀏覽器默認行為
+                handleKey(inputKey);
             } else if (event.key.length === 1) { // 處理未映射的單個字元
                  output.textContent += event.key;
+            }
+        });
+        
+        // 監聽實體鍵盤放開事件，移除按鍵反白
+        document.addEventListener('keyup', (event) => {
+            const key = event.key.toLowerCase();
+            const keyMap = {
+                // ... key mappings
+            };
+            const releasedKey = keyMap[key] || key;
+            const releasedKeyDiv = document.querySelector(`.key[data-code='${releasedKey}']`);
+            if (releasedKeyDiv) {
+                releasedKeyDiv.classList.remove('active');
             }
         });
 
         // 處理鍵盤與物理鍵盤的共用邏輯
         function handleKey(key) {
-            const validCodeKeys = "1234567890abcdefghijklmnopqrstuvwxyz;',./";
+            const validCodeKeys = "abcdefghijklmnopqrstuvwxyz;',./";
             
             if (validCodeKeys.includes(key) && currentCode.length < 3) {
                 currentCode += key;
