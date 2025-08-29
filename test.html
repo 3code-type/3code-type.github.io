@@ -455,14 +455,15 @@
         document.addEventListener('keydown', (event) => {
             const key = event.key.toLowerCase();
             const keys = "abcdefghijklmnopqrstuvwxyz;,.";
-
+            
             // 使用 Shift 鍵切換模式
             if (event.key === "Shift") {
+                if (event.repeat) return; // 避免在長按時重複觸發
                 isEnglishMode = !isEnglishMode;
                 updateModeDisplay();
                 updateKeyboardDisplay();
                 resetInputState();
-                event.preventDefault(); // 避免 Shift 鍵的預設行為
+                event.preventDefault();
                 return;
             }
 
@@ -537,7 +538,6 @@
                 searchResult.textContent = '查詢結果顯示在此';
             }
         });
-        
     </script>
 </body>
 </html>
