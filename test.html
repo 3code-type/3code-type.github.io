@@ -430,22 +430,25 @@
             modeDisplay.textContent = `模式：${selectedMode}`;
         }
         
-        function parseCin(cinText) {
+        function parseFile(fileText) {
             currentCodemap = {};
             currentReverseCodemap = {};
             
-            const lines = cinText.split(/\r?\n/);
+            const lines = fileText.split(/\r?\n/);
             let inDataSection = false;
             
             for (const line of lines) {
                 const trimmedLine = line.trim();
-                if (trimmedLine.includes('[data]') || trimmedLine.includes('%chardef begin')) {
+                
+                // 檢查兩種檔案的資料區段開頭
+                if (trimmedLine.startsWith('%chardef begin') || trimmedLine.startsWith('[data]')) {
                     inDataSection = true;
                     continue;
                 }
-                if (trimmedLine.includes('%chardef end')) {
+                
+                // 檢查資料區段結尾
+                if (trimmedLine.startsWith('%chardef end') || trimmedLine === '') {
                     inDataSection = false;
-                    break;
                 }
                 
                 if (inDataSection && trimmedLine !== '' && !trimmedLine.startsWith('#')) {
@@ -457,7 +460,12 @@
                         if (!currentCodemap[code]) {
                             currentCodemap[code] = [];
                         }
-                        currentCodemap[code].push(...characters);
+                        // 確保不重複添加
+                        characters.forEach(char => {
+                            if (!currentCodemap[code].includes(char)) {
+                                currentCodemap[code].push(char);
+                            }
+                        });
                         
                         characters.forEach(char => {
                             if (!currentReverseCodemap[char]) {
@@ -473,17 +481,17 @@
             console.log("編碼資料解析完成。");
             resetInputState();
         }
-
-        function loadCinFile(filename) {
+        
+        function loadFile(filename) {
             fetch(filename)
                 .then(response => {
                     if (!response.ok) {
-                        throw new Error(`載入編碼檔失敗，請檢查檔案路徑。`);
+                        throw new Error(`載入編碼檔失敗，請檢查檔案路徑：${filename}`);
                     }
                     return response.text();
                 })
                 .then(text => {
-                    parseCin(text);
+                    parseFile(text);
                 })
                 .catch(error => {
                     console.error(error);
@@ -531,9 +539,9 @@
 
         function switchInputMethod(methodName) {
             if (methodName === 'primary') {
-                loadCinFile('3code.cin');
+                loadFile('3code.cin');
             } else if (methodName === 'secondary') {
-                loadCinFile('3code2.txt');
+                loadFile('3code2.txt');
             }
             updateModeDisplay();
         }
@@ -560,7 +568,7 @@
             if (event.key >= '1' && event.key <= '9') {
                 const selectedIndex = parseInt(event.key) - 1;
                 if (selectedIndex < candidates.length) {
-                    textOutput.textContent += candidates[selectedIndex].substring(candidates[selectedIndex].indexOf('.') + 2);
+                    textOutput.textContent += candidates[selectedIndex];
                     resetInputState();
                 }
                 return;
@@ -578,7 +586,7 @@
             if (key === ' ' || key === 'space') {
                 event.preventDefault();
                 if (candidates.length > 0) {
-                    textOutput.textContent += candidates[0].substring(candidates[0].indexOf('.') + 2);
+                    textOutput.textContent += candidates[0];
                 }
                 resetInputState();
                 return;
@@ -630,7 +638,7 @@
 
                 if (code === 'space') {
                     if (candidates.length > 0) {
-                        textOutput.textContent += candidates[0].substring(candidates[0].indexOf('.') + 2);
+                        textOutput.textContent += candidates[0];
                     }
                     resetInputState();
                     return;
