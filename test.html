@@ -215,11 +215,19 @@
             background-color: var(--primary-color);
             color: white;
         }
+
+        #status-message {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #d32f2f;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>三碼中文輸入法模擬器</h1>
+        <p id="status-message"></p>
         <div class="input-area">
             <textarea id="output" placeholder="點擊下方鍵盤或輸入英數字..."></textarea>
             <div id="candidate-area" class="candidate-area"></div>
@@ -250,13 +258,13 @@
         let currentCodemap = {};
         let currentReverseCodemap = {};
         let isEnglishMode = false;
-        let shiftTimer = null;
         const output = document.getElementById('output');
         const candidateArea = document.getElementById('candidate-area');
         const keyboard = document.getElementById('keyboard');
         const searchInput = document.getElementById('searchInput');
         const searchResult = document.getElementById('searchResult');
         const modeDisplay = document.getElementById('mode-display');
+        const statusMessage = document.getElementById('status-message');
 
         // --- 載入碼表檔案 ---
         async function loadCodemap(filePath) {
@@ -269,6 +277,7 @@
                 return parseCinFile(text);
             } catch (error) {
                 console.error(error);
+                statusMessage.textContent = `載入碼表檔案失敗：無法找到 ${filePath}。請確認所有檔案都在同一目錄下。`;
                 return { forward: {}, reverse: {} };
             }
         }
@@ -445,15 +454,27 @@
 
         document.addEventListener('keydown', (event) => {
             const key = event.key.toLowerCase();
-            const keys = 'abcdefghijklmnopqrstuvwxyz;,.';
+            const keys = "abcdefghijklmnopqrstuvwxyz;,.";
 
+            // 使用 Shift 鍵切換模式
+            if (event.key === "Shift") {
+                isEnglishMode = !isEnglishMode;
+                updateModeDisplay();
+                updateKeyboardDisplay();
+                resetInputState();
+                event.preventDefault(); // 避免 Shift 鍵的預設行為
+                return;
+            }
+
+            // 在英數模式下直接輸出
             if (isEnglishMode) {
-                if (keys.includes(key) || key === '/') {
-                    output.value += event.key;
+                if (keys.includes(key) || key === '/' || key === ' ' || event.key === 'Backspace' || event.key.length === 1) {
+                     output.value += event.key;
                 }
                 return;
             }
 
+            // 中文模式邏輯
             if (keys.includes(key)) {
                 if (currentCode.length < 3) {
                     currentCode += key;
@@ -469,6 +490,7 @@
                 } else if (output.value.length > 0) {
                     output.value = output.value.slice(0, -1);
                 }
+                event.preventDefault();
             } else if (event.key === ' ') {
                 if (currentCandidates.length > 0) {
                     output.value += currentCandidates[0];
@@ -483,29 +505,8 @@
                     output.value += currentCandidates[index];
                     resetInputState();
                 }
-            } else if (event.key === 'Shift') {
-                if (!shiftTimer) {
-                    shiftTimer = setTimeout(() => {
-                        isEnglishMode = !isEnglishMode;
-                        updateModeDisplay();
-                        updateKeyboardDisplay();
-                        resetInputState();
-                        shiftTimer = null;
-                    }, 300);
-                }
-            } else {
-                if (currentCandidates.length === 0) {
-                    output.value += event.key;
-                }
-            }
-        });
-
-        document.addEventListener('keyup', (event) => {
-            if (event.key === 'Shift') {
-                if (shiftTimer) {
-                    clearTimeout(shiftTimer);
-                    shiftTimer = null;
-                }
+            } else if (event.key.length === 1) {
+                 output.value += event.key;
             }
         });
 
