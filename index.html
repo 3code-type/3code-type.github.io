@@ -394,8 +394,8 @@
                 <div class="key space-key" data-code=" ">空白鍵</div>
                 <div class="key function-key" data-code="enter">Enter</div>
                 <div class="key function-key" data-code="backspace">刪除鍵</div>
-                <div class="key page-key" data-code="&lt;">＜</div>
-                <div class="key page-key" data-code="&gt;">＞</div>
+                <div class="key page-key" data-code="<">＜</div>
+                <div class="key page-key" data-code=">">＞</div>
             </div>
         </div>
     </div>
@@ -416,7 +416,7 @@
             'o': 'Ｏ', 'p': 'Ｐ', 'q': 'Ｑ', 'r': 'Ｒ', 's': 'Ｓ', 't': 'Ｔ', 'u': 'Ｕ',
             'v': 'Ｖ', 'w': 'Ｗ', 'x': 'Ｘ', 'y': 'Ｙ', 'z': 'Ｚ',
             '1': '1', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6', '7': '7', '8': '8', '9': '9', '0': '0',
-            "'": "〃", ';': '；', ',': '，', '.': '．', '/': '／', ' ': '　', '<': '＜', '>': '＞', 'escape': 'Esc',
+            "'": "〃", ';': '；', ',': '，', '.': '．', '/': '／', '<': '＜', '>': '＞', ' ': '　', 'escape': 'Esc',
             'shift': 'Shift', 'enter': 'Enter', 'backspace': '刪除鍵', 
         };
         const keyname_map_lower = {
@@ -425,8 +425,28 @@
             'o': 'o', 'p': 'p', 'q': 'q', 'r': 'r', 's': 's', 't': 't', 'u': 'u',
             'v': 'v', 'w': 'w', 'x': 'x', 'y': 'y', 'z': 'z',
             '1': '1', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6', '7': '7', '8': '8', '9': '9', '0': '0',
-            "'": "〃", ';': ';', ',': ',', '.': '.', '/': '/', ' ': ' ', '<': '<', '>': '>', 'escape': 'Esc',
+            "'": "'", ';': ';', ',': ',', '.': '.', '/': '/', '<': '<', '>': '>', ' ': ' ', 'escape': 'Esc',
             'shift': 'Shift', 'enter': 'Enter', 'backspace': '刪除鍵',
+        };
+        
+        // 中文模式下，長按 Shift 顯示的對應字元（全數改為半形）
+        const keyname_map_chinese_shifted = {
+            '1': '!', '2': '@', '3': '#', '4': '$', '5': '%', '6': '^', '7': '&', '8': '*', '9': '(', '0': ')',
+            'q': 'Q', 'w': 'W', 'e': 'E', 'r': 'R', 't': 'T', 'y': 'Y', 'u': 'U', 'i': 'I', 'o': 'O', 'p': 'P',
+            'a': 'A', 's': 'S', 'd': 'D', 'f': 'F', 'g': 'G', 'h': 'H', 'j': 'J', 'k': 'K', 'l': 'L',
+            ';': ':', "'": '"',
+            'z': 'Z', 'x': 'X', 'c': 'C', 'v': 'V', 'b': 'B', 'n': 'N', 'm': 'M',
+            ',': '<', '.': '>', '/': '?',
+        };
+
+        // 英文模式下，長按 Shift 顯示的對應字元（全數改為半形）
+        const keyname_map_english_shifted = {
+            '1': '!', '2': '@', '3': '#', '4': '$', '5': '%', '6': '^', '7': '&', '8': '*', '9': '(', '0': ')',
+            'q': 'Q', 'w': 'W', 'e': 'E', 'r': 'R', 't': 'T', 'y': 'Y', 'u': 'U', 'i': 'I', 'o': 'O', 'p': 'P',
+            'a': 'A', 's': 'S', 'd': 'D', 'f': 'F', 'g': 'G', 'h': 'H', 'j': 'J', 'k': 'K', 'l': 'L',
+            ';': ':', "'": '"',
+            'z': 'Z', 'x': 'X', 'c': 'C', 'v': 'V', 'b': 'B', 'n': 'N', 'm': 'M',
+            ',': '<', '.': '>', '/': '?',
         };
 
         const textOutput = document.getElementById('text-output');
@@ -439,11 +459,16 @@
         const modeRadioButtons = document.querySelectorAll('input[name="input_mode"]');
 
         const MAX_CODE_LENGTH = 3;
+        const SHIFT_HOLD_THRESHOLD = 300; // 300毫秒
+        
         let currentCode = '';
         let currentCandidates = [];
         let currentPage = 0;
         const candidatesPerPage = 10;
         let isEnglishMode = false;
+        let isShiftDown = false;
+        let shiftTimer = null;
+        let isLongPressActive = false;
         let currentInputMethod = 'primary';
         
         // 函式：格式化碼表資料為物件
@@ -539,6 +564,21 @@
                 element.focus();
             }
         }
+        
+        // --- 處理長按 Shift 虛擬鍵盤點擊的輔助函數 ---
+        function handleShiftedVirtualInput(code) {
+            let outputChar = '';
+            if (isEnglishMode) {
+                outputChar = keyname_map_english_shifted[code];
+            } else {
+                outputChar = keyname_map_chinese_shifted[code];
+            }
+            if (outputChar) {
+                insertTextAtCursor(textOutput, outputChar);
+                return true;
+            }
+            return false;
+        }
 
         // --- 虛擬鍵盤點擊事件 ---
         keyboardContainer.addEventListener('click', (event) => {
@@ -547,20 +587,40 @@
             const code = key.dataset.code;
 
             if (code === 'shift') {
-                isEnglishMode = !isEnglishMode;
-                updateModeDisplay();
-                updateKeyboardDisplay();
-                resetInputState();
-            } else if (code === '<') {
-                handlePageChange('previous');
-            } else if (code === '>') {
-                handlePageChange('next');
-            } else {
-                if (isEnglishMode) {
-                    handleEnglishInput(code);
+                if (isLongPressActive) {
+                    isLongPressActive = false;
+                    updateKeyboardDisplay();
                 } else {
-                    handleChineseInput(code);
+                    isEnglishMode = !isEnglishMode;
+                    updateModeDisplay();
+                    updateKeyboardDisplay();
+                    resetInputState();
                 }
+                return;
+            }
+            
+            if (isLongPressActive) {
+                if (handleShiftedVirtualInput(code)) {
+                    return;
+                }
+            }
+            
+            if (code === '<') { 
+                handlePageChange('previous');
+            } else if (code === '>') { 
+                handlePageChange('next');
+            } else if (code === 'backspace') {
+                deleteTextAtCursor(textOutput);
+                return;
+            } else if (code === 'enter') {
+                insertTextAtCursor(textOutput, '\n');
+                return;
+            }
+            
+            if (isEnglishMode) {
+                handleEnglishInput(code);
+            } else {
+                handleChineseInput(code);
             }
         });
         
@@ -595,16 +655,6 @@
                 return;
             }
             
-            // 獨立的翻頁處理函數
-            if (code === '<') {
-                handlePageChange('previous');
-                return;
-            }
-            if (code === '>') {
-                handlePageChange('next');
-                return;
-            }
-            
             if (code === ' ') {
                 if (currentCandidates.length > 0) {
                     selectCandidate(0);
@@ -615,7 +665,7 @@
             }
             
             const inputChar = code.toLowerCase();
-            if (inputChar.match(/^[a-z;'./,<>]$/)) {
+            if (inputChar.match(/^[a-z;'./,]$/)) {
                 if (currentCode.length === MAX_CODE_LENGTH && currentCandidates.length > 0) {
                     selectCandidate(0);
                     currentCode = inputChar;
@@ -743,7 +793,10 @@
 
         // --- 更新鍵盤按鍵顯示 ---
         function updateKeyboardDisplay() {
-            const map = isEnglishMode ? keyname_map_lower : keyname_map_upper;
+            let map = isEnglishMode ? keyname_map_lower : keyname_map_upper;
+            if (isLongPressActive) {
+                map = isEnglishMode ? keyname_map_english_shifted : keyname_map_chinese_shifted;
+            }
             document.querySelectorAll('.key[data-code]').forEach(keyElement => {
                 const code = keyElement.dataset.code;
                 if (map[code]) {
@@ -758,29 +811,35 @@
             modeDisplay.textContent = isEnglishMode ? '模式：英文' : `模式：${currentModeText}`;
         }
 
-        let shiftTimer = null;
-        const SHIFT_HOLD_THRESHOLD = 200; // 200毫秒
-
         // --- 實體鍵盤事件處理 ---
-        // 取得按鍵代碼的輔助函數
-        function getKeyCode(eventKey) {
-            switch (eventKey) {
+        // 取得按鍵代碼的輔助函數，使用 event.code 來確保物理鍵的一致性
+        function getKeyCode(event) {
+            const code = event.code;
+            if (code.startsWith('Key')) {
+                return code.replace('Key', '').toLowerCase();
+            }
+            if (code.startsWith('Digit')) {
+                return code.replace('Digit', '');
+            }
+            switch (code) {
                 case 'Backspace': return 'backspace';
                 case 'Enter': return 'enter';
                 case 'Escape': return 'escape';
-                case 'Shift': return 'shift';
-                case ' ': return ' ';
-                default:
-                    if (eventKey.length === 1) {
-                        return eventKey.toLowerCase();
-                    }
-                    return null;
+                case 'ShiftLeft':
+                case 'ShiftRight': return 'shift';
+                case 'Space': return ' ';
+                case 'Comma': return ',';
+                case 'Period': return '.';
+                case 'Slash': return '/';
+                case 'Semicolon': return ';';
+                case 'Quote': return "'";
+                default: return null;
             }
         }
-
+        
         // keydown 事件處理
         document.addEventListener('keydown', (event) => {
-            const virtualKeyCode = getKeyCode(event.key);
+            const virtualKeyCode = getKeyCode(event);
             if (virtualKeyCode) {
                 const keyElement = document.querySelector(`.key[data-code="${virtualKeyCode}"]`);
                 if (keyElement) {
@@ -788,41 +847,49 @@
                 }
             }
             
-            // 處理 Shift+逗號/句號 組合鍵
-            if (event.key === ',' && event.shiftKey) {
-                event.preventDefault();
-                handlePageChange('previous');
-                return;
-            }
-            if (event.key === '.' && event.shiftKey) {
-                event.preventDefault();
-                handlePageChange('next');
-                return;
+            // 處理 Shift + < 或 Shift + > 的翻頁功能
+            if (event.shiftKey && (event.key === '<' || event.key === '>')) {
+                if (!isEnglishMode && currentCandidates.length > candidatesPerPage) {
+                    event.preventDefault();
+                    if (event.key === '<') {
+                        handlePageChange('previous');
+                    } else if (event.key === '>') {
+                        handlePageChange('next');
+                    }
+                    return; 
+                }
             }
 
             if (event.key === 'Shift') {
-                if (!event.altKey && !event.ctrlKey && !event.metaKey) {
-                    if (!shiftTimer) {
-                        shiftTimer = setTimeout(() => { shiftTimer = null; }, SHIFT_HOLD_THRESHOLD);
-                    }
+                if (!isShiftDown) {
+                    isShiftDown = true;
+                    clearTimeout(shiftTimer);
+                    shiftTimer = setTimeout(() => {
+                        isLongPressActive = true;
+                        updateKeyboardDisplay();
+                    }, SHIFT_HOLD_THRESHOLD);
                 }
                 return;
             }
-            
-            const code = getKeyCode(event.key);
-            
-            if (isEnglishMode) {
-                const handledKeys = ['Backspace', 'Enter', 'Escape', ' '];
-                if (handledKeys.includes(event.key)) {
+
+            // 在中文模式下，處理長按 Shift 後的符號鍵
+            if (!isEnglishMode && event.shiftKey) {
+                const code = getKeyCode(event);
+                const outputChar = keyname_map_chinese_shifted[code];
+                if (outputChar) {
                     event.preventDefault();
-                    handleEnglishInput(event.key.toLowerCase());
-                } else if (event.key.length === 1 && event.key.match(/^[a-z0-9;'./,<>]$/i)) {
-                    event.preventDefault();
-                    handleEnglishInput(event.key);
+                    insertTextAtCursor(textOutput, outputChar);
+                    return;
                 }
-            } else { // 中文模式
-                if (code) {
-                    event.preventDefault();
+            }
+
+            // 處理一般輸入
+            const code = getKeyCode(event);
+            if (code && code !== 'shift') {
+                event.preventDefault(); 
+                if (isEnglishMode) {
+                    handleEnglishInput(event.key);
+                } else {
                     handleChineseInput(code);
                 }
             }
@@ -830,7 +897,7 @@
 
         // keyup 事件處理
         document.addEventListener('keyup', (event) => {
-            const virtualKeyCode = getKeyCode(event.key);
+            const virtualKeyCode = getKeyCode(event);
             if (virtualKeyCode) {
                 const keyElement = document.querySelector(`.key[data-code="${virtualKeyCode}"]`);
                 if (keyElement) {
@@ -839,16 +906,20 @@
             }
 
             if (event.key === 'Shift') {
+                isShiftDown = false;
+                
                 if (shiftTimer) {
                     clearTimeout(shiftTimer);
                     shiftTimer = null;
+                }
+                
+                if (!isLongPressActive) {
                     isEnglishMode = !isEnglishMode;
                     updateModeDisplay();
-                    updateKeyboardDisplay();
-                    resetInputState();
-                } else {
-                    shiftTimer = null; 
                 }
+                
+                isLongPressActive = false;
+                updateKeyboardDisplay();
             }
         });
 

@@ -432,10 +432,10 @@
         // 中文模式下，長按 Shift 顯示的對應字元（全數改為半形）
         const keyname_map_chinese_shifted = {
             '1': '!', '2': '@', '3': '#', '4': '$', '5': '%', '6': '^', '7': '&', '8': '*', '9': '(', '0': ')',
-            'q': 'q', 'w': 'w', 'e': 'e', 'r': 'r', 't': 't', 'y': 'y', 'u': 'u', 'i': 'i', 'o': 'o', 'p': 'p',
-            'a': 'a', 's': 's', 'd': 'd', 'f': 'f', 'g': 'G', 'h': 'H', 'j': 'J', 'k': 'K', 'l': 'L',
+            'q': 'Q', 'w': 'W', 'e': 'E', 'r': 'R', 't': 'T', 'y': 'Y', 'u': 'U', 'i': 'I', 'o': 'O', 'p': 'P',
+            'a': 'A', 's': 'S', 'd': 'D', 'f': 'F', 'g': 'G', 'h': 'H', 'j': 'J', 'k': 'K', 'l': 'L',
             ';': ':', "'": '"',
-            'z': 'z', 'x': 'x', 'c': 'c', 'v': 'v', 'b': 'b', 'n': 'n', 'm': 'm',
+            'z': 'Z', 'x': 'X', 'c': 'C', 'v': 'V', 'b': 'B', 'n': 'N', 'm': 'M',
             ',': '<', '.': '>', '/': '?',
         };
 
@@ -836,7 +836,7 @@
                 default: return null;
             }
         }
-
+        
         // keydown 事件處理
         document.addEventListener('keydown', (event) => {
             const virtualKeyCode = getKeyCode(event);
@@ -847,7 +847,7 @@
                 }
             }
             
-            // 優先處理 Shift + < 或 Shift + > 的翻頁功能
+            // 處理 Shift + < 或 Shift + > 的翻頁功能
             if (event.shiftKey && (event.key === '<' || event.key === '>')) {
                 if (!isEnglishMode && currentCandidates.length > candidatesPerPage) {
                     event.preventDefault();
@@ -860,36 +860,30 @@
                 }
             }
 
-            if (event.key === 'Shift' && !isShiftDown) {
-                isShiftDown = true;
-                clearTimeout(shiftTimer);
-                shiftTimer = setTimeout(() => {
-                    isLongPressActive = true;
-                    updateKeyboardDisplay();
-                }, SHIFT_HOLD_THRESHOLD);
-                return; 
-            }
-
-            // 處理長按 Shift 後，實體鍵盤輸入的字元
-            if (isLongPressActive && event.key !== 'Shift') {
-                event.preventDefault(); 
-                let outputChar = '';
-                
-                const code = getKeyCode(event);
-                
-                if (isEnglishMode) {
-                    outputChar = keyname_map_english_shifted[code];
-                } else {
-                    outputChar = keyname_map_chinese_shifted[code];
+            if (event.key === 'Shift') {
+                if (!isShiftDown) {
+                    isShiftDown = true;
+                    clearTimeout(shiftTimer);
+                    shiftTimer = setTimeout(() => {
+                        isLongPressActive = true;
+                        updateKeyboardDisplay();
+                    }, SHIFT_HOLD_THRESHOLD);
                 }
-                
-                if (outputChar) {
-                    insertTextAtCursor(textOutput, outputChar);
-                }
-                
                 return;
             }
-            
+
+            // 在中文模式下，處理長按 Shift 後的符號鍵
+            if (!isEnglishMode && event.shiftKey) {
+                const code = getKeyCode(event);
+                const outputChar = keyname_map_chinese_shifted[code];
+                if (outputChar) {
+                    event.preventDefault();
+                    insertTextAtCursor(textOutput, outputChar);
+                    return;
+                }
+            }
+
+            // 處理一般輸入
             const code = getKeyCode(event);
             if (code && code !== 'shift') {
                 event.preventDefault(); 
