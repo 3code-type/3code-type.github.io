@@ -1001,29 +1001,28 @@
         });
 
         function updatePhraseLookup() {
-            let textToSearch;
+            // The text we want to look up codes for. This should always be the content of the phraseInput.
+            const textToSearch = phraseInput.value;
+            // The text we want to compare against for coloring. This is the content of the main input area.
+            const textToCompare = textOutput.value;
             let cursorPosition;
 
-            // 判斷哪個輸入區塊有焦點
+            // Determine which textarea has the cursor to get the correct cursor position.
             if (phraseInput === document.activeElement) {
-                textToSearch = phraseInput.value;
                 cursorPosition = phraseInput.selectionStart;
             } else if (textOutput === document.activeElement) {
-                textToSearch = textOutput.value;
                 cursorPosition = textOutput.selectionStart;
             } else {
-                // 如果都沒有焦點，則使用 phraseInput 的內容
-                textToSearch = phraseInput.value;
-                cursorPosition = 0;
+                cursorPosition = 0; // Default if no focus
             }
             
             encodingResults.innerHTML = '';
             
-            // 根據游標位置計算查碼區塊的起始索引
+            // The starting index for the 10-character lookup block, based on the cursor position.
             const lookupStartIndex = Math.floor(cursorPosition / 10) * 10;
             const characters = textToSearch.split('').slice(lookupStartIndex, lookupStartIndex + 10);
             
-            // 固定顯示10個欄位
+            // Fixed loop to display 10 columns
             for (let i = 0; i < 10; i++) {
                 const column = document.createElement('div');
                 column.className = 'char-encoding-column';
@@ -1034,15 +1033,17 @@
                 if (i < characters.length) {
                     const char = characters[i];
                     charLabel.textContent = char;
-                    const results = currentReverseCodemap[char];
+                    const globalIndex = lookupStartIndex + i;
                     
-                    if (results && results.length > 0) {
+                    if (globalIndex < textToCompare.length && char === textToCompare[globalIndex]) {
+                        // The character at this position matches the typed character.
                         charLabel.classList.add('correct-char');
                     } else {
+                        // The character doesn't match or hasn't been typed yet.
                         charLabel.classList.add('incorrect-char');
                     }
                 }
-
+                
                 const encodingContainer = document.createElement('div');
                 encodingContainer.style.display = 'flex';
                 encodingContainer.style.flexDirection = 'column';
