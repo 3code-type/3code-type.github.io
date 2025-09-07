@@ -237,7 +237,6 @@
             flex-direction: column;
             gap: 10px;
             padding-top: 12px;
-            border-top: 1px dashed var(--border-color);
         }
         
         .lookup-section h2 {
@@ -324,7 +323,7 @@
             flex-direction: column;
             align-items: center;
             gap: 5px;
-            margin-top: 15px;
+            margin-top: 5px;
         }
 
         .key-row {
@@ -411,13 +410,11 @@
         </div>
 
         <div class="lookup-section">
-            <h2>查碼區</h2>
-            <textarea id="phrase-input" placeholder="在此輸入或貼上一段文字..."></textarea>
+            <textarea id="phrase-input" placeholder="在此貼上一段文字查碼！"></textarea>
             <div id="encoding-results"></div>
         </div>
         
-        <h2>練打區</h2>
-        <textarea class="text-output-area" id="text-output" placeholder="開始輸入練習吧！"></textarea>
+        <textarea class="text-output-area" id="text-output" placeholder="點此輸入編碼練習打字"></textarea>
 
         <div class="input-area">
             <input type="text" id="main-input" placeholder="編碼顯示在此" readonly="">
