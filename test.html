@@ -1040,7 +1040,19 @@
             const textToCompare = textOutput.value;
             encodingResults.innerHTML = '';
             
-            const characters = textToSearch.split('').slice(0, 10);
+            // 計算連續正確字元的數量
+            let correctCharsCount = 0;
+            for (let i = 0; i < textToCompare.length && i < textToSearch.length; i++) {
+                if (textToCompare[i] === textToSearch[i]) {
+                    correctCharsCount++;
+                } else {
+                    break;
+                }
+            }
+            
+            // 根據正確字數計算查碼區塊的起始索引
+            const lookupStartIndex = Math.floor(correctCharsCount / 10) * 10;
+            const characters = textToSearch.split('').slice(lookupStartIndex, lookupStartIndex + 10);
             
             // 固定顯示10個欄位
             for (let i = 0; i < 10; i++) {
@@ -1054,9 +1066,10 @@
                 if (i < characters.length) {
                     const char = characters[i];
                     charLabel.textContent = char;
-
-                    if (i < textToCompare.length) {
-                        if (char === textToCompare[i]) {
+                    const globalIndex = lookupStartIndex + i;
+                    
+                    if (globalIndex < textToCompare.length) {
+                        if (char === textToCompare[globalIndex]) {
                             charLabel.classList.add('correct-char');
                         } else {
                             charLabel.classList.add('incorrect-char');
