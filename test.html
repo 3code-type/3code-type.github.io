@@ -449,6 +449,11 @@
             ',': '<', '.': '>', '/': '?',
         };
 
+        const fullWidthDigits = {
+            '1': '１', '2': '２', '3': '３', '4': '４', '5': '５',
+            '6': '６', '7': '７', '8': '８', '9': '９', '0': '０'
+        };
+
         const textOutput = document.getElementById('text-output');
         const mainInput = document.getElementById('main-input');
         const candidateDisplay = document.getElementById('candidate-display');
@@ -754,7 +759,8 @@
 
             displayedCandidates.forEach((candidate, index) => {
                 const span = document.createElement('span');
-                const displayIndex = (index === 9) ? '0' : (index + 1).toString();
+                const digit = (index === 9) ? '0' : (index + 1).toString();
+                const displayIndex = fullWidthDigits[digit] || digit;
                 span.textContent = `${displayIndex}. ${candidate}`;
                 span.style.cursor = 'pointer';
                 span.style.userSelect = 'none';
@@ -962,8 +968,9 @@
                                 // 第一個字不顯示數字
                                 suffix = '';
                             } else if (index < 9) {
-                                // 第二個到第九個顯示數字
-                                suffix = (index + 1).toString();
+                                // 第二個到第九個顯示全形數字
+                                const digit = (index + 1).toString();
+                                suffix = fullWidthDigits[digit];
                             } else if (index === 9) {
                                 // 第十個顯示全形零
                                 suffix = '０';
