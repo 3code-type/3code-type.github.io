@@ -162,8 +162,11 @@
             padding: 8px;
         }
 
-        .text-output-area {
-            min-height: 150px;
+        /* 調整輸入框高度 */
+        .text-output-area,
+        #phrase-input {
+            min-height: 50px;
+            height: 50px;
             background-color: #fafafa;
             resize: none;
         }
@@ -239,7 +242,8 @@
         #phrase-input {
             width: 100%;
             min-height: 50px;
-            resize: vertical;
+            height: 50px;
+            resize: none;
             font-size: var(--unified-font-size);
             padding: 8px;
         }
@@ -273,6 +277,11 @@
             box-sizing: border-box;
             gap: 2px;
         }
+
+        .char-encoding-column.highlight-char {
+            border: 2px solid var(--primary-color);
+            background-color: #d1d9ff;
+        }
         
         .char-encoding-column .char-label {
             font-weight: bold;
@@ -298,12 +307,6 @@
         
         .incorrect-char {
             color: red;
-        }
-
-        /* 焦點高亮顯示 */
-        .focused-char-background {
-            background-color: #c5cae9 !important; /* 使用較明顯的藍色調 */
-            border-radius: 4px;
         }
 
         /* 鍵盤樣式 */
@@ -399,7 +402,13 @@
             </div>
         </div>
 
-        <textarea class="text-output-area" id="text-output"></textarea>
+        <div class="lookup-section">
+            <h2>查碼練習</h2>
+            <textarea id="phrase-input" placeholder="在此輸入或貼上一段文字..."></textarea>
+            <div id="encoding-results"></div>
+        </div>
+
+        <textarea class="text-output-area" id="text-output" placeholder="開始輸入練習吧！"></textarea>
 
         <div class="input-area">
             <input type="text" id="main-input" placeholder="編碼顯示在此" readonly="">
@@ -408,12 +417,6 @@
         
         <div id="mode-display">模式：三碼</div>
         
-        <div class="lookup-section">
-            <h2>查碼練習</h2>
-            <textarea id="phrase-input" placeholder="在此輸入或貼上一段文字..."></textarea>
-            <div id="encoding-results"></div>
-        </div>
-
         <div class="keyboard-container">
             <div class="key-row">
                 <div class="key" data-code="1">1</div>
@@ -1033,13 +1036,17 @@
                 const column = document.createElement('div');
                 column.className = 'char-encoding-column';
 
+                const globalIndex = lookupStartIndex + i;
+                if (globalIndex === cursorPosition && (phraseInput === document.activeElement || textOutput === document.activeElement)) {
+                    column.classList.add('highlight-char');
+                }
+
                 const charLabel = document.createElement('span');
                 charLabel.className = 'char-label';
                 
                 if (i < characters.length) {
                     const char = characters[i];
                     charLabel.textContent = char;
-                    const globalIndex = lookupStartIndex + i;
                     
                     if (globalIndex < textToCompare.length && char === textToCompare[globalIndex]) {
                         // The character at this position matches the typed character.
@@ -1048,11 +1055,6 @@
                         // The character doesn't match or hasn't been typed yet.
                         charLabel.classList.add('incorrect-char');
                     }
-                }
-                
-                // Add the highlighted background for the character corresponding to the cursor
-                if (i < characters.length && (lookupStartIndex + i) === cursorPosition) {
-                     charLabel.classList.add('focused-char-background');
                 }
                 
                 const encodingContainer = document.createElement('div');
@@ -1106,14 +1108,15 @@
         }
         
         phraseInput.addEventListener('input', updatePhraseLookup);
-        phraseInput.addEventListener('keyup', updatePhraseLookup); // Capture key releases for cursor movement
-        phraseInput.addEventListener('click', updatePhraseLookup); // Capture mouse clicks for cursor movement
+        phraseInput.addEventListener('keyup', updatePhraseLookup);
+        phraseInput.addEventListener('click', updatePhraseLookup);
+        phraseInput.addEventListener('focus', updatePhraseLookup);
         
         textOutput.addEventListener('input', updatePhraseLookup);
-        textOutput.addEventListener('keyup', updatePhraseLookup); // Capture key releases for cursor movement
-        textOutput.addEventListener('click', updatePhraseLookup); // Capture mouse clicks for cursor movement
+        textOutput.addEventListener('keyup', updatePhraseLookup);
+        textOutput.addEventListener('click', updatePhraseLookup);
+        textOutput.addEventListener('focus', updatePhraseLookup);
         
-        // 頁面載入時先初始化顯示
         switchInputMethod('primary');
         updateKeyboardDisplay();
     </script>
