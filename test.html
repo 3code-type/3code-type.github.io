@@ -190,7 +190,7 @@
 
         /* 候選字區塊樣式 - 允許換行以避免溢出 */
         .candidate-area {
-            min-height: 55px; /* 調整為一致的高度 */
+            min-height: 60px; /* 調整為一致的高度 */
             display: flex;
             flex-wrap: wrap; /* 允許換行以避免溢出 */
             align-items: center;
@@ -325,7 +325,7 @@
             </div>
         </div>
 
-        <div class="text-output-area" id="text-output"></div>
+        <textarea class="text-output-area" id="text-output"></textarea>
 
         <div class="input-area">
             <input type="text" id="main-input" placeholder="編碼顯示在此" readonly="">
@@ -399,346 +399,486 @@
             </div>
         </div>
     </div>
+    
     <script>
-        // --- 全域變數 ---
-        let currentCode = '';
-        let currentCandidates = [];
-        let primaryCodemap = {};
-        let secondaryCodemap = {};
+        // --- 資料處理與解析 ---
+        let primaryCodemap = null;
+        let primaryReverseCodemap = null;
+        let secondaryCodemap = null;
+        let secondaryReverseCodemap = null;
+        
         let currentCodemap = {};
         let currentReverseCodemap = {};
-        let isEnglishMode = false;
-        let currentPage = 0;
-        const candidatesPerPage = 10;
         
-        const output = document.getElementById('text-output');
-        const mainInput = document.getElementById('main-input');
-        const candidateArea = document.getElementById('candidate-display');
-        const keyboard = document.querySelector('.keyboard-container');
-        const searchInput = document.getElementById('search-input');
-        const searchResult = document.getElementById('search-result');
-        const modeDisplay = document.getElementById('mode-display');
-
-        const fullWidthMap = {
-            '0': '０', '1': '１', '2': '２', '3': '３', '4': '４', '5': '５', '6': '６', '7': '７', '8': '８', '9': '９',
-            'a': 'Ａ', 'b': 'Ｂ', 'c': 'Ｃ', 'd': 'Ｄ', 'e': 'Ｅ', 'f': 'Ｆ', 'g': 'Ｇ', 'h': 'Ｈ', 'i': 'Ｉ', 'j': 'Ｊ', 'k': 'Ｋ', 'l': 'Ｌ', 'm': 'Ｍ', 'n': 'Ｎ', 'o': 'Ｏ', 'p': 'Ｐ', 'q': 'Ｑ', 'r': 'Ｒ', 's': 'Ｓ', 't': 'Ｔ', 'u': 'Ｕ', 'v': 'Ｖ', 'w': 'Ｗ', 'x': 'Ｘ', 'y': 'Ｙ', 'z': 'Ｚ',
-            ';': '；', "'": '〃', ',': '，', '.': '．', '/': '／'
+        const keyname_map_upper = {
+            'a': 'Ａ', 'b': 'Ｂ', 'c': 'Ｃ', 'd': 'Ｄ', 'e': 'Ｅ', 'f': 'Ｆ', 'g': 'Ｇ',
+            'h': 'Ｈ', 'i': 'Ｉ', 'j': 'Ｊ', 'k': 'Ｋ', 'l': 'Ｌ', 'm': 'Ｍ', 'n': 'Ｎ',
+            'o': 'Ｏ', 'p': 'Ｐ', 'q': 'Ｑ', 'r': 'Ｒ', 's': 'Ｓ', 't': 'Ｔ', 'u': 'Ｕ',
+            'v': 'Ｖ', 'w': 'Ｗ', 'x': 'Ｘ', 'y': 'Ｙ', 'z': 'Ｚ',
+            '1': '1', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6', '7': '7', '8': '8', '9': '9', '0': '0',
+            "'": "〃", ';': '；', ',': '，', '.': '．', '/': '／', ' ': '　', '<': '＜', '>': '＞', 'escape': 'Esc',
+            'shift': 'Shift', 'enter': 'Enter', 'backspace': '刪除鍵', 
+        };
+        const keyname_map_lower = {
+            'a': 'a', 'b': 'b', 'c': 'c', 'd': 'd', 'e': 'e', 'f': 'f', 'g': 'g',
+            'h': 'h', 'i': 'i', 'j': 'j', 'k': 'k', 'l': 'l', 'm': 'm', 'n': 'n',
+            'o': 'o', 'p': 'p', 'q': 'q', 'r': 'r', 's': 's', 't': 't', 'u': 'u',
+            'v': 'v', 'w': 'w', 'x': 'x', 'y': 'y', 'z': 'z',
+            '1': '1', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6', '7': '7', '8': '8', '9': '9', '0': '0',
+            "'": "〃", ';': ';', ',': ',', '.': '.', '/': '/', ' ': ' ', '<': '<', '>': '>', 'escape': 'Esc',
+            'shift': 'Shift', 'enter': 'Enter', 'backspace': '刪除鍵',
         };
 
-        // --- 載入碼表檔案 ---
-        async function loadCodemap(filePath) {
-            try {
-                const response = await fetch(filePath);
-                if (!response.ok) {
-                    throw new Error(`載入碼表檔案失敗：無法找到 ${filePath}。請確認所有檔案都在同一目錄下。`);
-                }
-                const text = await response.text();
-                return parseCinLikeFile(text);
-            } catch (error) {
-                console.error(error);
-                alert(error.message);
-                return { forward: {}, reverse: {} };
-            }
-        }
+        const textOutput = document.getElementById('text-output');
+        const mainInput = document.getElementById('main-input');
+        const candidateDisplay = document.getElementById('candidate-display');
+        const searchInput = document.getElementById('search-input');
+        const searchResult = document.getElementById('search-result');
+        const keyboardContainer = document.querySelector('.keyboard-container');
+        const modeDisplay = document.getElementById('mode-display');
+        const modeRadioButtons = document.querySelectorAll('input[name="input_mode"]');
+
+        const MAX_CODE_LENGTH = 3;
+        let currentCode = '';
+        let currentCandidates = [];
+        let currentPage = 0;
+        const candidatesPerPage = 10;
+        let isEnglishMode = false;
+        let currentInputMethod = 'primary';
         
-        // --- 解析 Cin 格式檔案內容 ---
-        function parseCinLikeFile(text) {
-            const lines = text.split('\n');
-            const codemap = {};
-            const reverseCodemap = {};
-            let inDataSection = false;
-        
-            for (const line of lines) {
-                const trimmedLine = line.trim();
-                if (trimmedLine.startsWith('[data]')) {
-                    inDataSection = true;
-                    continue;
-                }
-                if (inDataSection && trimmedLine && !trimmedLine.startsWith('#')) {
-                    const parts = trimmedLine.split(/\s+/).filter(Boolean);
-                    if (parts.length >= 2) {
-                        const code = parts[0];
-                        const chars = parts.slice(1).join('');
-                        
-                        if (!codemap[code]) {
-                            codemap[code] = [];
+        // 函式：格式化碼表資料為物件
+        function parseCinData(data) {
+            const newCodemap = {};
+            const newReverseCodemap = {};
+            const lines = data.trim().split('\n');
+            lines.forEach(line => {
+                const parts = line.split('\t');
+                if (parts.length >= 2 && !line.startsWith('#')) {
+                    const code = parts[0].trim();
+                    const char = parts[1].trim(); 
+                    if (code && char) {
+                        if (!newCodemap[code]) {
+                            newCodemap[code] = [];
                         }
-                        codemap[code].push(...chars.split(''));
-        
-                        chars.split('').forEach(char => {
-                            if (!reverseCodemap[char]) {
-                                reverseCodemap[char] = [];
-                            }
-                            if (!reverseCodemap[char].includes(code)) {
-                                reverseCodemap[char].push(code);
-                            }
-                        });
+                        newCodemap[code].push(char);
+                        
+                        if (!newReverseCodemap[char]) {
+                            newReverseCodemap[char] = [];
+                        }
+                        newReverseCodemap[char].push(code);
                     }
                 }
-            }
-            return {
-                forward: codemap,
-                reverse: reverseCodemap
-            };
+            });
+            return { newCodemap, newReverseCodemap };
         }
 
-        // --- 輸入法核心邏輯 ---
-        function updateCandidates() {
-            candidateArea.innerHTML = '';
-            currentCandidates = currentCodemap[currentCode] || [];
-            
-            if (currentCandidates.length === 1 && currentCode.length === 3) {
-                output.textContent += currentCandidates[0];
-                resetInputState();
-                return;
-            }
-
-            const totalPages = Math.ceil(currentCandidates.length / candidatesPerPage);
-            const startIndex = currentPage * candidatesPerPage;
-            const endIndex = startIndex + candidatesPerPage;
-            const displayedCandidates = currentCandidates.slice(startIndex, endIndex);
-
-            if (displayedCandidates.length > 0) {
-                displayedCandidates.forEach((char, index) => {
-                    const candidateSpan = document.createElement('span');
-                    const displayIndex = (index === 9) ? 0 : index + 1;
-                    candidateSpan.textContent = `${displayIndex}. ${char}`;
-                    candidateSpan.dataset.char = char;
-                    candidateSpan.dataset.index = index;
-                    candidateArea.appendChild(candidateSpan);
-                });
-            } else if (currentCode.length === 3) {
-                resetInputState();
-            }
-
-            if (totalPages > 1) {
-                if (currentPage > 0) {
-                    const prevSpan = document.createElement('span');
-                    prevSpan.textContent = '上一頁';
-                    prevSpan.className = 'page-nav';
-                    prevSpan.dataset.page = 'prev';
-                    candidateArea.prepend(prevSpan);
+        // 函式：載入指定檔案的碼表
+        async function loadCodemap(fileName) {
+            try {
+                const response = await fetch(fileName);
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
                 }
-                if (currentPage < totalPages - 1) {
-                    const nextSpan = document.createElement('span');
-                    nextSpan.textContent = '下一頁';
-                    nextSpan.className = 'page-nav';
-                    nextSpan.dataset.page = 'next';
-                    candidateArea.appendChild(nextSpan);
-                }
+                const text = await response.text();
+                return parseCinData(text);
+            } catch (error) {
+                console.error(`載入 ${fileName} 時發生錯誤:`, error);
+                alert(`載入 ${fileName} 失敗，請確認檔案是否存在於相同目錄下並檢查檔案格式。`);
+                return { newCodemap: {}, newReverseCodemap: {} };
             }
         }
-
-        function resetInputState() {
-            currentCode = '';
-            mainInput.value = '';
-            currentPage = 0;
-            updateCandidates();
-        }
-
-        // --- 模式與鍵盤處理 ---
-        function switchInputMethod(method) {
-            if (method === 'primary') {
-                currentCodemap = primaryCodemap.forward;
-                currentReverseCodemap = primaryCodemap.reverse;
-            } else {
-                currentCodemap = secondaryCodemap.forward;
-                currentReverseCodemap = secondaryCodemap.reverse;
+        
+        // 切換輸入法函數
+        async function switchInputMethod(mode) {
+            currentInputMethod = mode;
+            if (mode === 'primary') {
+                if (!primaryCodemap) {
+                    const { newCodemap, newReverseCodemap } = await loadCodemap('./3code.txt');
+                    primaryCodemap = newCodemap;
+                    primaryReverseCodemap = newReverseCodemap;
+                }
+                currentCodemap = primaryCodemap;
+                currentReverseCodemap = primaryReverseCodemap;
+            } else if (mode === 'secondary') {
+                if (!secondaryCodemap) {
+                    const { newCodemap, newReverseCodemap } = await loadCodemap('./3code2.txt');
+                    secondaryCodemap = newCodemap;
+                    secondaryReverseCodemap = newReverseCodemap;
+                }
+                currentCodemap = secondaryCodemap;
+                currentReverseCodemap = secondaryReverseCodemap;
             }
             resetInputState();
             updateModeDisplay();
         }
-
-        function updateModeDisplay() {
-            const modeName = document.querySelector('input[name="input_mode"]:checked').nextElementSibling.textContent;
-            modeDisplay.textContent = `模式：${isEnglishMode ? '英數' : modeName}`;
-        }
         
-        // --- 事件處理 ---
-        document.addEventListener('DOMContentLoaded', async () => {
-            const primaryPromise = loadCodemap('3code.txt');
-            const secondaryPromise = loadCodemap('3code2.txt');
-            [primaryCodemap, secondaryCodemap] = await Promise.all([primaryPromise, secondaryPromise]);
-            
-            switchInputMethod('primary');
-            updateCandidates();
-        });
-
-        document.querySelector('.mode-switcher').addEventListener('change', (event) => {
-            if (event.target.name === 'input_mode') {
+        // 模式切換單選鈕事件監聽
+        modeRadioButtons.forEach(radio => {
+            radio.addEventListener('change', (event) => {
                 switchInputMethod(event.target.value);
-            }
-        });
-        
-        candidateArea.addEventListener('click', (event) => {
-            const candidate = event.target.closest('span[data-char]');
-            const pageNav = event.target.closest('span[data-page]');
-            if (candidate) {
-                const char = candidate.dataset.char;
-                output.textContent += char;
-                resetInputState();
-            } else if (pageNav) {
-                if (pageNav.dataset.page === 'next') {
-                    currentPage++;
-                } else if (pageNav.dataset.page === 'prev') {
-                    currentPage--;
-                }
-                updateCandidates();
-            }
+            });
         });
 
-        // 監聽鍵盤點擊事件
-        keyboard.addEventListener('click', (event) => {
-            const keyDiv = event.target.closest('.key');
-            if (!keyDiv) return;
-            const key = keyDiv.dataset.code;
-            handleKey(key);
-        });
+        // 函式：在游標位置插入文字
+        function insertTextAtCursor(element, text) {
+            const start = element.selectionStart;
+            const end = element.selectionEnd;
+            element.value = element.value.substring(0, start) + text + element.value.substring(end);
+            element.selectionStart = element.selectionEnd = start + text.length;
+            element.focus();
+        }
 
-        const specialKeys = ["backspace", "enter", " "];
-        const pageKeys = ["<", ">"];
-        const numKeys = "1234567890";
-        const codeKeys = "abcdefghijklmnopqrstuvwxyz;',./";
-        
-        // 監聽實體鍵盤事件
-        document.addEventListener('keydown', (event) => {
-            const key = event.key.toLowerCase();
-            
-            // 處理按鍵反白效果
-            let pressedKeyDiv;
-            if (key === '<') {
-                pressedKeyDiv = document.querySelector(`.key[data-code='&lt;']`);
-            } else if (key === '>') {
-                pressedKeyDiv = document.querySelector(`.key[data-code='&gt;']`);
-            } else {
-                pressedKeyDiv = document.querySelector(`.key[data-code='${key}']`);
+        // 函式：在游標位置刪除文字
+        function deleteTextAtCursor(element) {
+            const start = element.selectionStart;
+            if (start > 0) {
+                const end = element.selectionEnd;
+                let text = element.value;
+                element.value = text.substring(0, start - 1) + text.substring(end);
+                element.selectionStart = element.selectionEnd = start - 1;
+                element.focus();
             }
-            if (pressedKeyDiv) {
-                pressedKeyDiv.classList.add('active');
-            }
-            
-            if (event.key === "Shift") {
-                if (event.repeat) return;
+        }
+
+        // --- 虛擬鍵盤點擊事件 ---
+        keyboardContainer.addEventListener('click', (event) => {
+            const key = event.target.closest('.key');
+            if (!key) return;
+            const code = key.dataset.code;
+
+            if (code === 'shift') {
                 isEnglishMode = !isEnglishMode;
                 updateModeDisplay();
+                updateKeyboardDisplay();
                 resetInputState();
-                return; 
+            } else if (code === '<') {
+                handlePageChange('previous');
+            } else if (code === '>') {
+                handlePageChange('next');
+            } else {
+                if (isEnglishMode) {
+                    handleEnglishInput(code);
+                } else {
+                    handleChineseInput(code);
+                }
             }
-
-            if (isEnglishMode) {
-                if (key.length === 1 && !event.ctrlKey && !event.altKey) {
-                    output.textContent += event.key;
-                } else if (event.key === 'Backspace') {
-                    output.textContent = output.textContent.slice(0, -1);
-                } else if (event.key === 'Enter') {
-                    output.textContent += '\n';
+        });
+        
+        // --- 處理中文模式輸入的核心函數 ---
+        function handleChineseInput(code) {
+            // 統一處理數字鍵邏輯
+            if (code.match(/^[1-90]$/)) {
+                if (currentCandidates.length > 0) {
+                    const num = code === '0' ? 10 : parseInt(code, 10);
+                    selectCandidate(num - 1);
+                } else {
+                    insertTextAtCursor(textOutput, code);
                 }
                 return;
             }
 
-            if (specialKeys.includes(key)) {
-                event.preventDefault();
-                handleKey(key);
-            } else if (pageKeys.includes(key)) {
-                event.preventDefault();
-                handlePageKey(key);
-            } else if (numKeys.includes(key)) {
-                event.preventDefault();
-                handleNumKey(key);
-            } else if (codeKeys.includes(key)) {
-                handleKey(key);
-            }
-        });
-        
-        // 監聽實體鍵盤放開事件，移除按鍵反白
-        document.addEventListener('keyup', (event) => {
-            const key = event.key.toLowerCase();
-            let releasedKeyDiv;
-            if (key === '<') {
-                releasedKeyDiv = document.querySelector(`.key[data-code='&lt;']`);
-            } else if (key === '>') {
-                releasedKeyDiv = document.querySelector(`.key[data-code='&gt;']`);
-            } else {
-                releasedKeyDiv = document.querySelector(`.key[data-code='${key}']`);
-            }
-            if (releasedKeyDiv) {
-                releasedKeyDiv.classList.remove('active');
-            }
-        });
-
-        // 處理鍵盤與物理鍵盤的共用邏輯
-        function handleKey(key) {
-            const codeKeys = "abcdefghijklmnopqrstuvwxyz;',./";
-            
-            if (codeKeys.includes(key) && currentCode.length < 3) {
-                currentCode += key;
-                const fullWidthCode = Array.from(currentCode).map(char => fullWidthMap[char] || char).join('');
-                mainInput.value = fullWidthCode;
-                updateCandidates();
-            } else if (key === 'backspace') {
+            if (code === 'backspace') {
                 if (currentCode.length > 0) {
                     currentCode = currentCode.slice(0, -1);
-                    const fullWidthCode = Array.from(currentCode).map(char => fullWidthMap[char] || char).join('');
-                    mainInput.value = fullWidthCode;
-                    updateCandidates();
+                    updateStateAndDisplay();
                 } else {
-                    output.textContent = output.textContent.slice(0, -1);
+                    deleteTextAtCursor(textOutput);
                 }
-            } else if (key === ' ') {
+                return;
+            }
+            if (code === 'enter') {
+                insertTextAtCursor(textOutput, '\n');
+                return;
+            }
+            if (code === 'escape') {
+                resetInputState();
+                return;
+            }
+            
+            // 獨立的翻頁處理函數
+            if (code === '<') {
+                handlePageChange('previous');
+                return;
+            }
+            if (code === '>') {
+                handlePageChange('next');
+                return;
+            }
+            
+            if (code === ' ') {
                 if (currentCandidates.length > 0) {
-                    output.textContent += currentCandidates[0];
-                    resetInputState();
+                    selectCandidate(0);
                 } else {
-                    output.textContent += ' ';
+                    insertTextAtCursor(textOutput, ' ');
                 }
-            } else if (key === 'enter') {
-                output.textContent += '\n';
+                return;
+            }
+            
+            const inputChar = code.toLowerCase();
+            if (inputChar.match(/^[a-z;'./,<>]$/)) {
+                if (currentCode.length === MAX_CODE_LENGTH && currentCandidates.length > 0) {
+                    selectCandidate(0);
+                    currentCode = inputChar;
+                } else {
+                    currentCode += inputChar;
+                }
+                updateStateAndDisplay();
+            }
+        }
+        
+        // --- 處理英文模式輸入的新函數 ---
+        function handleEnglishInput(char) {
+            // 處理功能鍵
+            if (char === 'backspace') {
+                deleteTextAtCursor(textOutput);
+                return;
+            }
+            if (char === 'enter') {
+                insertTextAtCursor(textOutput, '\n');
+                return;
+            }
+            if (char === 'escape') {
+                resetInputState();
+                return;
+            }
+            if (char === ' ') {
+                insertTextAtCursor(textOutput, ' ');
+                return;
+            }
+
+            // 處理英文字母和數字、符號
+            if (char.length === 1) {
+                insertTextAtCursor(textOutput, char);
+            }
+        }
+        
+        // --- 獨立的翻頁處理函數 ---
+        function handlePageChange(direction) {
+            if (direction === 'previous') {
+                if (currentPage > 0) {
+                    currentPage--;
+                    showCandidates();
+                }
+            } else if (direction === 'next') {
+                const totalPages = Math.ceil(currentCandidates.length / candidatesPerPage);
+                if (currentPage + 1 < totalPages) {
+                    currentPage++;
+                    showCandidates();
+                }
+            }
+        }
+
+        // --- 核心狀態更新與顯示函數 (中文模式專用) ---
+        function updateStateAndDisplay() {
+            mainInput.value = formatCode(currentCode);
+            currentPage = 0;
+            currentCandidates = currentCodemap[currentCode] || [];
+            
+            if (currentCode.length === MAX_CODE_LENGTH) {
+                if (currentCandidates.length === 1) {
+                    insertTextAtCursor(textOutput, currentCandidates[0]);
+                    resetInputState();
+                    return;
+                } else if (currentCandidates.length === 0) {
+                    resetInputState();
+                    return;
+                }
+            }
+            
+            showCandidates();
+        }
+        
+        // --- 顯示候選字為數字列表 ---
+        function showCandidates() {
+            candidateDisplay.innerHTML = '';
+            
+            const start = currentPage * candidatesPerPage;
+            const end = start + candidatesPerPage;
+            const displayedCandidates = currentCandidates.slice(start, end);
+
+            displayedCandidates.forEach((candidate, index) => {
+                const span = document.createElement('span');
+                const displayIndex = (index === 9) ? '0' : (index + 1).toString();
+                span.textContent = `${displayIndex}. ${candidate}`;
+                span.style.cursor = 'pointer';
+                span.style.userSelect = 'none';
+                span.onclick = () => selectCandidate(index);
+                candidateDisplay.appendChild(span);
+            });
+            
+            if (currentCandidates.length > candidatesPerPage) {
+                const navSpan = document.createElement('span');
+                navSpan.textContent = ` (第 ${currentPage + 1}/${Math.ceil(currentCandidates.length / candidatesPerPage)} 頁)`;
+                navSpan.classList.add('page-info');
+                candidateDisplay.appendChild(navSpan);
+            }
+        }
+        
+        // --- 選擇候選字並清空輸入 ---
+        function selectCandidate(index) {
+            const selectedCandidate = currentCandidates[currentPage * candidatesPerPage + index];
+            if (selectedCandidate) {
+                insertTextAtCursor(textOutput, selectedCandidate);
                 resetInputState();
             }
         }
         
-        function handlePageKey(key) {
-            if (key === '<') {
-                if (currentPage > 0) {
-                    currentPage--;
-                    updateCandidates();
+        // --- 清空所有輸入狀態 ---
+        function resetInputState() {
+            currentCode = '';
+            currentCandidates = [];
+            currentPage = 0;
+            mainInput.value = '';
+            showCandidates();
+        }
+        
+        // --- 格式化編碼顯示 ---
+        function formatCode(code) {
+            let displayString = '';
+            for (const char of code) {
+                displayString += keyname_map_upper[char] || char.toUpperCase();
+            }
+            return displayString;
+        }
+
+        // --- 更新鍵盤按鍵顯示 ---
+        function updateKeyboardDisplay() {
+            const map = isEnglishMode ? keyname_map_lower : keyname_map_upper;
+            document.querySelectorAll('.key[data-code]').forEach(keyElement => {
+                const code = keyElement.dataset.code;
+                if (map[code]) {
+                    keyElement.textContent = map[code];
                 }
-            } else if (key === '>') {
-                const totalPages = Math.ceil(currentCandidates.length / candidatesPerPage);
-                if (currentPage < totalPages - 1) {
-                    currentPage++;
-                    updateCandidates();
-                }
+            });
+        }
+        
+        // --- 更新模式顯示 ---
+        function updateModeDisplay() {
+            const currentModeText = currentInputMethod === 'primary' ? '三碼' : '三碼次常';
+            modeDisplay.textContent = isEnglishMode ? '模式：英文' : `模式：${currentModeText}`;
+        }
+
+        let shiftTimer = null;
+        const SHIFT_HOLD_THRESHOLD = 200; // 200毫秒
+
+        // --- 實體鍵盤事件處理 ---
+        // 取得按鍵代碼的輔助函數
+        function getKeyCode(eventKey) {
+            switch (eventKey) {
+                case 'Backspace': return 'backspace';
+                case 'Enter': return 'enter';
+                case 'Escape': return 'escape';
+                case 'Shift': return 'shift';
+                case ' ': return ' ';
+                default:
+                    if (eventKey.length === 1) {
+                        return eventKey.toLowerCase();
+                    }
+                    return null;
             }
         }
 
-        function handleNumKey(key) {
-            let index = parseInt(key, 10);
-            if (index === 0) index = 10;
-            
-            const candidateIndex = (currentPage * candidatesPerPage) + (index - 1);
-            if (candidateIndex >= 0 && candidateIndex < currentCandidates.length) {
-                output.textContent += currentCandidates[candidateIndex];
-                resetInputState();
-            } else {
-                output.textContent += key;
-                resetInputState();
+        // keydown 事件處理
+        document.addEventListener('keydown', (event) => {
+            const virtualKeyCode = getKeyCode(event.key);
+            if (virtualKeyCode) {
+                const keyElement = document.querySelector(`.key[data-code="${virtualKeyCode}"]`);
+                if (keyElement) {
+                    keyElement.classList.add('active');
+                }
             }
-        }
+            
+            // 處理 Shift+逗號/句號 組合鍵
+            if (event.key === ',' && event.shiftKey) {
+                event.preventDefault();
+                handlePageChange('previous');
+                return;
+            }
+            if (event.key === '.' && event.shiftKey) {
+                event.preventDefault();
+                handlePageChange('next');
+                return;
+            }
+
+            if (event.key === 'Shift') {
+                if (!event.altKey && !event.ctrlKey && !event.metaKey) {
+                    if (!shiftTimer) {
+                        shiftTimer = setTimeout(() => { shiftTimer = null; }, SHIFT_HOLD_THRESHOLD);
+                    }
+                }
+                return;
+            }
+            
+            const code = getKeyCode(event.key);
+            
+            if (isEnglishMode) {
+                const handledKeys = ['Backspace', 'Enter', 'Escape', ' '];
+                if (handledKeys.includes(event.key)) {
+                    event.preventDefault();
+                    handleEnglishInput(event.key.toLowerCase());
+                } else if (event.key.length === 1 && event.key.match(/^[a-z0-9;'./,<>]$/i)) {
+                    event.preventDefault();
+                    handleEnglishInput(event.key);
+                }
+            } else { // 中文模式
+                if (code) {
+                    event.preventDefault();
+                    handleChineseInput(code);
+                }
+            }
+        });
+
+        // keyup 事件處理
+        document.addEventListener('keyup', (event) => {
+            const virtualKeyCode = getKeyCode(event.key);
+            if (virtualKeyCode) {
+                const keyElement = document.querySelector(`.key[data-code="${virtualKeyCode}"]`);
+                if (keyElement) {
+                    keyElement.classList.remove('active');
+                }
+            }
+
+            if (event.key === 'Shift') {
+                if (shiftTimer) {
+                    clearTimeout(shiftTimer);
+                    shiftTimer = null;
+                    isEnglishMode = !isEnglishMode;
+                    updateModeDisplay();
+                    updateKeyboardDisplay();
+                    resetInputState();
+                } else {
+                    shiftTimer = null; 
+                }
+            }
+        });
 
         // --- 反向查詢事件處理 ---
-        searchInput.addEventListener('input', () => {
-            const charToSearch = searchInput.value.trim();
-            searchResult.textContent = '查詢結果顯示在此';
+        searchInput.addEventListener('input', (event) => {
+            const charToSearch = searchInput.value;
             if (charToSearch.length === 1) {
-                const codes = currentReverseCodemap[charToSearch] || [];
-                if (codes.length > 0) {
-                    searchResult.textContent = `編碼：${codes.join('、')}`;
+                const codes = currentReverseCodemap[charToSearch];
+                if (codes && codes.length > 0) {
+                    const formattedCodes = codes.map(code => formatCode(code));
+                    searchResult.textContent = `編碼：　${formattedCodes.join('　')}`;
                 } else {
                     searchResult.textContent = '找不到該漢字編碼。';
                 }
+            } else {
+                searchResult.textContent = '查詢結果顯示在此';
             }
         });
-
+        
+        // 額外處理 Backspace 鍵清除
+        searchInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Backspace') {
+                event.stopPropagation();
+                searchInput.value = '';
+                searchResult.textContent = '查詢結果顯示在此';
+            }
+        });
+        
+        // 頁面載入時先初始化顯示
+        switchInputMethod('primary');
+        updateKeyboardDisplay();
     </script>
 </body></html>
