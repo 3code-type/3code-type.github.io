@@ -179,16 +179,14 @@
             height: 40px;
         }
 
-        /* 候選字區塊樣式 - 確保單行顯示並可水平捲動 */
+        /* 候選字區塊樣式 - 恢復自動換行 */
         .candidate-area {
             min-height: 60px;
             display: flex;
-            flex-wrap: nowrap; /* 確保內容不換行 */
+            flex-wrap: wrap; /* 允許內容換行 */
             align-items: center;
             padding: 8px;
             gap: 8px;
-            white-space: nowrap;
-            overflow-x: auto; /* 在內容溢出時啟用水平捲動 */
             -ms-overflow-style: none; /* IE and Edge */
             scrollbar-width: none; /* Firefox */
         }
