@@ -493,7 +493,7 @@
             currentInputMethod = mode;
             if (mode === 'primary') {
                 if (!primaryCodemap) {
-                    const { newCodemap, newReverseCodemap } = await loadCodemap('3codes.txt');
+                    const { newCodemap, newReverseCodemap } = await loadCodemap('./3codes.txt');
                     primaryCodemap = newCodemap;
                     primaryReverseCodemap = newReverseCodemap;
                 }
@@ -501,7 +501,7 @@
                 currentReverseCodemap = primaryReverseCodemap;
             } else if (mode === 'secondary') {
                 if (!secondaryCodemap) {
-                    const { newCodemap, newReverseCodemap } = await loadCodemap('3codes2.txt');
+                    const { newCodemap, newReverseCodemap } = await loadCodemap('./3codes2.txt');
                     secondaryCodemap = newCodemap;
                     secondaryReverseCodemap = newReverseCodemap;
                 }
@@ -862,5 +862,4 @@
         switchInputMethod('primary');
         updateKeyboardDisplay();
     </script>
-
 </body></html>
