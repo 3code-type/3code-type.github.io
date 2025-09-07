@@ -179,7 +179,7 @@
             height: 40px;
         }
 
-        /* 候選字區塊樣式 - 恢復自動換行並靠左對齊 */
+        /* 候選字區塊樣式 */
         .candidate-area {
             min-height: 60px;
             display: flex;
@@ -187,7 +187,7 @@
             justify-content: flex-start; /* 讓項目靠左對齊 */
             align-items: center;
             padding: 8px;
-            gap: 8px;
+            gap: 6px; /* 縮小欄位間距 */
             -ms-overflow-style: none; /* IE and Edge */
             scrollbar-width: none; /* Firefox */
         }
@@ -197,7 +197,7 @@
 
         .candidate-area span {
             cursor: pointer;
-            padding: 5px 8px;
+            padding: 5px 4px; /* 縮小內距 */
             border: 1px solid transparent;
             border-radius: 4px;
             transition: all 0.2s;
