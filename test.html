@@ -179,16 +179,23 @@
             height: 40px;
         }
 
-        /* 候選字區塊樣式 - 允許換行以避免溢出 */
+        /* 候選字區塊樣式 - 確保單行顯示並可水平捲動 */
         .candidate-area {
-            min-height: 60px; /* 調整為一致的高度 */
+            min-height: 60px;
             display: flex;
-            flex-wrap: wrap; /* 允許換行以避免溢出 */
+            flex-wrap: nowrap; /* 確保內容不換行 */
             align-items: center;
             padding: 8px;
             gap: 8px;
-            white-space: normal;
+            white-space: nowrap;
+            overflow-x: auto; /* 在內容溢出時啟用水平捲動 */
+            -ms-overflow-style: none; /* IE and Edge */
+            scrollbar-width: none; /* Firefox */
         }
+        .candidate-area::-webkit-scrollbar {
+            display: none; /* 隱藏 Chrome, Safari 的捲軸 */
+        }
+
         .candidate-area span {
             cursor: pointer;
             padding: 5px 8px;
