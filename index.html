@@ -307,9 +307,9 @@
                 <ul>
                     <li><a href="3code.pdf" download="" target="_blank">輸入法說明檔</a></li>
                     <li><a href="3code.zip" download="" target="_blank">輸入法壓縮檔</a></li>
-                    <li><a href="3code.txt" download="" target="_blank">常用字碼檔</a></li>
-                    <li><a href="3code2.txt" download="" target="_blank">次常用字碼檔</a></li>
-                    <li><a href="3code.cin" download="" target="_blank">CIN字碼檔</a></li>
+                    <li><a href="3codes.txt" download="" target="_blank">常用字碼檔</a></li>
+                    <li><a href="3codes2.txt" download="" target="_blank">次常用字碼檔</a></li>
+                    <li><a href="3codes.cin" download="" target="_blank">CIN字碼檔</a></li>
                 </ul>
             </div>
             <div class="mode-switcher">
@@ -325,7 +325,7 @@
             </div>
         </div>
 
-        <div class="text-output-area" id="text-output"></div>
+        <textarea class="text-output-area" id="text-output"></textarea>
 
         <div class="input-area">
             <input type="text" id="main-input" placeholder="編碼顯示在此" readonly="">
@@ -519,6 +519,27 @@
             });
         });
 
+        // 函式：在游標位置插入文字
+        function insertTextAtCursor(element, text) {
+            const start = element.selectionStart;
+            const end = element.selectionEnd;
+            element.value = element.value.substring(0, start) + text + element.value.substring(end);
+            element.selectionStart = element.selectionEnd = start + text.length;
+            element.focus();
+        }
+
+        // 函式：在游標位置刪除文字
+        function deleteTextAtCursor(element) {
+            const start = element.selectionStart;
+            if (start > 0) {
+                const end = element.selectionEnd;
+                let text = element.value;
+                element.value = text.substring(0, start - 1) + text.substring(end);
+                element.selectionStart = element.selectionEnd = start - 1;
+                element.focus();
+            }
+        }
+
         // --- 虛擬鍵盤點擊事件 ---
         keyboardContainer.addEventListener('click', (event) => {
             const key = event.target.closest('.key');
@@ -551,7 +572,7 @@
                     const num = code === '0' ? 10 : parseInt(code, 10);
                     selectCandidate(num - 1);
                 } else {
-                    textOutput.textContent += code;
+                    insertTextAtCursor(textOutput, code);
                 }
                 return;
             }
@@ -560,13 +581,13 @@
                 if (currentCode.length > 0) {
                     currentCode = currentCode.slice(0, -1);
                     updateStateAndDisplay();
-                } else if (textOutput.textContent.length > 0) {
-                    textOutput.textContent = textOutput.textContent.slice(0, -1);
+                } else {
+                    deleteTextAtCursor(textOutput);
                 }
                 return;
             }
             if (code === 'enter') {
-                textOutput.textContent += '\n';
+                insertTextAtCursor(textOutput, '\n');
                 return;
             }
             if (code === 'escape') {
@@ -588,7 +609,7 @@
                 if (currentCandidates.length > 0) {
                     selectCandidate(0);
                 } else {
-                    textOutput.textContent += ' ';
+                    insertTextAtCursor(textOutput, ' ');
                 }
                 return;
             }
@@ -609,13 +630,11 @@
         function handleEnglishInput(char) {
             // 處理功能鍵
             if (char === 'backspace') {
-                if (textOutput.textContent.length > 0) {
-                    textOutput.textContent = textOutput.textContent.slice(0, -1);
-                }
+                deleteTextAtCursor(textOutput);
                 return;
             }
             if (char === 'enter') {
-                textOutput.textContent += '\n';
+                insertTextAtCursor(textOutput, '\n');
                 return;
             }
             if (char === 'escape') {
@@ -623,13 +642,13 @@
                 return;
             }
             if (char === ' ') {
-                textOutput.textContent += ' ';
+                insertTextAtCursor(textOutput, ' ');
                 return;
             }
 
             // 處理英文字母和數字、符號
             if (char.length === 1) {
-                textOutput.textContent += char;
+                insertTextAtCursor(textOutput, char);
             }
         }
         
@@ -657,7 +676,7 @@
             
             if (currentCode.length === MAX_CODE_LENGTH) {
                 if (currentCandidates.length === 1) {
-                    textOutput.textContent += currentCandidates[0];
+                    insertTextAtCursor(textOutput, currentCandidates[0]);
                     resetInputState();
                     return;
                 } else if (currentCandidates.length === 0) {
@@ -699,7 +718,7 @@
         function selectCandidate(index) {
             const selectedCandidate = currentCandidates[currentPage * candidatesPerPage + index];
             if (selectedCandidate) {
-                textOutput.textContent += selectedCandidate;
+                insertTextAtCursor(textOutput, selectedCandidate);
                 resetInputState();
             }
         }

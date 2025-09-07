@@ -401,7 +401,7 @@
     </div>
     
     <script>
-        // --- 資料處理與解析 ---
+        // --- 全域變數 ---
         let primaryCodemap = null;
         let primaryReverseCodemap = null;
         let secondaryCodemap = null;
@@ -410,7 +410,8 @@
         let currentCodemap = {};
         let currentReverseCodemap = {};
         
-        const keyname_map_upper = {
+        // 鍵盤映射 (包含中文模式、英文模式、Shift+符號模式)
+        const keyname_map_upper = { // 中文模式，未按 Shift
             'a': 'Ａ', 'b': 'Ｂ', 'c': 'Ｃ', 'd': 'Ｄ', 'e': 'Ｅ', 'f': 'Ｆ', 'g': 'Ｇ',
             'h': 'Ｈ', 'i': 'Ｉ', 'j': 'Ｊ', 'k': 'Ｋ', 'l': 'Ｌ', 'm': 'Ｍ', 'n': 'Ｎ',
             'o': 'Ｏ', 'p': 'Ｐ', 'q': 'Ｑ', 'r': 'Ｒ', 's': 'Ｓ', 't': 'Ｔ', 'u': 'Ｕ',
@@ -419,14 +420,22 @@
             "'": "〃", ';': '；', ',': '，', '.': '．', '/': '／', ' ': '　', '<': '＜', '>': '＞', 'escape': 'Esc',
             'shift': 'Shift', 'enter': 'Enter', 'backspace': '刪除鍵', 
         };
-        const keyname_map_lower = {
+        const keyname_map_lower = { // 英文模式，未按 Shift
             'a': 'a', 'b': 'b', 'c': 'c', 'd': 'd', 'e': 'e', 'f': 'f', 'g': 'g',
             'h': 'h', 'i': 'i', 'j': 'j', 'k': 'k', 'l': 'l', 'm': 'm', 'n': 'n',
             'o': 'o', 'p': 'p', 'q': 'q', 'r': 'r', 's': 's', 't': 't', 'u': 'u',
             'v': 'v', 'w': 'w', 'x': 'x', 'y': 'y', 'z': 'z',
             '1': '1', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6', '7': '7', '8': '8', '9': '9', '0': '0',
-            "'": "〃", ';': ';', ',': ',', '.': '.', '/': '/', ' ': ' ', '<': '<', '>': '>', 'escape': 'Esc',
+            "'": "'", ';': ';', ',': ',', '.': '.', '/': '/', ' ': ' ', '<': '<', '>': '>', 'escape': 'Esc',
             'shift': 'Shift', 'enter': 'Enter', 'backspace': '刪除鍵',
+        };
+        const SHIFT_SYMBOL_MAP = { // Shift 鍵的符號/大寫映射 (適用於中文或英文模式下按 Shift)
+            '1': '!', '2': '@', '3': '#', '4': '$', '5': '%', '6': '^', '7': '&', '8': '*', '9': '(', '0': ')',
+            '-': '_', '=': '+', '[': '{', ']': '}', '\\': '|', ';': ':', "'": '"', ',': '<', '.': '>', '/': '?',
+            'a': 'A', 'b': 'B', 'c': 'C', 'd': 'D', 'e': 'E', 'f': 'F', 'g': 'G',
+            'h': 'H', 'i': 'I', 'j': 'J', 'k': 'K', 'l': 'L', 'm': 'M', 'n': 'N',
+            'o': 'O', 'p': 'P', 'q': 'Q', 'r': 'R', 's': 'S', 't': 'T', 'u': 'U',
+            'v': 'V', 'w': 'W', 'x': 'X', 'y': 'Y', 'z': 'Z',
         };
 
         const textOutput = document.getElementById('text-output');
@@ -446,7 +455,12 @@
         let isEnglishMode = false;
         let currentInputMethod = 'primary';
         
-        // 函式：格式化碼表資料為物件
+        // Shift 鍵相關變數
+        let isShiftPressed = false;
+        let shiftPressStartTime = 0;
+        const SHIFT_HOLD_THRESHOLD = 200; // 毫秒，判定為長按的閾值
+
+        // --- 函式：解析 CIN 格式的字碼資料 ---
         function parseCinData(data) {
             const newCodemap = {};
             const newReverseCodemap = {};
@@ -472,7 +486,7 @@
             return { newCodemap, newReverseCodemap };
         }
 
-        // 函式：載入指定檔案的碼表
+        // --- 函式：載入指定的字碼檔案 ---
         async function loadCodemap(fileName) {
             try {
                 const response = await fetch(fileName);
@@ -488,20 +502,20 @@
             }
         }
         
-        // 切換輸入法函數
+        // --- 函式：切換輸入法模式 (三碼/次常用) ---
         async function switchInputMethod(mode) {
             currentInputMethod = mode;
             if (mode === 'primary') {
-                if (!primaryCodemap) {
-                    const { newCodemap, newReverseCodemap } = await loadCodemap('./3codes.txt');
+                if (!primaryCodemap) { // 只有在第一次載入時才 fetch
+                    const { newCodemap, newReverseCodemap } = await loadCodemap('./3codes.txt'); // 改為讀取 3codes.txt
                     primaryCodemap = newCodemap;
                     primaryReverseCodemap = newReverseCodemap;
                 }
                 currentCodemap = primaryCodemap;
                 currentReverseCodemap = primaryReverseCodemap;
             } else if (mode === 'secondary') {
-                if (!secondaryCodemap) {
-                    const { newCodemap, newReverseCodemap } = await loadCodemap('./3codes2.txt');
+                if (!secondaryCodemap) { // 只有在第一次載入時才 fetch
+                    const { newCodemap, newReverseCodemap } = await loadCodemap('./3codes2.txt'); // 改為讀取 3codes2.txt
                     secondaryCodemap = newCodemap;
                     secondaryReverseCodemap = newReverseCodemap;
                 }
@@ -512,14 +526,14 @@
             updateModeDisplay();
         }
         
-        // 模式切換單選鈕事件監聽
+        // --- 事件監聽：切換輸入法模式的單選鈕 ---
         modeRadioButtons.forEach(radio => {
             radio.addEventListener('change', (event) => {
                 switchInputMethod(event.target.value);
             });
         });
 
-        // 函式：在游標位置插入文字
+        // --- 函式：在游標位置插入文字 ---
         function insertTextAtCursor(element, text) {
             const start = element.selectionStart;
             const end = element.selectionEnd;
@@ -528,7 +542,7 @@
             element.focus();
         }
 
-        // 函式：在游標位置刪除文字
+        // --- 函式：在游標位置刪除文字 ---
         function deleteTextAtCursor(element) {
             const start = element.selectionStart;
             if (start > 0) {
@@ -540,22 +554,38 @@
             }
         }
 
-        // --- 虛擬鍵盤點擊事件 ---
+        // --- 虛擬鍵盤的點擊事件處理 ---
         keyboardContainer.addEventListener('click', (event) => {
             const key = event.target.closest('.key');
             if (!key) return;
-            const code = key.dataset.code;
+            const code = key.dataset.code; // 例如 'a', '1', 'shift', ' '
 
+            // --- 處理特殊功能鍵 ---
             if (code === 'shift') {
-                isEnglishMode = !isEnglishMode;
-                updateModeDisplay();
-                updateKeyboardDisplay();
-                resetInputState();
+                // Shift 鍵的處理交給 keydown/keyup 事件
+                return; 
             } else if (code === '<') {
                 handlePageChange('previous');
             } else if (code === '>') {
                 handlePageChange('next');
-            } else {
+            } else if (code === 'enter') {
+                insertTextAtCursor(textOutput, '\n');
+            } else if (code === 'backspace') {
+                if (isEnglishMode) {
+                    deleteTextAtCursor(textOutput);
+                } else { // 中文模式下，按下 Backspace 根據當前編碼處理
+                    handleChineseInput('backspace');
+                }
+            } else if (code === 'escape') {
+                resetInputState();
+            } else if (code === ' ') { // 空白鍵
+                if (isEnglishMode) {
+                    handleEnglishInput(' ');
+                } else {
+                    handleChineseInput(' ');
+                }
+            }
+            else { // 其他按鍵
                 if (isEnglishMode) {
                     handleEnglishInput(code);
                 } else {
@@ -564,95 +594,105 @@
             }
         });
         
-        // --- 處理中文模式輸入的核心函數 ---
-        function handleChineseInput(code) {
-            // 統一處理數字鍵邏輯
-            if (code.match(/^[1-90]$/)) {
+        // --- 處理中文模式輸入 ---
+        function handleChineseInput(code) { // 'code' 是按下的基本按鍵，例如 '1', 'a', ';'
+            const baseKey = code.toLowerCase(); // 統一轉為小寫方便處理
+
+            // 處理數字鍵選擇候選字
+            if (baseKey.match(/^[1-90]$/)) {
                 if (currentCandidates.length > 0) {
-                    const num = code === '0' ? 10 : parseInt(code, 10);
-                    selectCandidate(num - 1);
+                    const num = baseKey === '0' ? 10 : parseInt(baseKey, 10);
+                    selectCandidate(num - 1); // 選擇對應候選字
                 } else {
-                    insertTextAtCursor(textOutput, code);
+                    // 如果沒有候選字，則直接插入數字
+                    if (isShiftPressed) { // 如果 Shift 被按下，嘗試插入 Shift 映射的符號
+                        const shiftedChar = SHIFT_SYMBOL_MAP[baseKey];
+                        if (shiftedChar !== undefined) {
+                            insertTextAtCursor(textOutput, shiftedChar);
+                            resetInputState(); // 插入後重置輸入狀態
+                            return;
+                        }
+                    }
+                    // 否則插入基本數字
+                    insertTextAtCursor(textOutput, baseKey);
                 }
                 return;
             }
 
+            // 處理 Backspace
             if (code === 'backspace') {
                 if (currentCode.length > 0) {
-                    currentCode = currentCode.slice(0, -1);
-                    updateStateAndDisplay();
+                    currentCode = currentCode.slice(0, -1); // 移除最後一個編碼字元
+                    updateStateAndDisplay(); // 更新顯示
                 } else {
-                    deleteTextAtCursor(textOutput);
+                    deleteTextAtCursor(textOutput); // 如果編碼為空，則刪除文本
                 }
                 return;
             }
-            if (code === 'enter') {
-                insertTextAtCursor(textOutput, '\n');
-                return;
-            }
-            if (code === 'escape') {
-                resetInputState();
-                return;
-            }
             
-            // 獨立的翻頁處理函數
-            if (code === '<') {
+            // 處理翻頁鍵 (<, >)
+            if (baseKey === '<') {
                 handlePageChange('previous');
                 return;
             }
-            if (code === '>') {
+            if (baseKey === '>') {
                 handlePageChange('next');
                 return;
             }
             
-            if (code === ' ') {
-                if (currentCandidates.length > 0) {
-                    selectCandidate(0);
-                } else {
-                    insertTextAtCursor(textOutput, ' ');
+            // --- 處理 Shift 修飾鍵 ---
+            if (isShiftPressed) {
+                // 如果 Shift 被按下，嘗試輸出 Shift 映射的字元 (符號或大寫)
+                const shiftedChar = SHIFT_SYMBOL_MAP[baseKey];
+                if (shiftedChar !== undefined) {
+                    insertTextAtCursor(textOutput, shiftedChar);
+                    resetInputState(); // 插入 Shift 符號後，重置中文輸入狀態
+                    return; // 處理完成
                 }
-                return;
-            }
-            
-            const inputChar = code.toLowerCase();
-            if (inputChar.match(/^[a-z;'./,<>]$/)) {
-                if (currentCode.length === MAX_CODE_LENGTH && currentCandidates.length > 0) {
-                    selectCandidate(0);
-                    currentCode = inputChar;
-                } else {
-                    currentCode += inputChar;
-                }
-                updateStateAndDisplay();
-            }
-        }
-        
-        // --- 處理英文模式輸入的新函數 ---
-        function handleEnglishInput(char) {
-            // 處理功能鍵
-            if (char === 'backspace') {
-                deleteTextAtCursor(textOutput);
-                return;
-            }
-            if (char === 'enter') {
-                insertTextAtCursor(textOutput, '\n');
-                return;
-            }
-            if (char === 'escape') {
-                resetInputState();
-                return;
-            }
-            if (char === ' ') {
-                insertTextAtCursor(textOutput, ' ');
-                return;
+                // 如果此按鍵在 Shift 模式下沒有映射，則不產生任何輸出，並可選擇重置狀態或忽略。
+                // 這裡我們選擇重置輸入狀態，避免不確定行為。
+                // resetInputState(); 
+                // return;
+                // 或者，讓它忽略 Shift 狀態，繼續嘗試正常中文輸入 (如果 baseKey 在中文輸入法裡是有效鍵)
             }
 
-            // 處理英文字母和數字、符號
-            if (char.length === 1) {
-                insertTextAtCursor(textOutput, char);
+            // --- 處理一般中文輸入編碼 ---
+            // 允許的中文輸入編碼字元：英文字母, ;, ', ., /, <, >
+            if (baseKey.match(/^[a-z;'./,<>]$/)) {
+                if (currentCode.length === MAX_CODE_LENGTH && currentCandidates.length > 0) {
+                    // 如果編碼已滿且有候選字，則預設選擇第一個候選字，並將當前按鍵作為新編碼的開頭
+                    selectCandidate(0);
+                    currentCode = baseKey; // 新編碼以當前按鍵開始
+                } else {
+                    currentCode += baseKey; // 累加編碼
+                }
+                updateStateAndDisplay(); // 更新編碼顯示和候選字
             }
         }
         
-        // --- 獨立的翻頁處理函數 ---
+        // --- 處理英文模式輸入 ---
+        function handleEnglishInput(char) { // 'char' 是按下的基本按鍵，例如 'a', '1', ';'
+            const baseKey = char.toLowerCase();
+
+            // --- 處理 Shift 修飾鍵 ---
+            if (isShiftPressed) {
+                // 如果 Shift 被按下，嘗試輸出 Shift 映射的字元 (符號或大寫)
+                const shiftedChar = SHIFT_SYMBOL_MAP[baseKey];
+                if (shiftedChar !== undefined) {
+                    insertTextAtCursor(textOutput, shiftedChar);
+                    return; // 插入 Shift 字元後，處理完成
+                }
+                // 如果 Shift 映射沒有此按鍵，則視為一般按鍵處理 (如 'a' -> 'a')
+            }
+
+            // --- 處理一般英文輸入 ---
+            // 允許的英文輸入字元：字母, 數字, 符號
+            if (baseKey.length === 1) {
+                insertTextAtCursor(textOutput, baseKey);
+            }
+        }
+        
+        // --- 函式：處理候選字翻頁 ---
         function handlePageChange(direction) {
             if (direction === 'previous') {
                 if (currentPage > 0) {
@@ -668,44 +708,49 @@
             }
         }
 
-        // --- 核心狀態更新與顯示函數 (中文模式專用) ---
+        // --- 函式：更新中文輸入狀態與顯示 ---
         function updateStateAndDisplay() {
-            mainInput.value = formatCode(currentCode);
-            currentPage = 0;
-            currentCandidates = currentCodemap[currentCode] || [];
+            mainInput.value = formatCode(currentCode); // 顯示當前編碼
+            currentPage = 0; // 重置頁面
+            currentCandidates = currentCodemap[currentCode] || []; // 獲取候選字
             
+            // 如果編碼已滿且只有一個候選字，則自動選取
             if (currentCode.length === MAX_CODE_LENGTH) {
                 if (currentCandidates.length === 1) {
                     insertTextAtCursor(textOutput, currentCandidates[0]);
-                    resetInputState();
+                    resetInputState(); // 自動選取後重置
                     return;
                 } else if (currentCandidates.length === 0) {
+                    // 如果編碼滿但沒有候選字，則重置
                     resetInputState();
                     return;
                 }
             }
             
-            showCandidates();
+            showCandidates(); // 顯示候選字
         }
         
-        // --- 顯示候選字為數字列表 ---
+        // --- 函式：顯示候選字列表 ---
         function showCandidates() {
-            candidateDisplay.innerHTML = '';
+            candidateDisplay.innerHTML = ''; // 清空原有候選字
             
             const start = currentPage * candidatesPerPage;
             const end = start + candidatesPerPage;
             const displayedCandidates = currentCandidates.slice(start, end);
 
+            // 顯示當前頁的候選字，並加上編號
             displayedCandidates.forEach((candidate, index) => {
                 const span = document.createElement('span');
+                // 數字編號，第10個顯示為0
                 const displayIndex = (index === 9) ? '0' : (index + 1).toString();
                 span.textContent = `${displayIndex}. ${candidate}`;
                 span.style.cursor = 'pointer';
                 span.style.userSelect = 'none';
-                span.onclick = () => selectCandidate(index);
+                span.onclick = () => selectCandidate(index); // 點擊候選字進行選擇
                 candidateDisplay.appendChild(span);
             });
             
+            // 如果候選字超過一頁，顯示分頁資訊
             if (currentCandidates.length > candidatesPerPage) {
                 const navSpan = document.createElement('span');
                 navSpan.textContent = ` (第 ${currentPage + 1}/${Math.ceil(currentCandidates.length / candidatesPerPage)} 頁)`;
@@ -714,55 +759,81 @@
             }
         }
         
-        // --- 選擇候選字並清空輸入 ---
+        // --- 函式：選擇候選字並插入到文本框 ---
         function selectCandidate(index) {
             const selectedCandidate = currentCandidates[currentPage * candidatesPerPage + index];
             if (selectedCandidate) {
-                insertTextAtCursor(textOutput, selectedCandidate);
-                resetInputState();
+                insertTextAtCursor(textOutput, selectedCandidate); // 插入選中的字
+                resetInputState(); // 插入後重置輸入狀態
             }
         }
         
-        // --- 清空所有輸入狀態 ---
+        // --- 函式：重置輸入狀態 (清空編碼、候選字、頁面) ---
         function resetInputState() {
             currentCode = '';
             currentCandidates = [];
             currentPage = 0;
-            mainInput.value = '';
-            showCandidates();
+            mainInput.value = ''; // 清空編碼顯示
+            showCandidates(); // 清空候選字區塊
+            // 保持 isShiftPressed 狀態，除非 Shift 被釋放
         }
         
-        // --- 格式化編碼顯示 ---
+        // --- 函式：格式化編碼顯示 (例如 'a1;' 顯示為 'Ａ1；') ---
         function formatCode(code) {
             let displayString = '';
             for (const char of code) {
-                displayString += keyname_map_upper[char] || char.toUpperCase();
+                // 優先使用 Shift 映射，然後是中文上檔，最後是原字符
+                displayString += (isShiftPressed ? SHIFT_SYMBOL_MAP[char] : '') || keyname_map_upper[char] || char;
             }
             return displayString;
         }
 
-        // --- 更新鍵盤按鍵顯示 ---
+        // --- 函式：更新虛擬鍵盤按鍵顯示 (根據模式和 Shift 狀態) ---
         function updateKeyboardDisplay() {
-            const map = isEnglishMode ? keyname_map_lower : keyname_map_upper;
+            const mapToUse = isEnglishMode
+                ? (isShiftPressed ? SHIFT_SYMBOL_MAP : keyname_map_lower) // 英文模式：正常或 Shift
+                : (isShiftPressed ? SHIFT_SYMBOL_MAP : keyname_map_upper); // 中文模式：正常或 Shift
+
             document.querySelectorAll('.key[data-code]').forEach(keyElement => {
                 const code = keyElement.dataset.code;
-                if (map[code]) {
-                    keyElement.textContent = map[code];
+                let displayChar = code; // 預設顯示按鍵代碼
+
+                // --- 處理特殊按鍵的顯示 ---
+                if (code === 'shift') {
+                    displayChar = 'Shift';
+                } else if (code === ' ') {
+                    // 在中文模式下 Shift 被按下時，空格鍵可能顯示為特殊符號，這裡暫時統一顯示空格
+                    displayChar = ' '; 
+                } else if (code === 'enter') {
+                    displayChar = 'Enter';
+                } else if (code === 'backspace') {
+                    displayChar = '刪除鍵';
+                } else if (code === '<') {
+                    // 頁面翻頁鍵的顯示，可根據 Shift 狀態略作變化（可選）
+                    displayChar = isShiftPressed ? '◂' : '＜'; 
+                } else if (code === '>') {
+                    displayChar = isShiftPressed ? '▸' : '＞';
+                } else {
+                    // --- 處理一般按鍵的顯示 ---
+                    // 獲取當前狀態下應用的映射表
+                    const currentMap = isEnglishMode
+                        ? (isShiftPressed ? SHIFT_SYMBOL_MAP : keyname_map_lower)
+                        : (isShiftPressed ? SHIFT_SYMBOL_MAP : keyname_map_upper);
+                    
+                    displayChar = currentMap[code] || code; // 獲取映射的字符，如果找不到則使用原代碼
                 }
+                keyElement.textContent = displayChar;
             });
         }
         
-        // --- 更新模式顯示 ---
+        // --- 函式：更新模式顯示文字 ---
         function updateModeDisplay() {
             const currentModeText = currentInputMethod === 'primary' ? '三碼' : '三碼次常';
             modeDisplay.textContent = isEnglishMode ? '模式：英文' : `模式：${currentModeText}`;
         }
 
-        let shiftTimer = null;
-        const SHIFT_HOLD_THRESHOLD = 200; // 200毫秒
-
         // --- 實體鍵盤事件處理 ---
-        // 取得按鍵代碼的輔助函數
+        // 輔助函式：獲取按鍵的標準代碼 (小寫)
         function getKeyCode(eventKey) {
             switch (eventKey) {
                 case 'Backspace': return 'backspace';
@@ -772,23 +843,37 @@
                 case ' ': return ' ';
                 default:
                     if (eventKey.length === 1) {
-                        return eventKey.toLowerCase();
+                        return eventKey.toLowerCase(); // 將字母轉為小寫
                     }
-                    return null;
+                    return null; // 無法識別的鍵
             }
         }
 
-        // keydown 事件處理
+        // --- Keydown 事件處理 ---
         document.addEventListener('keydown', (event) => {
-            const virtualKeyCode = getKeyCode(event.key);
-            if (virtualKeyCode) {
+            const virtualKeyCode = getKeyCode(event.key); // 獲取標準化的按鍵代碼
+
+            // --- Shift 鍵處理 ---
+            if (event.key === 'Shift') {
+                event.preventDefault(); // 阻止 Shift 鍵的預設行為 (例如模式切換)
+                if (!shiftPressStartTime) { // 如果是 Shift 鍵第一次按下
+                    shiftPressStartTime = Date.now(); // 記錄按下時間
+                }
+                isShiftPressed = true; // 設定 Shift 已被按下的標誌
+                updateKeyboardDisplay(); // 更新鍵盤顯示為 Shift 狀態
+                return; // 阻止 Shift 鍵的進一步處理
+            }
+            
+            // --- 其他按鍵處理 ---
+            if (virtualKeyCode) { // 如果是虛擬鍵盤支援的按鍵
                 const keyElement = document.querySelector(`.key[data-code="${virtualKeyCode}"]`);
                 if (keyElement) {
-                    keyElement.classList.add('active');
+                    keyElement.classList.add('active'); // 模擬按鍵被按下的視覺效果
                 }
             }
             
-            // 處理 Shift+逗號/句號 組合鍵
+            // --- 處理 Shift + 符號組合鍵 (用於翻頁) ---
+            // 例如：Shift + , (輸出 <), Shift + . (輸出 >)
             if (event.key === ',' && event.shiftKey) {
                 event.preventDefault();
                 handlePageChange('previous');
@@ -800,84 +885,89 @@
                 return;
             }
 
-            if (event.key === 'Shift') {
-                if (!event.altKey && !event.ctrlKey && !event.metaKey) {
-                    if (!shiftTimer) {
-                        shiftTimer = setTimeout(() => { shiftTimer = null; }, SHIFT_HOLD_THRESHOLD);
-                    }
+            // --- 根據當前模式和 Shift 狀態決定輸入 ---
+            const code = getKeyCode(event.key); // 獲取小寫的基礎按鍵代碼
+            
+            if (isEnglishMode) {
+                // 英文模式下的輸入處理
+                const handledKeys = ['backspace', 'enter', 'escape', ' ']; // 這些按鍵由其他地方處理
+                if (handledKeys.includes(code)) {
+                    // event.preventDefault(); // 這些按鍵的預設行為已經被虛擬鍵盤處理
+                    // handleEnglishInput(code); // 這裡不直接調用，因為虛擬鍵盤已處理
+                } else if (event.key.length === 1 && event.key.match(/^[a-z0-9;'./,<>]$/i)) {
+                    // 英文輸入鍵
+                    event.preventDefault(); // 阻止瀏覽器預設行為
+                    handleEnglishInput(code); // 處理英文輸入
                 }
+            } else { // 中文模式
+                // 中文模式下的輸入處理
+                if (code) { // 如果是虛擬鍵盤支援的按鍵
+                    event.preventDefault(); // 阻止瀏覽器預設行為
+                    handleChineseInput(code); // 處理中文輸入
+                }
+            }
+        });
+
+        // --- Keyup 事件處理 ---
+        document.addEventListener('keyup', (event) => {
+            const virtualKeyCode = getKeyCode(event.key);
+
+            // --- Shift 鍵處理 ---
+            if (event.key === 'Shift') {
+                event.preventDefault();
+                isShiftPressed = false; // Shift 按鍵已釋放
+                updateKeyboardDisplay(); // 更新鍵盤顯示回正常狀態
+                
+                const pressDuration = Date.now() - shiftPressStartTime; // 計算按鍵持續時間
+                shiftPressStartTime = 0; // 重置計時開始時間
+
+                // 判斷是否為長按，用於切換模式
+                if (pressDuration >= SHIFT_HOLD_THRESHOLD) {
+                    isEnglishMode = !isEnglishMode; // 切換英文/中文模式
+                    updateModeDisplay(); // 更新模式顯示
+                    resetInputState(); // 切換模式後重置輸入狀態
+                }
+                // 如果是短按，則只作為修飾鍵，不切換模式
                 return;
             }
             
-            const code = getKeyCode(event.key);
-            
-            if (isEnglishMode) {
-                const handledKeys = ['Backspace', 'Enter', 'Escape', ' '];
-                if (handledKeys.includes(event.key)) {
-                    event.preventDefault();
-                    handleEnglishInput(event.key.toLowerCase());
-                } else if (event.key.length === 1 && event.key.match(/^[a-z0-9;'./,<>]$/i)) {
-                    event.preventDefault();
-                    handleEnglishInput(event.key);
-                }
-            } else { // 中文模式
-                if (code) {
-                    event.preventDefault();
-                    handleChineseInput(code);
-                }
-            }
-        });
-
-        // keyup 事件處理
-        document.addEventListener('keyup', (event) => {
-            const virtualKeyCode = getKeyCode(event.key);
+            // --- 其他按鍵處理 ---
             if (virtualKeyCode) {
                 const keyElement = document.querySelector(`.key[data-code="${virtualKeyCode}"]`);
                 if (keyElement) {
-                    keyElement.classList.remove('active');
+                    keyElement.classList.remove('active'); // 移除按鍵被按下的視覺效果
                 }
             }
-
-            if (event.key === 'Shift') {
-                if (shiftTimer) {
-                    clearTimeout(shiftTimer);
-                    shiftTimer = null;
-                    isEnglishMode = !isEnglishMode;
-                    updateModeDisplay();
-                    updateKeyboardDisplay();
-                    resetInputState();
-                } else {
-                    shiftTimer = null; 
-                }
-            }
+            // 這裡不需要對其他按鍵做特別處理，因為它們的輸入行為在 keydown 時已完成
         });
 
-        // --- 反向查詢事件處理 ---
+        // --- 反向查詢事件處理 (根據漢字找編碼) ---
         searchInput.addEventListener('input', (event) => {
             const charToSearch = searchInput.value;
             if (charToSearch.length === 1) {
-                const codes = currentReverseCodemap[charToSearch];
+                const codes = currentReverseCodemap[charToSearch]; // 在當前模式的反向碼表中查找
                 if (codes && codes.length > 0) {
-                    const formattedCodes = codes.map(code => formatCode(code));
+                    const formattedCodes = codes.map(code => formatCode(code)); // 格式化編碼以便顯示
                     searchResult.textContent = `編碼：　${formattedCodes.join('　')}`;
                 } else {
                     searchResult.textContent = '找不到該漢字編碼。';
                 }
             } else {
-                searchResult.textContent = '查詢結果顯示在此';
+                searchResult.textContent = '查詢結果顯示在此'; // 輸入不滿一個字元時重置
             }
         });
         
-        // 額外處理 Backspace 鍵清除
+        // --- 額外處理反向查詢輸入框的 Backspace ---
         searchInput.addEventListener('keydown', (event) => {
             if (event.key === 'Backspace') {
-                event.stopPropagation();
-                searchInput.value = '';
-                searchResult.textContent = '查詢結果顯示在此';
+                event.stopPropagation(); // 阻止事件冒泡，以免影響其他輸入
+                searchInput.value = ''; // 清空輸入框
+                searchResult.textContent = '查詢結果顯示在此'; // 重置結果顯示
             }
         });
         
-        // 頁面載入時先初始化顯示
+        // --- 頁面載入後初始化 ---
+        // 預設切換到中文模式 (primary)，並更新鍵盤顯示
         switchInputMethod('primary');
         updateKeyboardDisplay();
     </script>
