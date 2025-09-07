@@ -2361,7 +2361,6 @@ eay	臻
 eb	祁
 ebx	敢
 ec'	靦
-ecd	碼
 ece	驃
 ecl	襬
 eco	驅
