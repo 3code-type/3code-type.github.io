@@ -839,6 +839,37 @@
         
         // keydown 事件處理
         document.addEventListener('keydown', (event) => {
+            // 檢查是否是瀏覽器預設的組合鍵，如果不是我們處理的，則不阻止其預設行為
+            const isCtrl = event.ctrlKey;
+            const isCmd = event.metaKey; // For Mac
+            const key = event.key.toLowerCase();
+
+            // 處理瀏覽器預設的組合鍵，如 Ctrl+C, Ctrl+V, Ctrl+A 等
+            if ((isCtrl || isCmd) && ['c', 'v', 'a', 'x', 'z', 's', 'f', 'g'].includes(key)) {
+                // 這些組合鍵由瀏覽器處理，不阻止其預設行為
+                // 但是，如果我們之前有設定 isLongPressActive，先清掉
+                if(isLongPressActive) {
+                    isLongPressActive = false;
+                    updateKeyboardDisplay();
+                }
+                // 也不要繼續處理我們輸入法的邏輯
+                return; 
+            }
+
+            // 處理 Shift 相關的邏輯
+            if (event.key === 'Shift') {
+                if (!isShiftDown) {
+                    isShiftDown = true;
+                    clearTimeout(shiftTimer);
+                    shiftTimer = setTimeout(() => {
+                        isLongPressActive = true;
+                        updateKeyboardDisplay();
+                    }, SHIFT_HOLD_THRESHOLD);
+                }
+                // Shift 本身按下不需preventDefault，除非後面有組合鍵
+                return;
+            }
+
             const virtualKeyCode = getKeyCode(event);
             if (virtualKeyCode) {
                 const keyElement = document.querySelector(`.key[data-code="${virtualKeyCode}"]`);
@@ -850,7 +881,7 @@
             // 處理 Shift + < 或 Shift + > 的翻頁功能
             if (event.shiftKey && (event.key === '<' || event.key === '>')) {
                 if (!isEnglishMode && currentCandidates.length > candidatesPerPage) {
-                    event.preventDefault();
+                    event.preventDefault(); // 阻止預設的 < > 輸入
                     if (event.key === '<') {
                         handlePageChange('previous');
                     } else if (event.key === '>') {
@@ -860,33 +891,21 @@
                 }
             }
 
-            if (event.key === 'Shift') {
-                if (!isShiftDown) {
-                    isShiftDown = true;
-                    clearTimeout(shiftTimer);
-                    shiftTimer = setTimeout(() => {
-                        isLongPressActive = true;
-                        updateKeyboardDisplay();
-                    }, SHIFT_HOLD_THRESHOLD);
-                }
-                return;
-            }
-
-            // 在中文模式下，處理長按 Shift 後的符號鍵
+            // 處理中文模式下的 Shift 符號鍵
             if (!isEnglishMode && event.shiftKey) {
                 const code = getKeyCode(event);
                 const outputChar = keyname_map_chinese_shifted[code];
                 if (outputChar) {
-                    event.preventDefault();
+                    event.preventDefault(); // 阻止預設的數字/符號輸入
                     insertTextAtCursor(textOutput, outputChar);
                     return;
                 }
             }
-
-            // 處理一般輸入
+            
+            // 處理一般的按鍵輸入 (中文模式或英文模式)
             const code = getKeyCode(event);
             if (code && code !== 'shift') {
-                event.preventDefault(); 
+                event.preventDefault(); // 阻止預設的字元輸入，交給輸入法處理
                 if (isEnglishMode) {
                     handleEnglishInput(event.key);
                 } else {
@@ -913,12 +932,13 @@
                     shiftTimer = null;
                 }
                 
+                // 只有在長按未啟動時才切換模式
                 if (!isLongPressActive) {
                     isEnglishMode = !isEnglishMode;
                     updateModeDisplay();
                 }
                 
-                isLongPressActive = false;
+                isLongPressActive = false; // 重置長按標誌
                 updateKeyboardDisplay();
             }
         });
@@ -942,7 +962,7 @@
         // 額外處理 Backspace 鍵清除
         searchInput.addEventListener('keydown', (event) => {
             if (event.key === 'Backspace') {
-                event.stopPropagation();
+                event.stopPropagation(); // 防止輸入法影響 searchInput 的 Backspace
                 searchInput.value = '';
                 searchResult.textContent = '查詢結果顯示在此';
             }
