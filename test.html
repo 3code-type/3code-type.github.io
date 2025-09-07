@@ -240,14 +240,11 @@
         
         #encoding-results {
             width: 100%;
-            display: flex;
-            flex-direction: row;
-            flex-wrap: nowrap;
-            overflow-x: auto;
-            align-items: flex-start;
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
             gap: 8px;
             padding: 8px 0;
-            font-size: 18px;
+            overflow-x: auto;
             -ms-overflow-style: none; /* IE and Edge */
             scrollbar-width: none; /* Firefox */
         }
@@ -259,13 +256,16 @@
         .char-encoding-column {
             display: flex;
             flex-direction: column;
-            align-items: center;
-            min-width: 60px; /* 為 4 個全形字元 + 邊距留出空間 */
+            align-items: flex-start; 
+            width: 70px; /* 固定寬度，足夠容納四碼 */
+            min-height: 140px; /* 確保至少有足夠的高度 */
             flex-shrink: 0;
             padding: 5px;
             border: 1px solid var(--border-color);
             border-radius: 8px;
             background-color: #e8eaf6;
+            box-sizing: border-box;
+            gap: 2px;
         }
         
         .char-encoding-column .char-label {
@@ -273,13 +273,16 @@
             font-size: 24px;
             margin-bottom: 5px;
             line-height: 1;
+            align-self: center; /* 讓漢字本身維持置中 */
+            min-height: 24px; /* 確保漢字區域的高度 */
         }
         
         .char-encoding-column .code-label {
             font-family: monospace;
             white-space: nowrap;
             line-height: 1.2;
-            text-align: center;
+            text-align: left; /* 編碼文字左對齊 */
+            min-height: 16px; /* 確保編碼行的高度 */
         }
 
         /* 鍵盤樣式 */
@@ -597,6 +600,8 @@
             }
             resetInputState();
             updateModeDisplay();
+            // 重新載入碼表後，更新查碼練習區
+            updatePhraseLookup();
         }
         
         // 模式切換單選鈕事件監聽
@@ -1003,29 +1008,45 @@
         });
 
         // --- 新增的批量查碼處理邏輯 ---
-        phraseInput.addEventListener('input', (event) => {
+        function updatePhraseLookup() {
             const textToSearch = phraseInput.value;
             encodingResults.innerHTML = '';
-
-            for (const char of textToSearch) {
-                const results = currentReverseCodemap[char];
+            
+            const characters = textToSearch.split('').slice(0, 10);
+            
+            // 固定顯示10個欄位
+            for (let i = 0; i < 10; i++) {
                 const column = document.createElement('div');
                 column.className = 'char-encoding-column';
 
                 const charLabel = document.createElement('span');
                 charLabel.className = 'char-label';
-                charLabel.textContent = char;
-                column.appendChild(charLabel);
+                
+                const encodingContainer = document.createElement('div');
+                encodingContainer.style.display = 'flex';
+                encodingContainer.style.flexDirection = 'column';
+                encodingContainer.style.width = '100%';
 
-                if (results && results.length > 0) {
-                    results.slice(0, 5).forEach((result, index) => {
-                        const codeLabel = document.createElement('span');
-                        codeLabel.className = 'code-label';
+                const codesToDisplay = [];
+                if (i < characters.length) {
+                    const char = characters[i];
+                    charLabel.textContent = char;
+                    const results = currentReverseCodemap[char];
+                    if (results && results.length > 0) {
+                        codesToDisplay.push(...results.slice(0, 5));
+                    }
+                }
+                
+                for (let j = 0; j < 5; j++) {
+                    const codeLabel = document.createElement('span');
+                    codeLabel.className = 'code-label';
+                    
+                    if (j < codesToDisplay.length) {
+                        const result = codesToDisplay[j];
                         const code = result.code;
                         const candidatesForCode = currentCodemap[code];
                         
                         let suffix = '';
-                        // 只有當該編碼有多個候選字時才加上後綴
                         if (candidatesForCode && candidatesForCode.length > 1) {
                             if (result.index === 0) {
                                 suffix = '';
@@ -1040,19 +1061,24 @@
                         }
                         
                         codeLabel.textContent = formatCode(code) + suffix;
-                        column.appendChild(codeLabel);
-                    });
-                } else {
-                    const codeLabel = document.createElement('span');
-                    codeLabel.className = 'code-label';
-                    codeLabel.textContent = '---';
-                    column.appendChild(codeLabel);
+                    } else {
+                         codeLabel.textContent = '';
+                    }
+                    encodingContainer.appendChild(codeLabel);
                 }
                 
+                if (i >= characters.length) {
+                    charLabel.textContent = '';
+                }
+
+                column.appendChild(charLabel);
+                column.appendChild(encodingContainer);
                 encodingResults.appendChild(column);
             }
-        });
-
+        }
+        
+        phraseInput.addEventListener('input', updatePhraseLookup);
+        
         // 頁面載入時先初始化顯示
         switchInputMethod('primary');
         updateKeyboardDisplay();
