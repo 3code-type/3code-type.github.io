@@ -300,6 +300,12 @@
             color: red;
         }
 
+        /* 焦點高亮顯示 */
+        .focused-char-background {
+            background-color: #c5cae9 !important; /* 使用較明顯的藍色調 */
+            border-radius: 4px;
+        }
+
         /* 鍵盤樣式 */
         .keyboard-container {
             width: 100%;
@@ -1044,6 +1050,11 @@
                     }
                 }
                 
+                // Add the highlighted background for the character corresponding to the cursor
+                if (i < characters.length && (lookupStartIndex + i) === cursorPosition) {
+                     charLabel.classList.add('focused-char-background');
+                }
+                
                 const encodingContainer = document.createElement('div');
                 encodingContainer.style.display = 'flex';
                 encodingContainer.style.flexDirection = 'column';
@@ -1095,13 +1106,14 @@
         }
         
         phraseInput.addEventListener('input', updatePhraseLookup);
-        phraseInput.addEventListener('keyup', updatePhraseLookup);
-        phraseInput.addEventListener('click', updatePhraseLookup);
+        phraseInput.addEventListener('keyup', updatePhraseLookup); // Capture key releases for cursor movement
+        phraseInput.addEventListener('click', updatePhraseLookup); // Capture mouse clicks for cursor movement
         
         textOutput.addEventListener('input', updatePhraseLookup);
-        textOutput.addEventListener('keyup', updatePhraseLookup);
-        textOutput.addEventListener('click', updatePhraseLookup);
+        textOutput.addEventListener('keyup', updatePhraseLookup); // Capture key releases for cursor movement
+        textOutput.addEventListener('click', updatePhraseLookup); // Capture mouse clicks for cursor movement
         
+        // 頁面載入時先初始化顯示
         switchInputMethod('primary');
         updateKeyboardDisplay();
     </script>
