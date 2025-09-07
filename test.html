@@ -307,9 +307,9 @@
                 <ul>
                     <li><a href="3code.pdf" download="" target="_blank">輸入法說明檔</a></li>
                     <li><a href="3code.zip" download="" target="_blank">輸入法壓縮檔</a></li>
-                    <li><a href="3code.txt" download="" target="_blank">常用字碼檔</a></li>
-                    <li><a href="3code2.txt" download="" target="_blank">次常用字碼檔</a></li>
-                    <li><a href="3code.cin" download="" target="_blank">CIN字碼檔</a></li>
+                    <li><a href="3codes.txt" download="" target="_blank">常用字碼檔</a></li>
+                    <li><a href="3codes2.txt" download="" target="_blank">次常用字碼檔</a></li>
+                    <li><a href="3codes.cin" download="" target="_blank">CIN字碼檔</a></li>
                 </ul>
             </div>
             <div class="mode-switcher">
@@ -402,19 +402,10 @@
     
     <script>
         // --- 資料處理與解析 ---
-        // 內嵌測試資料，以確保網頁能正常顯示
-        let primaryCodemap = {
-            'q1;': ['好'], 'w1;': ['你'], 'e1;': ['在'], 'r1;': ['哪'], 't1;': ['裡'], 'y1;': ['嗎'],
-        };
-        let primaryReverseCodemap = {
-            '好': ['q1;'], '你': ['w1;'], '在': ['e1;'], '哪': ['r1;'], '裡': ['t1;'], '嗎': ['y1;'],
-        };
-        let secondaryCodemap = {
-            'a1;': ['測試'], 's1;': ['資料'], 'd1;': ['正常'], 'f1;': ['運作'],
-        };
-        let secondaryReverseCodemap = {
-            '測試': ['a1;'], '資料': ['s1;'], '正常': ['d1;'], '運作': ['f1;'],
-        };
+        let primaryCodemap = null;
+        let primaryReverseCodemap = null;
+        let secondaryCodemap = null;
+        let secondaryReverseCodemap = null;
         
         let currentCodemap = {};
         let currentReverseCodemap = {};
@@ -493,7 +484,6 @@
             } catch (error) {
                 console.error(`載入 ${fileName} 時發生錯誤:`, error);
                 alert(`載入 ${fileName} 失敗，請確認檔案是否存在於相同目錄下並檢查檔案格式。`);
-                // 返回空物件，避免程式中斷
                 return { newCodemap: {}, newReverseCodemap: {} };
             }
         }
@@ -502,7 +492,7 @@
         async function switchInputMethod(mode) {
             currentInputMethod = mode;
             if (mode === 'primary') {
-                if (!primaryCodemap || Object.keys(primaryCodemap).length === 0) {
+                if (!primaryCodemap) {
                     const { newCodemap, newReverseCodemap } = await loadCodemap('./3codes.txt');
                     primaryCodemap = newCodemap;
                     primaryReverseCodemap = newReverseCodemap;
@@ -510,7 +500,7 @@
                 currentCodemap = primaryCodemap;
                 currentReverseCodemap = primaryReverseCodemap;
             } else if (mode === 'secondary') {
-                if (!secondaryCodemap || Object.keys(secondaryCodemap).length === 0) {
+                if (!secondaryCodemap) {
                     const { newCodemap, newReverseCodemap } = await loadCodemap('./3codes2.txt');
                     secondaryCodemap = newCodemap;
                     secondaryReverseCodemap = newReverseCodemap;
@@ -892,4 +882,3 @@
         updateKeyboardDisplay();
     </script>
 </body></html>
-
