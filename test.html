@@ -671,7 +671,6 @@
             } else {
                 let char = keyname_map_lower[code];
                 if (!char) {
-                    // Fallback for codes not in map
                     char = code;
                 }
                 
@@ -701,16 +700,26 @@
                         deleteTextAtCursor(textOutput);
                     }
                 }
-            }
-            if (key === 'Enter' || key === 'enter') {
+            } else if (key === 'Enter' || key === 'enter') {
                 if (currentCandidates.length > 0) {
                      selectCandidate(0);
                 } else {
                      insertTextAtCursor(textOutput, '\n');
                 }
-            }
-            if (key === 'Escape' || key === 'escape') {
+            } else if (key === 'Escape' || key === 'escape') {
                 resetInputState();
+            } else if (key === ' ' || key === 'Space') {
+                 if (isEnglishMode) {
+                     insertTextAtCursor(textOutput, ' ');
+                 } else {
+                    if (currentCandidates.length > 0) {
+                        selectCandidate(0);
+                    } else {
+                        insertTextAtCursor(textOutput, ' ');
+                    }
+                 }
+            } else if (key === '<' || key === '>') {
+                // handlePageChange is already called by the keyboard click handler
             }
             updatePhraseLookup();
         }
@@ -754,8 +763,8 @@
             }
 
             // 處理正常的編碼輸入
-            if (isCodeKey(char)) {
-                const lowerChar = char.toLowerCase();
+            const lowerChar = char.toLowerCase();
+            if (isCodeKey(lowerChar)) {
                 if (currentCode.length < MAX_CODE_LENGTH) {
                     currentCode += lowerChar;
                 } else {
@@ -766,7 +775,6 @@
                 }
                 updateStateAndDisplay();
             } else {
-                // 如果輸入的不是編碼鍵，則直接輸出
                 if (currentCode.length > 0) {
                     if (currentCandidates.length > 0) {
                         selectCandidate(0);
@@ -779,7 +787,6 @@
         
         // --- 處理英文模式輸入的函數 ---
         function handleEnglishInput(char) {
-            // 在英文模式下，除了功能鍵，其他都直接輸出
             if (char.length === 1) {
                 insertTextAtCursor(textOutput, char);
                 updatePhraseLookup();
@@ -964,26 +971,27 @@
                 }
             }
             
-            // 處理英文模式
+            // 處理英文模式，只處理功能鍵
             if (isEnglishMode) {
-                const isFunctionKey = ['Backspace', 'Enter', 'Escape', ' ', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key);
-                if (!event.shiftKey && !isFunctionKey) {
-                    return; // 讓瀏覽器處理英文大小寫
+                const isFunctionKey = ['Backspace', 'Enter', 'Escape', ' '].includes(event.key);
+                if (isFunctionKey) {
+                    event.preventDefault();
+                    handleFunctionKey(event.key);
                 }
-                event.preventDefault(); // 阻擋功能鍵
-                handleFunctionKey(event.key);
-            } else { // 處理中文模式
-                const char = event.key;
-                const isInputKey = isCodeKey(char) || char.match(/^[0-9]$/) || char === ' ' || char === 'Enter' || char === 'Backspace' || char === 'Escape' || char === '<' || char === '>';
-                
-                if (isInputKey) {
-                     event.preventDefault();
-                     if (char === 'Backspace' || char === 'Enter' || char === 'Escape' || char === ' ' || char === '<' || char === '>') {
-                         handleFunctionKey(char);
-                     } else {
-                         handleChineseInput(char);
-                     }
-                }
+                return; // 讓瀏覽器處理其他所有按鍵，包括Shift+英文字母
+            }
+            
+            // 處理中文模式
+            const char = event.key;
+            const isInputKey = isCodeKey(char) || char.match(/^[0-9]$/) || char === ' ' || char === 'Enter' || char === 'Backspace' || char === 'Escape' || char === '<' || char === '>';
+            
+            if (isInputKey) {
+                 event.preventDefault();
+                 if (['Backspace', 'Enter', 'Escape', ' ', '<', '>'].includes(char)) {
+                     handleFunctionKey(char);
+                 } else {
+                     handleChineseInput(char);
+                 }
             }
         });
 
