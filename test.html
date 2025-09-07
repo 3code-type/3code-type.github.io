@@ -789,14 +789,12 @@
                 if (currentPage > 0) {
                     currentPage--;
                     showCandidates();
-                    updatePhraseLookup();
                 }
             } else if (direction === 'next') {
                 const totalPages = Math.ceil(currentCandidates.length / candidatesPerPage);
                 if (currentPage + 1 < totalPages) {
                     currentPage++;
                     showCandidates();
-                    updatePhraseLookup();
                 }
             }
         }
@@ -1003,21 +1001,29 @@
         });
 
         function updatePhraseLookup() {
-            const textToSearch = phraseInput.value;
-            const textToCompare = textOutput.value;
+            let textToSearch;
+            let cursorPosition;
+
+            // 判斷哪個輸入區塊有焦點
+            if (phraseInput === document.activeElement) {
+                textToSearch = phraseInput.value;
+                cursorPosition = phraseInput.selectionStart;
+            } else if (textOutput === document.activeElement) {
+                textToSearch = textOutput.value;
+                cursorPosition = textOutput.selectionStart;
+            } else {
+                // 如果都沒有焦點，則使用 phraseInput 的內容
+                textToSearch = phraseInput.value;
+                cursorPosition = 0;
+            }
+            
             encodingResults.innerHTML = '';
             
-            let correctCharsCount = 0;
-            for (let i = 0; i < textToCompare.length && i < textToSearch.length; i++) {
-                if (textToCompare[i] === textToSearch[i]) {
-                    correctCharsCount++;
-                } else {
-                    break;
-                }
-            }
-            const lookupStartIndex = Math.floor(correctCharsCount / 10) * 10;
+            // 根據游標位置計算查碼區塊的起始索引
+            const lookupStartIndex = Math.floor(cursorPosition / 10) * 10;
             const characters = textToSearch.split('').slice(lookupStartIndex, lookupStartIndex + 10);
             
+            // 固定顯示10個欄位
             for (let i = 0; i < 10; i++) {
                 const column = document.createElement('div');
                 column.className = 'char-encoding-column';
@@ -1028,14 +1034,10 @@
                 if (i < characters.length) {
                     const char = characters[i];
                     charLabel.textContent = char;
-                    const globalIndex = lookupStartIndex + i;
+                    const results = currentReverseCodemap[char];
                     
-                    if (globalIndex < textToCompare.length) {
-                        if (char === textToCompare[globalIndex]) {
-                            charLabel.classList.add('correct-char');
-                        } else {
-                            charLabel.classList.add('incorrect-char');
-                        }
+                    if (results && results.length > 0) {
+                        charLabel.classList.add('correct-char');
                     } else {
                         charLabel.classList.add('incorrect-char');
                     }
@@ -1092,7 +1094,12 @@
         }
         
         phraseInput.addEventListener('input', updatePhraseLookup);
+        phraseInput.addEventListener('keyup', updatePhraseLookup);
+        phraseInput.addEventListener('click', updatePhraseLookup);
+        
         textOutput.addEventListener('input', updatePhraseLookup);
+        textOutput.addEventListener('keyup', updatePhraseLookup);
+        textOutput.addEventListener('click', updatePhraseLookup);
         
         switchInputMethod('primary');
         updateKeyboardDisplay();
