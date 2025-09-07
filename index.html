@@ -717,7 +717,7 @@
         
         function handleChineseInput(code) {
             if (code.match(/^[1-90]$/)) {
-                if (currentCandidates.length > 0) {
+                if (currentCandidates.length > 1) { // 數字選字要確保有重碼字
                     const num = code === '0' ? 10 : parseInt(code, 10);
                     selectCandidate(num - 1);
                 } else {
@@ -760,7 +760,7 @@
             
             const inputChar = code.toLowerCase();
             if (inputChar.match(/^[a-z;'./,]$/)) {
-                if (currentCode.length === MAX_CODE_LENGTH && currentCandidates.length > 0) {
+                if (currentCode.length >= MAX_CODE_LENGTH && currentCandidates.length > 0) {
                     selectCandidate(0);
                     currentCode = inputChar;
                 } else {
@@ -1020,14 +1020,14 @@
             const textToCompare = textOutput.value;
 
             let lookupStartIndex = 0;
-            let highlightIndex = -1; // 使用 -1 表示不需高亮
-
+            let highlightIndex = -1;
+            
             if (phraseInput === document.activeElement) {
-                lookupStartIndex = 0; // 當游標在查碼區時，固定從索引 0 開始
+                lookupStartIndex = 0;
             } else if (textOutput === document.activeElement) {
                 const cursorPosition = textOutput.selectionStart;
                 lookupStartIndex = Math.floor(cursorPosition / 10) * 10;
-                highlightIndex = cursorPosition; // 當游標在練打區時，高亮游標所在的字
+                highlightIndex = cursorPosition;
             }
             
             encodingResults.innerHTML = '';
@@ -1078,13 +1078,14 @@
                     if (j < codesToDisplay.length) {
                         const result = codesToDisplay[j];
                         const code = result.code;
-                        const candidatesForCode = currentCodemap[code];
                         
                         let suffix = '';
-                        if (candidatesForCode && candidatesForCode.length > 1) {
-                            if (result.index === 0) {
-                                suffix = '';
-                            } else if (result.index < 9) {
+                        if (result.index === 0) {
+                            if (code.length < 3) {
+                                suffix = '空';
+                            }
+                        } else {
+                            if (result.index < 9) {
                                 const digit = (result.index + 1).toString();
                                 suffix = fullWidthDigits[digit];
                             } else if (result.index === 9) {
