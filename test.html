@@ -144,8 +144,7 @@
         .text-output-area,
         .candidate-area,
         #main-input,
-        #search-input,
-        #search-result {
+        #phrase-input {
             width: 100%;
             border-radius: 8px;
             border: 1px solid var(--border-color);
@@ -158,9 +157,8 @@
         /* 統一所有主要欄位的內距 */
         .text-output-area,
         #main-input,
-        #search-input,
-        .candidate-area,
-        #search-result {
+        #phrase-input,
+        .candidate-area {
             padding: 8px;
         }
 
@@ -176,14 +174,7 @@
             flex-direction: column;
             gap: 8px;
         }
-
-        .search-area {
-            width: 100%;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
+        
         #main-input {
             height: 40px;
         }
@@ -215,22 +206,80 @@
             border-color: #b3b9d8;
         }
 
-        #search-input {
-            flex-grow: 0;
-            width: 160px;
-            height: 40px;
-        }
-
-        #search-result {
-            flex-grow: 1;
-            color: #555;
-            min-height: 40px;
-        }
-
         #mode-display {
             font-size: 16px;
             color: #757575;
             align-self: flex-start;
+        }
+        
+        /* 新增的查碼練習區域樣式 */
+        .lookup-section {
+            width: 100%;
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding-top: 12px;
+            border-top: 1px dashed var(--border-color);
+        }
+        
+        .lookup-section h2 {
+            font-size: 20px;
+            color: var(--primary-color);
+            margin: 0;
+            font-weight: 700;
+        }
+
+        #phrase-input {
+            width: 100%;
+            min-height: 50px;
+            resize: vertical;
+            font-size: var(--unified-font-size);
+            padding: 8px;
+        }
+        
+        #encoding-results {
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 8px 0;
+            font-size: 18px;
+            -ms-overflow-style: none; /* IE and Edge */
+            scrollbar-width: none; /* Firefox */
+        }
+        
+        #encoding-results::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .char-encoding-column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 60px; /* 為 4 個全形字元 + 邊距留出空間 */
+            flex-shrink: 0;
+            padding: 5px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: #e8eaf6;
+        }
+        
+        .char-encoding-column .char-label {
+            font-weight: bold;
+            font-size: 24px;
+            margin-bottom: 5px;
+            line-height: 1;
+        }
+        
+        .char-encoding-column .code-label {
+            font-family: monospace;
+            white-space: nowrap;
+            line-height: 1.2;
+            text-align: center;
         }
 
         /* 鍵盤樣式 */
@@ -240,6 +289,7 @@
             flex-direction: column;
             align-items: center;
             gap: 5px;
+            margin-top: 15px;
         }
 
         .key-row {
@@ -331,13 +381,14 @@
             <input type="text" id="main-input" placeholder="編碼顯示在此" readonly="">
             <div id="candidate-display" class="candidate-area"></div>
         </div>
-
-        <div class="search-area">
-            <input type="text" id="search-input" placeholder="在此輸入漢字" maxlength="1">
-            <div id="search-result">查詢結果顯示在此</div>
-        </div>
         
         <div id="mode-display">模式：三碼</div>
+        
+        <div class="lookup-section">
+            <h2>查碼練習</h2>
+            <textarea id="phrase-input" placeholder="在此輸入或貼上一段文字..."></textarea>
+            <div id="encoding-results"></div>
+        </div>
 
         <div class="keyboard-container">
             <div class="key-row">
@@ -457,8 +508,8 @@
         const textOutput = document.getElementById('text-output');
         const mainInput = document.getElementById('main-input');
         const candidateDisplay = document.getElementById('candidate-display');
-        const searchInput = document.getElementById('search-input');
-        const searchResult = document.getElementById('search-result');
+        const phraseInput = document.getElementById('phrase-input');
+        const encodingResults = document.getElementById('encoding-results');
         const keyboardContainer = document.querySelector('.keyboard-container');
         const modeDisplay = document.getElementById('mode-display');
         const modeRadioButtons = document.querySelectorAll('input[name="input_mode"]');
@@ -951,55 +1002,57 @@
             }
         });
 
-        // --- 反向查詢事件處理 ---
-        searchInput.addEventListener('input', (event) => {
-            const charToSearch = searchInput.value;
-            if (charToSearch.length === 1) {
-                const results = currentReverseCodemap[charToSearch];
+        // --- 新增的批量查碼處理邏輯 ---
+        phraseInput.addEventListener('input', (event) => {
+            const textToSearch = phraseInput.value;
+            encodingResults.innerHTML = '';
+
+            for (const char of textToSearch) {
+                const results = currentReverseCodemap[char];
+                const column = document.createElement('div');
+                column.className = 'char-encoding-column';
+
+                const charLabel = document.createElement('span');
+                charLabel.className = 'char-label';
+                charLabel.textContent = char;
+                column.appendChild(charLabel);
+
                 if (results && results.length > 0) {
-                    const formattedCodes = results.map(result => {
+                    results.slice(0, 5).forEach((result, index) => {
+                        const codeLabel = document.createElement('span');
+                        codeLabel.className = 'code-label';
                         const code = result.code;
-                        const index = result.index;
-                        let suffix = '';
                         const candidatesForCode = currentCodemap[code];
+                        
+                        let suffix = '';
                         // 只有當該編碼有多個候選字時才加上後綴
                         if (candidatesForCode && candidatesForCode.length > 1) {
-                            if (index === 0) {
-                                // 第一個字不顯示數字
+                            if (result.index === 0) {
                                 suffix = '';
-                            } else if (index < 9) {
-                                // 第二個到第九個顯示全形數字
-                                const digit = (index + 1).toString();
+                            } else if (result.index < 9) {
+                                const digit = (result.index + 1).toString();
                                 suffix = fullWidthDigits[digit];
-                            } else if (index === 9) {
-                                // 第十個顯示全形零
+                            } else if (result.index === 9) {
                                 suffix = '０';
                             } else {
-                                // 第十一個之後顯示大於符號
                                 suffix = '＞';
                             }
                         }
-                        return formatCode(code) + suffix;
+                        
+                        codeLabel.textContent = formatCode(code) + suffix;
+                        column.appendChild(codeLabel);
                     });
-                    
-                    searchResult.textContent = `編碼：　${formattedCodes.join('　')}`;
                 } else {
-                    searchResult.textContent = '找不到該漢字編碼。';
+                    const codeLabel = document.createElement('span');
+                    codeLabel.className = 'code-label';
+                    codeLabel.textContent = '---';
+                    column.appendChild(codeLabel);
                 }
-            } else {
-                searchResult.textContent = '查詢結果顯示在此';
+                
+                encodingResults.appendChild(column);
             }
         });
-        
-        // 額外處理 Backspace 鍵清除
-        searchInput.addEventListener('keydown', (event) => {
-            if (event.key === 'Backspace') {
-                event.stopPropagation();
-                searchInput.value = '';
-                searchResult.textContent = '查詢結果顯示在此';
-            }
-        });
-        
+
         // 頁面載入時先初始化顯示
         switchInputMethod('primary');
         updateKeyboardDisplay();
