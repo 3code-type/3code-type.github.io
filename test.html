@@ -490,7 +490,13 @@
                         if (!newReverseCodemap[char]) {
                             newReverseCodemap[char] = [];
                         }
-                        newReverseCodemap[char].push(code);
+                        // 檢查該字元是否已存在該編碼，避免重複
+                        if (!newReverseCodemap[char].some(item => item.code === code)) {
+                            newReverseCodemap[char].push({
+                                code: code,
+                                index: newCodemap[code].length - 1
+                            });
+                        }
                     }
                 }
             });
@@ -943,18 +949,18 @@
         searchInput.addEventListener('input', (event) => {
             const charToSearch = searchInput.value;
             if (charToSearch.length === 1) {
-                const codes = currentReverseCodemap[charToSearch];
-                if (codes && codes.length > 0) {
-                    const formattedCodes = codes.map((code, index) => {
+                const results = currentReverseCodemap[charToSearch];
+                if (results && results.length > 0) {
+                    const formattedCodes = results.map(result => {
+                        const code = result.code;
+                        const index = result.index;
                         let suffix = '';
-                        if (codes.length > 1) {
-                            if (index < 9) {
-                                suffix = (index + 1).toString();
-                            } else if (index === 9) {
-                                suffix = '0';
-                            } else {
-                                suffix = '＞';
-                            }
+                        if (index < 9) {
+                            suffix = (index + 1).toString();
+                        } else if (index === 9) {
+                            suffix = '0';
+                        } else {
+                            suffix = '＞';
                         }
                         return formatCode(code) + suffix;
                     });
