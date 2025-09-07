@@ -1078,13 +1078,13 @@
                     if (j < codesToDisplay.length) {
                         const result = codesToDisplay[j];
                         const code = result.code;
-                        const candidatesForCode = currentCodemap[code];
                         
                         let suffix = '';
-                        // 檢查是否為第一候選字且編碼長度小於3
-                        if (result.index === 0 && code.length < 3) {
-                            suffix = '空';
-                        } else if (candidatesForCode && candidatesForCode.length > 1) {
+                        if (result.index === 0) {
+                            if (code.length < 3) {
+                                suffix = '空';
+                            }
+                        } else {
                             if (result.index < 9) {
                                 const digit = (result.index + 1).toString();
                                 suffix = fullWidthDigits[digit];
