@@ -479,6 +479,7 @@
         let currentCodemap = {};
         let currentReverseCodemap = {};
         
+        // 增加一個判斷是否為編碼鍵的字串
         const codeKeys = "abcdefghijklmnopqrstuvwxyz;'./,";
         
         const keyname_map_upper = {
@@ -501,12 +502,12 @@
         };
         
         const keyname_map_chinese_shifted = {
-            '1': '!', '2': '@', '3': '#', '4': '$', '5': '%', '6': '^', '7': '&', '8': '*', '9': '(', '0': ')',
-            'q': 'Q', 'w': 'W', 'e': 'E', 'r': 'R', 't': 'T', 'y': 'Y', 'u': 'U', 'i': 'I', 'o': 'O', 'p': 'P',
-            'a': 'A', 's': 'S', 'd': 'D', 'f': 'F', 'g': 'G', 'h': 'H', 'j': 'J', 'k': 'K', 'l': 'L',
-            ';': ':', "'": '"',
-            'z': 'Z', 'x': 'X', 'c': 'C', 'v': 'V', 'b': 'B', 'n': 'N', 'm': 'M',
-            ',': '<', '.': '>', '/': '?',
+            '1': '！', '2': '＠', '3': '＃', '4': '＄', '5': '％', '6': '︿', '7': '＆', '8': '＊', '9': '（', '0': '）',
+            'q': 'Ｑ', 'w': 'Ｗ', 'e': 'Ｅ', 'r': 'Ｒ', 't': 'Ｔ', 'y': 'Ｙ', 'u': 'Ｕ', 'i': 'Ｉ', 'o': 'Ｏ', 'p': 'Ｐ',
+            'a': 'Ａ', 's': 'Ｓ', 'd': 'Ｄ', 'f': 'Ｆ', 'g': 'Ｇ', 'h': 'Ｈ', 'j': 'Ｊ', 'k': 'Ｋ', 'l': 'Ｌ',
+            ';': '：', "'": '＂',
+            'z': 'Ｚ', 'x': 'Ｘ', 'c': 'Ｃ', 'v': 'Ｖ', 'b': 'Ｂ', 'n': 'Ｎ', 'm': 'Ｍ',
+            ',': '＜', '.': '＞', '/': '？',
         };
 
         const keyname_map_english_shifted = {
@@ -564,7 +565,6 @@
                         if (!newReverseCodemap[char]) {
                             newReverseCodemap[char] = [];
                         }
-                        // 檢查該字元是否已存在該編碼，避免重複
                         if (!newReverseCodemap[char].some(item => item.code === code)) {
                             newReverseCodemap[char].push({
                                 code: code,
@@ -577,7 +577,6 @@
             return { newCodemap, newReverseCodemap };
         }
 
-        // 函式：載入指定檔案的碼表
         async function loadCodemap(fileName) {
             try {
                 const response = await fetch(fileName);
@@ -593,7 +592,6 @@
             }
         }
         
-        // 切換輸入法函數
         async function switchInputMethod(mode) {
             currentInputMethod = mode;
             if (mode === 'primary') {
@@ -624,7 +622,6 @@
             });
         });
 
-        // 函式：在游標位置插入文字
         function insertTextAtCursor(element, text) {
             const start = element.selectionStart;
             const end = element.selectionEnd;
@@ -633,7 +630,6 @@
             element.focus();
         }
 
-        // 函式：在游標位置刪除文字
         function deleteTextAtCursor(element) {
             const start = element.selectionStart;
             if (start > 0) {
@@ -650,7 +646,7 @@
             const key = event.target.closest('.key');
             if (!key) return;
             const code = key.dataset.code;
-
+        
             if (code === 'shift') {
                 if (isLongPressActive) {
                     isLongPressActive = false;
@@ -664,34 +660,61 @@
                 return;
             }
             
-            // 處理長按Shift模式下的輸入
-            if (isLongPressActive) {
-                let outputChar = isEnglishMode ? keyname_map_english_shifted[code] : keyname_map_chinese_shifted[code];
-                if (outputChar) {
-                    insertTextAtCursor(textOutput, outputChar);
-                    resetInputState(); // 長按Shift後輸入應該清空編碼
-                    updatePhraseLookup();
-                    return;
-                }
-            }
-
-            // 處理一般點擊輸入
-            const char = keyname_map_lower[code];
-            if (char) {
-                processInput(char);
-            }
-            
             if (code === '<') { 
                 handlePageChange('previous');
             } else if (code === '>') { 
                 handlePageChange('next');
             } else if (code === 'backspace') {
-                processInput('backspace');
+                handleFunctionKey('Backspace');
             } else if (code === 'enter') {
-                processInput('enter');
+                handleFunctionKey('Enter');
+            } else {
+                let char = keyname_map_lower[code];
+                if (!char) {
+                    // Fallback for codes not in map
+                    char = code;
+                }
+                
+                if (isLongPressActive) {
+                    char = isEnglishMode ? keyname_map_english_shifted[code] : keyname_map_chinese_shifted[code];
+                    if (char) {
+                         insertTextAtCursor(textOutput, char);
+                         updatePhraseLookup();
+                    }
+                    resetInputState();
+                    return;
+                }
+                
+                processInput(char);
             }
         });
         
+        function handleFunctionKey(key) {
+            if (key === 'Backspace' || key === 'backspace') {
+                if (isEnglishMode) {
+                    deleteTextAtCursor(textOutput);
+                } else {
+                    if (currentCode.length > 0) {
+                        currentCode = currentCode.slice(0, -1);
+                        updateStateAndDisplay();
+                    } else {
+                        deleteTextAtCursor(textOutput);
+                    }
+                }
+            }
+            if (key === 'Enter' || key === 'enter') {
+                if (currentCandidates.length > 0) {
+                     selectCandidate(0);
+                } else {
+                     insertTextAtCursor(textOutput, '\n');
+                }
+            }
+            if (key === 'Escape' || key === 'escape') {
+                resetInputState();
+            }
+            updatePhraseLookup();
+        }
+
         // --- 統一處理鍵盤輸入的核心函數 ---
         function processInput(char) {
             if (isEnglishMode) {
@@ -702,67 +725,44 @@
         }
 
         function isCodeKey(char) {
-            return codeKeys.includes(char.toLowerCase());
+            return char && codeKeys.includes(char.toLowerCase());
         }
 
         // --- 處理中文模式輸入的核心函數 ---
         function handleChineseInput(char) {
-            // 處理功能鍵
-            if (char === 'backspace' || char === 'Backspace') {
-                if (currentCode.length > 0) {
-                    currentCode = currentCode.slice(0, -1);
-                    updateStateAndDisplay();
-                } else {
-                    deleteTextAtCursor(textOutput);
-                    updatePhraseLookup();
-                }
-                return;
-            }
-            if (char === 'enter' || char === 'Enter') {
-                insertTextAtCursor(textOutput, '\n');
-                resetInputState();
-                updatePhraseLookup();
-                return;
-            }
-            if (char === 'escape' || char === 'Escape') {
-                resetInputState();
-                updatePhraseLookup();
-                return;
-            }
-
-            // 處理數字鍵選字或直出
+            // 處理數字鍵選字
             if (char.match(/^[0-9]$/)) {
                 if (currentCandidates.length > 0) {
                     const num = char === '0' ? 10 : parseInt(char, 10);
                     selectCandidate(num - 1);
                 } else {
                     insertTextAtCursor(textOutput, char);
-                    updatePhraseLookup();
                 }
+                updatePhraseLookup();
                 return;
             }
 
-            // 處理空白鍵選字或直出
+            // 處理空白鍵選字
             if (char === ' ' || char === 'Space') {
                 if (currentCandidates.length > 0) {
                     selectCandidate(0);
                 } else {
                     insertTextAtCursor(textOutput, ' ');
-                    updatePhraseLookup();
                 }
+                updatePhraseLookup();
                 return;
             }
 
             // 處理正常的編碼輸入
             if (isCodeKey(char)) {
+                const lowerChar = char.toLowerCase();
                 if (currentCode.length < MAX_CODE_LENGTH) {
-                    currentCode += char;
+                    currentCode += lowerChar;
                 } else {
-                    // 如果已達最大長度，先選字再輸入新編碼
                     if (currentCandidates.length > 0) {
                         selectCandidate(0);
                     }
-                    currentCode = char;
+                    currentCode = lowerChar;
                 }
                 updateStateAndDisplay();
             } else {
@@ -779,27 +779,7 @@
         
         // --- 處理英文模式輸入的函數 ---
         function handleEnglishInput(char) {
-            if (char === 'backspace' || char === 'Backspace') {
-                deleteTextAtCursor(textOutput);
-                updatePhraseLookup();
-                return;
-            }
-            if (char === 'enter' || char === 'Enter') {
-                insertTextAtCursor(textOutput, '\n');
-                updatePhraseLookup();
-                return;
-            }
-            if (char === 'escape' || char === 'Escape') {
-                resetInputState();
-                updatePhraseLookup();
-                return;
-            }
-            if (char === ' ' || char === 'Space') {
-                insertTextAtCursor(textOutput, ' ');
-                updatePhraseLookup();
-                return;
-            }
-            
+            // 在英文模式下，除了功能鍵，其他都直接輸出
             if (char.length === 1) {
                 insertTextAtCursor(textOutput, char);
                 updatePhraseLookup();
@@ -808,6 +788,8 @@
         
         // --- 獨立的翻頁處理函數 ---
         function handlePageChange(direction) {
+            if (currentCandidates.length === 0) return;
+
             if (direction === 'previous') {
                 if (currentPage > 0) {
                     currentPage--;
@@ -945,7 +927,7 @@
         }
         
         document.addEventListener('keydown', (event) => {
-            if (event.ctrlKey || event.metaKey) {
+            if (event.altKey || event.ctrlKey || event.metaKey) {
                 return;
             }
 
@@ -956,7 +938,7 @@
                     keyElement.classList.add('active');
                 }
             }
-            
+
             if (event.key === 'Shift') {
                 if (!isShiftDown) {
                     isShiftDown = true;
@@ -968,32 +950,39 @@
                 }
                 return;
             }
-
-            if (isLongPressActive && event.shiftKey) {
+            
+            // 處理長按Shift下的符號輸入
+            if (isShiftDown && isLongPressActive) {
                 const char = event.key;
                 const outputChar = isEnglishMode ? keyname_map_english_shifted[char] : keyname_map_chinese_shifted[char];
                 if (outputChar) {
                     event.preventDefault();
                     insertTextAtCursor(textOutput, outputChar);
-                    resetInputState(); // 長按Shift後輸入應該清空編碼
+                    resetInputState();
                     updatePhraseLookup();
                     return;
                 }
             }
             
-            const char = event.key;
+            // 處理英文模式
             if (isEnglishMode) {
-                if (!event.altKey && !event.ctrlKey) {
-                    event.preventDefault(); 
-                    handleEnglishInput(char);
+                const isFunctionKey = ['Backspace', 'Enter', 'Escape', ' ', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key);
+                if (!event.shiftKey && !isFunctionKey) {
+                    return; // 讓瀏覽器處理英文大小寫
                 }
-            } else {
-                if (!event.altKey && !event.ctrlKey) {
-                    const isInputKey = isCodeKey(char) || char.match(/^[0-9]$/) || char === ' ' || char === 'Enter' || char === 'Backspace' || char === 'Escape' || char === '<' || char === '>';
-                    if (isInputKey) {
-                        event.preventDefault();
-                        handleChineseInput(char);
-                    }
+                event.preventDefault(); // 阻擋功能鍵
+                handleFunctionKey(event.key);
+            } else { // 處理中文模式
+                const char = event.key;
+                const isInputKey = isCodeKey(char) || char.match(/^[0-9]$/) || char === ' ' || char === 'Enter' || char === 'Backspace' || char === 'Escape' || char === '<' || char === '>';
+                
+                if (isInputKey) {
+                     event.preventDefault();
+                     if (char === 'Backspace' || char === 'Enter' || char === 'Escape' || char === ' ' || char === '<' || char === '>') {
+                         handleFunctionKey(char);
+                     } else {
+                         handleChineseInput(char);
+                     }
                 }
             }
         });
@@ -1025,7 +1014,7 @@
             }
         });
 
-        // --- 新增的批量查碼處理邏輯 ---
+        // --- 批量查碼處理邏輯 ---
         function updatePhraseLookup() {
             const textToSearch = phraseInput.value;
             const textToCompare = textOutput.value;
