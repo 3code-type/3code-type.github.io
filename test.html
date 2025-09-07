@@ -458,8 +458,6 @@
         const modeDisplay = document.getElementById('mode-display');
         const modeRadioButtons = document.querySelectorAll('input[name="input_mode"]');
 
-        const FULL_WIDTH_NUMBERS = ['①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨', '⑩'];
-
         const MAX_CODE_LENGTH = 3;
         const SHIFT_HOLD_THRESHOLD = 300; // 300毫秒
         
@@ -947,17 +945,19 @@
             if (charToSearch.length === 1) {
                 const codes = currentReverseCodemap[charToSearch];
                 if (codes && codes.length > 0) {
-                    let formattedCodes = codes.map(formatCode);
-                    
-                    if (formattedCodes.length > 1) {
-                        formattedCodes = formattedCodes.map((code, index) => {
-                            if (index < 10) {
-                                return `${code}${FULL_WIDTH_NUMBERS[index]}`;
+                    const formattedCodes = codes.map((code, index) => {
+                        let suffix = '';
+                        if (codes.length > 1) {
+                            if (index < 9) {
+                                suffix = (index + 1).toString();
+                            } else if (index === 9) {
+                                suffix = '0';
                             } else {
-                                return `${code}＞`;
+                                suffix = '＞';
                             }
-                        });
-                    }
+                        }
+                        return formatCode(code) + suffix;
+                    });
                     
                     searchResult.textContent = `編碼：　${formattedCodes.join('　')}`;
                 } else {
