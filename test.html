@@ -310,7 +310,7 @@
             font-weight: bold;
             border: 1px dashed var(--border-color);
             border-radius: 4px;
-            color: transparent;
+            color: var(--text-color);
             background-color: transparent;
             transition: all 0.3s ease-in-out;
         }
@@ -553,6 +553,7 @@
         const keyboardContainer = document.querySelector('.keyboard-container');
         const modeDisplay = document.getElementById('mode-display');
         const modeRadioButtons = document.querySelectorAll('input[name="input_mode"]');
+        const candidateDisplay = document.getElementById('candidate-display');
 
         const MAX_CODE_LENGTH = 3;
         const SHIFT_HOLD_THRESHOLD = 300; // 300毫秒
@@ -678,6 +679,7 @@
                 if (currentCode.length > 0) {
                     currentCode = currentCode.slice(0, -1);
                     mainInput.value = formatCode(currentCode);
+                    updateCandidates();
                 }
                 return;
             } else if (code === 'enter') {
@@ -691,20 +693,38 @@
             // 處理編碼輸入
             const inputChar = code.toLowerCase();
             if (inputChar.match(/^[a-z;'./,0-9]$/)) {
-                currentCode += inputChar;
-                mainInput.value = formatCode(currentCode);
-                
-                // 當輸入達到最大長度時自動檢查
-                if (currentCode.length === MAX_CODE_LENGTH) {
-                    checkAndFillPracticeChar();
+                if (currentCode.length < MAX_CODE_LENGTH) {
+                    currentCode += inputChar;
+                    mainInput.value = formatCode(currentCode);
+                    updateCandidates();
+                    
+                    // 當輸入達到最大長度時自動檢查
+                    if (currentCode.length === MAX_CODE_LENGTH) {
+                        checkAndFillPracticeChar();
+                    }
                 }
             }
         });
+
+        function updateCandidates() {
+            candidateDisplay.innerHTML = '';
+            const candidates = currentCodemap[currentCode] || [];
+            if (candidates.length > 0) {
+                candidates.forEach(char => {
+                    const span = document.createElement('span');
+                    span.textContent = char;
+                    candidateDisplay.appendChild(span);
+                });
+            } else {
+                const span = document.createElement('span');
+                span.textContent = '查無編碼';
+                candidateDisplay.appendChild(span);
+            }
+        }
         
         // 檢查並填入練習區的字
         function checkAndFillPracticeChar() {
             if (completedCharsCount >= practiceChars.length) {
-                // 練習已完成，重設狀態
                 resetInputState();
                 return;
             }
@@ -719,19 +739,20 @@
             
             if (isCorrect) {
                 const charBox = practiceDisplayArea.children[completedCharsCount];
-                charBox.textContent = targetChar;
                 charBox.classList.add('filled');
                 completedCharsCount++;
             }
             
             // 無論正確與否，都清空輸入碼
             resetInputState();
+            updateCandidates();
         }
 
         // --- 清空所有輸入狀態 ---
         function resetInputState() {
             currentCode = '';
             mainInput.value = '';
+            candidateDisplay.innerHTML = '';
         }
         
         // --- 格式化編碼顯示 ---
@@ -823,6 +844,7 @@
                     currentCode = currentCode.slice(0, -1);
                 }
                 mainInput.value = formatCode(currentCode);
+                updateCandidates();
                 return; 
             }
             
@@ -837,10 +859,13 @@
                 if (code === 'enter') {
                     checkAndFillPracticeChar();
                 } else {
-                    currentCode += code.toLowerCase();
-                    mainInput.value = formatCode(currentCode);
-                    if (currentCode.length === MAX_CODE_LENGTH) {
-                        checkAndFillPracticeChar();
+                    if (currentCode.length < MAX_CODE_LENGTH) {
+                        currentCode += code.toLowerCase();
+                        mainInput.value = formatCode(currentCode);
+                        updateCandidates();
+                        if (currentCode.length === MAX_CODE_LENGTH) {
+                            checkAndFillPracticeChar();
+                        }
                     }
                 }
             }
