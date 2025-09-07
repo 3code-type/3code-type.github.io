@@ -955,12 +955,22 @@
                         const code = result.code;
                         const index = result.index;
                         let suffix = '';
-                        if (index < 9) {
-                            suffix = (index + 1).toString();
-                        } else if (index === 9) {
-                            suffix = '0';
-                        } else {
-                            suffix = '＞';
+                        const candidatesForCode = currentCodemap[code];
+                        // 只有當該編碼有多個候選字時才加上後綴
+                        if (candidatesForCode && candidatesForCode.length > 1) {
+                            if (index === 0) {
+                                // 第一個字不顯示數字
+                                suffix = '';
+                            } else if (index < 9) {
+                                // 第二個到第九個顯示數字
+                                suffix = (index + 1).toString();
+                            } else if (index === 9) {
+                                // 第十個顯示全形零
+                                suffix = '０';
+                            } else {
+                                // 第十一個之後顯示大於符號
+                                suffix = '＞';
+                            }
                         }
                         return formatCode(code) + suffix;
                     });
