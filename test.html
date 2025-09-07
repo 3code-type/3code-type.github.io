@@ -1019,34 +1019,30 @@
         });
 
         function updatePhraseLookup() {
-            // The text we want to look up codes for. This should always be the content of the phraseInput.
             const textToSearch = phraseInput.value;
-            // The text we want to compare against for coloring. This is the content of the main input area.
             const textToCompare = textOutput.value;
-            let cursorPosition;
 
-            // Determine which textarea has the cursor to get the correct cursor position.
+            let lookupStartIndex = 0;
+            let highlightIndex = -1; // 使用 -1 表示不需高亮
+
             if (phraseInput === document.activeElement) {
-                cursorPosition = phraseInput.selectionStart;
+                lookupStartIndex = 0; // 當游標在查碼區時，固定從索引 0 開始
             } else if (textOutput === document.activeElement) {
-                cursorPosition = textOutput.selectionStart;
-            } else {
-                cursorPosition = 0; // Default if no focus
+                const cursorPosition = textOutput.selectionStart;
+                lookupStartIndex = Math.floor(cursorPosition / 10) * 10;
+                highlightIndex = cursorPosition; // 當游標在練打區時，高亮游標所在的字
             }
             
             encodingResults.innerHTML = '';
             
-            // The starting index for the 10-character lookup block, based on the cursor position.
-            const lookupStartIndex = Math.floor(cursorPosition / 10) * 10;
             const characters = textToSearch.split('').slice(lookupStartIndex, lookupStartIndex + 10);
             
-            // Fixed loop to display 10 columns
             for (let i = 0; i < 10; i++) {
                 const column = document.createElement('div');
                 column.className = 'char-encoding-column';
 
                 const globalIndex = lookupStartIndex + i;
-                if (globalIndex === cursorPosition && (phraseInput === document.activeElement || textOutput === document.activeElement)) {
+                if (globalIndex === highlightIndex) {
                     column.classList.add('highlight-char');
                 }
 
@@ -1058,10 +1054,8 @@
                     charLabel.textContent = char;
                     
                     if (globalIndex < textToCompare.length && char === textToCompare[globalIndex]) {
-                        // The character at this position matches the typed character.
                         charLabel.classList.add('correct-char');
                     } else {
-                        // The character doesn't match or hasn't been typed yet.
                         charLabel.classList.add('incorrect-char');
                     }
                 }
