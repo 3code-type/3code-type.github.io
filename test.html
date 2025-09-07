@@ -533,7 +533,7 @@
         // 英文模式下，長按 Shift 顯示的對應字元（全數改為半形）
         const keyname_map_english_shifted = {
             '1': '!', '2': '@', '3': '#', '4': '$', '5': '%', '6': '^', '7': '&', '8': '*', '9': '(', '0': ')',
-            'q': 'Q', 'w': 'W', 'e': 'E', 'r': 'R', 't': 'T', 'y': 'Y', 'u': 'U', 'i': 'I', 'o': 'O', 'p': 'P',
+            'q': 'Q', 'w': 'W', 'e': 'W', 'r': 'R', 't': 'T', 'y': 'Y', 'u': 'U', 'i': 'I', 'o': 'O', 'p': 'P',
             'a': 'A', 's': 'S', 'd': 'D', 'f': 'F', 'g': 'G', 'h': 'H', 'j': 'J', 'k': 'K', 'l': 'L',
             ';': ':', "'": '"',
             'z': 'Z', 'x': 'X', 'c': 'C', 'v': 'V', 'b': 'B', 'n': 'N', 'm': 'M',
@@ -548,7 +548,6 @@
         // 頁面元素
         const practiceDisplayArea = document.getElementById('practice-display-area');
         const mainInput = document.getElementById('main-input');
-        const candidateDisplay = document.getElementById('candidate-display');
         const phraseInput = document.getElementById('phrase-input');
         const encodingResults = document.getElementById('encoding-results');
         const keyboardContainer = document.querySelector('.keyboard-container');
@@ -559,9 +558,6 @@
         const SHIFT_HOLD_THRESHOLD = 300; // 300毫秒
         
         let currentCode = '';
-        let currentCandidates = [];
-        let currentPage = 0;
-        const candidatesPerPage = 10;
         let isEnglishMode = false;
         let isShiftDown = false;
         let shiftTimer = null;
@@ -570,7 +566,7 @@
         
         // 練習模式專用變數
         let practiceChars = [];
-        let completedChars = [];
+        let completedCharsCount = 0; // 已完成的字元計數
         
         // 函式：格式化碼表資料為物件
         function parseCinData(data) {
@@ -653,42 +649,6 @@
             });
         });
 
-        // 函式：在游標位置插入文字
-        function insertTextAtCursor(element, text) {
-            const start = element.selectionStart;
-            const end = element.selectionEnd;
-            element.value = element.value.substring(0, start) + text + element.value.substring(end);
-            element.selectionStart = element.selectionEnd = start + text.length;
-            element.focus();
-        }
-
-        // 函式：在游標位置刪除文字
-        function deleteTextAtCursor(element) {
-            const start = element.selectionStart;
-            if (start > 0) {
-                const end = element.selectionEnd;
-                let text = element.value;
-                element.value = text.substring(0, start - 1) + text.substring(end);
-                element.selectionStart = element.selectionEnd = start - 1;
-                element.focus();
-            }
-        }
-        
-        // --- 處理長按 Shift 虛擬鍵盤點擊的輔助函數 ---
-        function handleShiftedVirtualInput(code) {
-            let outputChar = '';
-            if (isEnglishMode) {
-                outputChar = keyname_map_english_shifted[code];
-            } else {
-                outputChar = keyname_map_chinese_shifted[code];
-            }
-            if (outputChar) {
-                // 在練習模式下，不處理直接插入，只處理輸入碼
-                return false;
-            }
-            return false;
-        }
-
         // --- 虛擬鍵盤點擊事件 ---
         keyboardContainer.addEventListener('click', (event) => {
             const key = event.target.closest('.key');
@@ -707,137 +667,71 @@
                 }
                 return;
             }
-            
-            if (isLongPressActive) {
-                if (handleShiftedVirtualInput(code)) {
-                    return;
-                }
+
+            if (isEnglishMode) {
+                // 英文模式下，不處理練習區
+                return;
             }
             
-            if (code === '<') { 
-                handlePageChange('previous');
-            } else if (code === '>') { 
-                handlePageChange('next');
-            } else if (code === 'backspace') {
+            // 處理功能鍵
+            if (code === 'backspace') {
                 if (currentCode.length > 0) {
                     currentCode = currentCode.slice(0, -1);
                     mainInput.value = formatCode(currentCode);
                 }
                 return;
             } else if (code === 'enter') {
+                checkAndFillPracticeChar();
+                return;
+            } else if (code === 'escape' || code === ' ' || code === '<' || code === '>') {
+                // 練習模式下，這些鍵無作用
                 return;
             }
             
-            if (isEnglishMode) {
-                // 英文模式下，不處理練習區，直接在 mainInput 輸入
-                // 因為這個網頁的主要功能是中文輸入法練習，此處不做額外處理
-                return;
-            } else {
-                handleChineseInput(code);
-            }
-        });
-        
-        // --- 處理中文模式輸入的核心函數 ---
-        function handleChineseInput(code) {
-            // 處理數字鍵選字（在練習模式下無用，但保留）
-            if (code.match(/^[1-90]$/)) {
-                return;
-            }
-
-            if (code === 'backspace') {
-                if (currentCode.length > 0) {
-                    currentCode = currentCode.slice(0, -1);
-                }
-                mainInput.value = formatCode(currentCode);
-                return;
-            }
-            if (code === 'enter') {
-                return;
-            }
-            if (code === 'escape') {
-                resetInputState();
-                return;
-            }
-            
-            if (code === ' ') {
-                return;
-            }
-            
+            // 處理編碼輸入
             const inputChar = code.toLowerCase();
-            if (inputChar.match(/^[a-z;'./,]$/)) {
+            if (inputChar.match(/^[a-z;'./,0-9]$/)) {
                 currentCode += inputChar;
                 mainInput.value = formatCode(currentCode);
                 
-                // 檢查是否達到三碼
+                // 當輸入達到最大長度時自動檢查
                 if (currentCode.length === MAX_CODE_LENGTH) {
                     checkAndFillPracticeChar();
                 }
             }
-        }
-
+        });
+        
         // 檢查並填入練習區的字
         function checkAndFillPracticeChar() {
-            const currentPracticeIndex = completedChars.length;
-            if (currentPracticeIndex >= practiceChars.length) {
-                // 練習已完成
+            if (completedCharsCount >= practiceChars.length) {
+                // 練習已完成，重設狀態
                 resetInputState();
                 return;
             }
-
-            const targetChar = practiceChars[currentPracticeIndex];
+            
+            const targetChar = practiceChars[completedCharsCount];
             const correctCodes = currentReverseCodemap[targetChar];
             
+            let isCorrect = false;
             if (correctCodes && correctCodes.some(item => item.code === currentCode)) {
-                // 找到正確編碼，填入字元
-                const charBox = practiceDisplayArea.children[currentPracticeIndex];
+                isCorrect = true;
+            }
+            
+            if (isCorrect) {
+                const charBox = practiceDisplayArea.children[completedCharsCount];
                 charBox.textContent = targetChar;
                 charBox.classList.add('filled');
-                completedChars.push(targetChar);
-            } else {
-                // 輸入錯誤
-                // 可在此處加入錯誤提示，例如閃爍或變色
-                // console.log("編碼錯誤！");
+                completedCharsCount++;
             }
             
             // 無論正確與否，都清空輸入碼
             resetInputState();
         }
 
-        // --- 處理英文模式輸入的新函數 ---
-        function handleEnglishInput(char) {
-            // 在練習模式下，英文輸入不應改變練習區
-            return;
-        }
-        
-        // --- 獨立的翻頁處理函數 ---
-        function handlePageChange(direction) {
-            // 在練習模式下，翻頁功能不再處理候選字
-            return;
-        }
-
-        // --- 核心狀態更新與顯示函數 (中文模式專用) ---
-        function updateStateAndDisplay() {
-            // 這個函數已不再需要，邏輯已移至 handleChineseInput
-        }
-        
-        // --- 顯示候選字為數字列表 ---
-        function showCandidates() {
-            // 在練習模式下，這個函數已無作用
-            candidateDisplay.innerHTML = '';
-        }
-        
-        // --- 選擇候選字並清空輸入 ---
-        function selectCandidate(index) {
-            // 在練習模式下，這個函數已無作用
-        }
-        
         // --- 清空所有輸入狀態 ---
         function resetInputState() {
             currentCode = '';
             mainInput.value = '';
-            currentCandidates = [];
-            currentPage = 0;
-            showCandidates();
         }
         
         // --- 格式化編碼顯示 ---
@@ -921,17 +815,6 @@
                 }
                 return;
             }
-
-            // 在中文模式下，處理長按 Shift 後的符號鍵
-            if (!isEnglishMode && event.shiftKey) {
-                const code = getKeyCode(event);
-                const outputChar = keyname_map_chinese_shifted[code];
-                if (outputChar) {
-                    event.preventDefault();
-                    // 在練習模式下，不處理符號輸入
-                    return;
-                }
-            }
             
             // 處理實體鍵盤的刪除鍵
             if (event.key === 'Backspace') {
@@ -950,8 +833,15 @@
                 if (isEnglishMode) {
                     // 英文模式下不處理練習
                     return;
+                }
+                if (code === 'enter') {
+                    checkAndFillPracticeChar();
                 } else {
-                    handleChineseInput(code);
+                    currentCode += code.toLowerCase();
+                    mainInput.value = formatCode(currentCode);
+                    if (currentCode.length === MAX_CODE_LENGTH) {
+                        checkAndFillPracticeChar();
+                    }
                 }
             }
         });
@@ -989,10 +879,13 @@
             const textToSearch = phraseInput.value.trim();
             const characters = textToSearch.split('');
             
+            // 過濾掉碼表中不存在的字元
+            const filteredChars = characters.filter(char => currentReverseCodemap[char] !== undefined);
+            
             // 更新練習區
             practiceDisplayArea.innerHTML = '';
-            practiceChars = characters.slice(0, 10);
-            completedChars = []; // 重置已完成的字元
+            practiceChars = filteredChars.slice(0, 10);
+            completedCharsCount = 0; // 重置已完成的字元
             for (let i = 0; i < practiceChars.length; i++) {
                 const charBox = document.createElement('div');
                 charBox.className = 'practice-char-box';
@@ -1004,7 +897,8 @@
                 charBox.className = 'practice-char-box';
                 practiceDisplayArea.appendChild(charBox);
             }
-
+            resetInputState();
+            
             // 更新查碼區
             encodingResults.innerHTML = '';
             for (let i = 0; i < 10; i++) {
@@ -1020,8 +914,8 @@
                 encodingContainer.style.width = '100%';
 
                 const codesToDisplay = [];
-                if (i < characters.length) {
-                    const char = characters[i];
+                if (i < filteredChars.length) {
+                    const char = filteredChars[i];
                     charLabel.textContent = char;
                     const results = currentReverseCodemap[char];
                     if (results && results.length > 0) {
@@ -1059,7 +953,7 @@
                     encodingContainer.appendChild(codeLabel);
                 }
                 
-                if (i >= characters.length) {
+                if (i >= filteredChars.length) {
                     charLabel.textContent = '';
                 }
 
