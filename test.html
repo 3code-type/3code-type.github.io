@@ -290,6 +290,15 @@
             text-align: left; /* 編碼文字左對齊 */
             min-height: 16px; /* 確保編碼行的高度 */
         }
+        
+        /* 新增的顏色樣式 */
+        .correct-char {
+            color: green;
+        }
+        
+        .incorrect-char {
+            color: red;
+        }
 
         /* 鍵盤樣式 */
         .keyboard-container {
@@ -716,15 +725,18 @@
                     updateStateAndDisplay();
                 } else {
                     deleteTextAtCursor(textOutput);
+                    updatePhraseLookup(); // 在刪除 text-output 的文字後更新比對
                 }
                 return;
             }
             if (code === 'enter') {
                 insertTextAtCursor(textOutput, '\n');
+                updatePhraseLookup(); // 在換行後更新比對
                 return;
             }
             if (code === 'escape') {
                 resetInputState();
+                updatePhraseLookup();
                 return;
             }
             
@@ -733,6 +745,7 @@
                     selectCandidate(0);
                 } else {
                     insertTextAtCursor(textOutput, ' ');
+                    updatePhraseLookup(); // 在空格後更新比對
                 }
                 return;
             }
@@ -754,24 +767,29 @@
             // 處理功能鍵
             if (char === 'backspace') {
                 deleteTextAtCursor(textOutput);
+                updatePhraseLookup();
                 return;
             }
             if (char === 'enter') {
                 insertTextAtCursor(textOutput, '\n');
+                updatePhraseLookup();
                 return;
             }
             if (char === 'escape') {
                 resetInputState();
+                updatePhraseLookup();
                 return;
             }
             if (char === ' ') {
                 insertTextAtCursor(textOutput, ' ');
+                updatePhraseLookup();
                 return;
             }
 
             // 處理英文字母和數字、符號
             if (char.length === 1) {
                 insertTextAtCursor(textOutput, char);
+                updatePhraseLookup();
             }
         }
         
@@ -801,9 +819,11 @@
                 if (currentCandidates.length === 1) {
                     insertTextAtCursor(textOutput, currentCandidates[0]);
                     resetInputState();
+                    updatePhraseLookup(); // 在自動選字後更新比對
                     return;
                 } else if (currentCandidates.length === 0) {
                     resetInputState();
+                    updatePhraseLookup();
                     return;
                 }
             }
@@ -844,6 +864,7 @@
             if (selectedCandidate) {
                 insertTextAtCursor(textOutput, selectedCandidate);
                 resetInputState();
+                updatePhraseLookup(); // 在選字後更新比對
             }
         }
         
@@ -1016,6 +1037,7 @@
         // --- 新增的批量查碼處理邏輯 ---
         function updatePhraseLookup() {
             const textToSearch = phraseInput.value;
+            const textToCompare = textOutput.value;
             encodingResults.innerHTML = '';
             
             const characters = textToSearch.split('').slice(0, 10);
@@ -1028,6 +1050,23 @@
                 const charLabel = document.createElement('span');
                 charLabel.className = 'char-label';
                 
+                // 判斷字元是否比對正確，並設定對應的顏色
+                if (i < characters.length) {
+                    const char = characters[i];
+                    charLabel.textContent = char;
+
+                    if (i < textToCompare.length) {
+                        if (char === textToCompare[i]) {
+                            charLabel.classList.add('correct-char');
+                        } else {
+                            charLabel.classList.add('incorrect-char');
+                        }
+                    } else {
+                        // 如果 text-output 比較短，則未輸入的字元顯示為紅色
+                        charLabel.classList.add('incorrect-char');
+                    }
+                }
+
                 const encodingContainer = document.createElement('div');
                 encodingContainer.style.display = 'flex';
                 encodingContainer.style.flexDirection = 'column';
@@ -1036,7 +1075,6 @@
                 const codesToDisplay = [];
                 if (i < characters.length) {
                     const char = characters[i];
-                    charLabel.textContent = char;
                     const results = currentReverseCodemap[char];
                     if (results && results.length > 0) {
                         codesToDisplay.push(...results.slice(0, 5));
@@ -1072,10 +1110,6 @@
                     }
                     encodingContainer.appendChild(codeLabel);
                 }
-                
-                if (i >= characters.length) {
-                    charLabel.textContent = '';
-                }
 
                 column.appendChild(charLabel);
                 column.appendChild(encodingContainer);
@@ -1084,6 +1118,7 @@
         }
         
         phraseInput.addEventListener('input', updatePhraseLookup);
+        textOutput.addEventListener('input', updatePhraseLookup);
         
         // 頁面載入時先初始化顯示
         switchInputMethod('primary');
