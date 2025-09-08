@@ -42,11 +42,26 @@
             gap: 10px;
         }
 
+        /* 主標題及其圖片的容器 */
+        .main-title-container {
+            display: flex;
+            align-items: center;
+            justify-content: center; /* 使標題和圖片整體居中 */
+            margin-bottom: 5px;
+        }
+
         h1 {
             color: var(--primary-color);
-            margin-bottom: 5px;
+            margin: 0; /* 移除 h1 自身的 margin */
             font-weight: 700;
             font-size: 28px;
+        }
+        
+        /* 新圖片樣式 */
+        .logo	 {
+            height: 35px; /* 調整圖片高度，使其與文字大致對齊 */
+            width: auto; /* 保持圖片比例 */
+            margin-left: 10px; /* 在標題和圖片之間添加間距 */
         }
         
         h2 {
@@ -68,7 +83,7 @@
         .download-section, .mode-switcher {
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: center; /* 確保 flex 項目垂直置中 */
             gap: 10px;
             flex-wrap: wrap;
         }
@@ -145,6 +160,31 @@
             background-color: white;
         }
 
+        /* Facebook 標誌圖片樣式 */
+        .facebook-logo {
+            width: 20px; /* 調整圖片大小 */
+            height: 20px;
+            vertical-align: middle; /* 確保圖片與文字垂直對齊 */
+            margin-right: 0px; /* 在圖片和文字之間添加一點間距 */
+            flex-shrink: 0; /* 防止圖片被壓縮 */
+        }
+
+        /* Facebook 連結樣式 */
+        .facebook-link {
+            font-size: 16px; /* 與下載連結區的字體大小一致 */
+            line-height: 1.5; /* 確保行高一致 */
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 700;
+            transition: color 0.2s ease-in-out;
+            display: flex; /* 啟用 flex 佈局，以便與圖片對齊 */
+            align-items: center; /* 確保圖片和文字垂直置中 */
+        }
+
+        .facebook-link:hover {
+            color: var(--primary-light);
+            text-decoration: underline;
+        }
 
         /* 輸入與顯示區塊 */
         .text-output-area,
@@ -275,7 +315,7 @@
             flex-direction: column;
             align-items: flex-start; 
             width: 70px; /* 固定寬度，足夠容納四碼 */
-            min-height: 140px; /* 確保至少有足夠的高度 */
+            min-height: 120px; /* 確保至少有足夠的高度 */
             flex-shrink: 0;
             padding: 5px;
             border: 1px solid var(--border-color);
@@ -378,12 +418,33 @@
             transform: translateY(0);
             box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
         }
+        
+        /* 版權宣告樣式 */
+        .copyright {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #757575;
+            text-align: center;
+        }
+        .copyright a {
+            color: #757575;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.2s ease-in-out;
+        }
+        .copyright a:hover {
+            color: var(--primary-light);
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>三碼中文輸入法 - 查碼、練打網站</h1>
+        <div class="main-title-container">
+            <h1>三碼中文輸入法 - 查碼、練打網站</h1>
+            <a href="https://www.facebook.com/profile.php?id=61554969271873" target="_blank"><img src="logo.png" alt="logo" class="logo"></a>
+        </div>
         
         <div class="header-section">
             <div class="download-section">
@@ -406,6 +467,8 @@
                     <input type="radio" name="input_mode" value="secondary">
                     三碼次常 (次常用字)
                 </label>
+                <img src="facebook_logo.png" alt="Facebook Logo" class="facebook-logo">
+                <a href="https://www.facebook.com/groups/756940847492021" target="_blank" class="facebook-link">臉書社團：三碼中文輸入法【無書自通】</a>
             </div>
         </div>
 
@@ -484,6 +547,10 @@
         </div>
     </div>
     
+    <div class="copyright">
+        Copying © 2025 <a href="https://www.facebook.com/groups/756940847492021" target="_blank">三碼中文輸入法</a> by <a href="https://www.facebook.com/profile.php?id=61554969271873" target="_blank">無書自通</a>：「一字最多三碼，取決英文字形，符號輸入容易，速度潛力無限。」
+    </div>
+
     <script>
         // --- 資料處理與解析 ---
         let primaryCodemap = null;
@@ -1121,4 +1188,6 @@
         switchInputMethod('primary');
         updateKeyboardDisplay();
     </script>
+
+
 </body></html>
