@@ -1,5 +1,5 @@
 ﻿encode=UTF-8
-name=三碼中文輸入法 v.20250825.2 酞=ca. 喆=nno 囍=nno 脲=mp;
+name=三碼中文輸入法 v.20250912.1 碼≠ecd 褫=eff≠ef' 唬=of≠of' a/n=鍾=飪=錘 剌=yoj
 #作者：無書自通（改編）源自王堯世先生創作之象形王碼第二代
 key=;',./abcdefghijklmnopqrstuvwxyz
 len=3
@@ -1772,9 +1772,9 @@ a/d 鎢
 a/j 錚
 a/l 餓
 a/m 餉
+a/n 鍾
 a/n 飪
 a/n 錘
-a/n 鍾
 a/o 銘
 a/q 鉑
 a/t 錦
@@ -2375,7 +2375,6 @@ eay 臻
 eb 祁
 ebx 敢
 ec' 靦
-ecd 碼
 ece 驃
 ecl 襬
 eco 驅
@@ -2420,8 +2419,8 @@ eex 硬
 eex 斐
 eex 霞
 ef' 礦
-ef' 褫
 efc 驢
+eff 褫
 efj 褥
 efk 祳
 efl 祇
@@ -4457,7 +4456,7 @@ oem 嚅
 oew 嗎
 oex 哽
 oex 嘎
-of' 唬
+of 唬
 of/ 呱
 ofa 蹶
 ofe 噓
@@ -5790,7 +5789,6 @@ ylw 紮
 ylw 槭
 ymh 柵
 ymj 刺
-ymj 剌
 ymm 棚
 ymo 桐
 ymo 櫚
@@ -5815,6 +5813,7 @@ yo 杏
 yob 楫
 yod 枴
 yoi 柙
+yoj 剌
 yom 耦
 yoo 耜
 yox 敕
@@ -5968,4 +5967,3 @@ zxe 騖
 zxo 貉
 zyr 獺
 zzc 猛
-
