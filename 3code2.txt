@@ -1,5 +1,9 @@
 ﻿encode=UTF-8
-name=三碼中文輸入法_次常用字版 v.20250912.1 碼≠ecd 褫=eff≠ef' 唬=of≠of' a/n=鍾=飪=錘 剌=yoj
+name=三碼中文輸入法_次常用字版
+#版本：v.20250923.1 
+#蠤=',, 颩=',/ 豅=',l 惢=... 奿='.x 傒='/a 鵀='/d 彴=/d. 傜='/u 栠='/y 漒=;d, 飆=a', 鄈='ab 佘=ae 飉='aw 鷁='cd 蠲='cd 怹='d. 尥='d. 飂='d/ 豂='d/ 鄇='db 弅='dh
+#飀='do 炃='dw 攽='dx 裶=eee 頄='er 傌='ew 虓='f 傂='ff 谹='fs 傇='hb 傋='hm 黼=htm 仡='kl 仵='kt 牮='lt 谻='lt 偨='ly 柋='ly 尳='mm 毌=ot 伬='p/ 旮='q 纊=sf'
+#紞=sg' 盭=sxc 傎='t' 伎='tx 傞='vi 馗='vq 傔='vw 殳='x 颾='x, 跾='xa 鎥='xa 翛='xd 鞗='xt 
 #作者：無書自通（改編）源自王堯世先生創作之象形王碼第二代（收錄BIG5碼13060個漢字）
 key=;',./abcdefghijklmnopqrstuvwxyz
 len=3
@@ -10,7 +14,7 @@ user=3code_user.txt
 wildcard=?
 dwf=0
 [data]
-#自建、符號
+#自建
 s.. …
 sc ㄛ
 sy ㄚ
@@ -29,6 +33,7 @@ by 掰掰～^^
 lml ～^_^～
 lnl ～^_<～
 lxl ～>_<～
+#符號
 .. 。
 ... ．
 ... ‧
@@ -5975,8 +5980,8 @@ zzc 猛
 ',' 僦
 ',' 儭
 '', 偑
-,, 蠤
 ,,' 蚢
+',, 蠤
 ,,e 譠
 ,,e 蟺
 ,,h 蠐
@@ -6004,10 +6009,10 @@ zzc 猛
 ,.k 蜋
 ,.w 蟭
 ,.x 謢
-,/ 颩
 ,/' 詵
 ,/' 螝
 ,'/ 蛖
+',/ 颩
 ,/. 螅
 ,/. 蟌
 ,/. 謥
@@ -6250,11 +6255,11 @@ zzc 猛
 ,kx 蝮
 ,kx 蝂
 ,kz 斿
-,l 豅
 ,l' 巟
 ,l' 蠃
 ,l' 臝
 ,l' 鸁
+',l 豅
 ',l 儱
 ,la 譺
 ,lb 邙
@@ -6461,6 +6466,7 @@ zzc 猛
 .,w 惊
 .,x 恔
 .,x 慺
+... 惢
 ..k 悢
 ..w 繠
 ..y 橤
@@ -6628,8 +6634,8 @@ zzc 猛
 .wt 怑
 .ww 惔
 .ww 戃
-.x 奿
 .'x 愯
+'.x 奿
 .x, 慅
 .xt 悕
 .xx 惙
@@ -6696,7 +6702,7 @@ zzc 猛
 //z 稃
 /;; 灥
 /;q 濌
-/a 傒
+'/a 傒
 '/a 傱
 /a. 舲
 /ad 鴩
@@ -6725,11 +6731,12 @@ zzc 猛
 /cl 犤
 /ct 睾
 /cx 躽
-/d 鵀
 /d' 鳧
 /'d 鵚
 /'d 秎
+'/d 鵀
 /d. 牣
+/d. 彴
 /d; 齂
 /db 鄔
 /db 鄡
@@ -6803,7 +6810,6 @@ zzc 猛
 /'i 魋
 /'i 鵻
 '/i 偟
-/id 彴
 /il 皉
 /io 舳
 /io 秞
@@ -6853,11 +6859,11 @@ zzc 猛
 /mu 嶴
 /mu 犅
 /mx 敿
-/n 尰
 /n' 兟
 /n' 艬
 /n' 穘
 /'n 垼
+'/n 尰
 '/n 偅
 '/n 倕
 /na 歍
@@ -6944,7 +6950,7 @@ zzc 猛
 /tw 熏
 /tx 鬾
 /tz 馞
-/u 傜
+'/u 傜
 /ux 鰴
 /ux 稯
 /ux 徾
@@ -6981,13 +6987,12 @@ zzc 猛
 '/x 儌
 '/x 俀
 '/x 僾
-/xc 盭
 /xd 鶢
 /xd 鸄
 /xo 譥
 /xt 艂
 /xt 舽
-/y 栠
+'/y 栠
 /y, 种
 /y. 秫
 /yb 邾
@@ -7119,6 +7124,7 @@ zzc 猛
 ;d 氻
 ;d' 瀷
 ;'d 滃
+;d, 漒
 ;d. 汋
 ;d. 淴
 ;d/ 沕
@@ -7473,10 +7479,10 @@ zzc 猛
 ;zj 沀
 ;zm 潏
 ;zq 瀦
-… 惢
 a' 釚
 a,' 銃
 a,' 鈧
+a', 飆
 a,. 鐿
 a,a 鏇
 a,d 鈁
@@ -7563,8 +7569,7 @@ aax 夎
 ab 邞
 ab 耷
 ab 鉺
-ab 鄈
-ab 鄇
+'ab 鄈
 abd 鐊
 abj 錒
 abx 鋷
@@ -7595,6 +7600,7 @@ adr 鐨
 adt 鍏
 adu 鋾
 adx 鋟
+ae 佘
 'ae 倷
 ae; 銢
 aea 餪
@@ -7851,8 +7857,8 @@ atw 鎍
 atx 攲
 atz 餑
 atz 鋍
-au 屳
 au 仚
+au 屳
 'au 佡
 au. 憃
 aui 鏙
@@ -7871,13 +7877,13 @@ avm 鎙
 avq 鐠
 avs 鎡
 avw 鎌
-aw 飉
 aw 尒
 aw 鈥
 aw' 銧
 aw' 鎲
 a'w 鐎
 a'w 鎌
+'aw 飉
 awd 鐒
 awd 鷯
 awl 錈
@@ -8034,10 +8040,10 @@ cco 醧
 ccq 朁
 cct 醰
 cct 醳
-cd 鷁
-cd 蠲
 c'd 鴄
 c'd 鷖
+'cd 鷁
+'cd 蠲
 'cd 佢
 cd/ 醪
 cd/ 匢
@@ -8168,11 +8174,11 @@ d' 勼
 d,o 訇
 d,w 弶
 d,z 韕
-d. 怹
-d. 尥
+'d. 怹
+'d. 尥
 d.d 鵋
-d/ 飂
-d/ 豂
+'d/ 飂
+'d/ 豂
 d/b 鄝
 d/d 鷚
 d/d 鳭
@@ -8184,6 +8190,7 @@ d/w 焄
 da 夬
 dal 匎
 dao 韐
+'db 鄇
 'db 邠
 dcd 韣
 dcd 臦
@@ -8229,8 +8236,8 @@ dfl 弤
 dft 斪
 dfw 韍
 dgt 韗
-dh 弅
 dh' 彉
+'dh 弅
 dhd 鷫
 dhj 刜
 dhm 韝
@@ -8256,7 +8263,7 @@ dna 欨
 dnl 艴
 dnr 賮
 dnr 韥
-do 飀
+'do 飀
 dod 劭
 dod 鴝
 dod 鴐
@@ -8275,17 +8282,16 @@ dqc 韞
 dql 弝
 dqx 彏
 drb 鄪
-ds, 漒
 dso 謽
 dst 舝
 dtb 郼
 dtc 衋
 dty 韎
 dux 弢
-dw 炃
+'dw 炃
 dwm 弰
 dwy 匊
-dx 攽
+'dx 攽
 dyd 鵴
 e'' 裞
 e'' 駾
@@ -8507,6 +8513,7 @@ eee 騑
 eee 礓
 eee 駓
 eee 驫
+eee 裶
 eei 硜
 eei 礭
 eej 揅
@@ -8626,9 +8633,9 @@ eio 駎
 eio 磠
 eix 夒
 ej 亍
-ej 颲
 e'j 祔
 e'j 刓
+'ej 颲
 'ej 侀
 ejb 邘
 ejd 鴷
@@ -8789,7 +8796,7 @@ eqo 騔
 eqq 裮
 eqt 駻
 eqx 騴
-er 頄
+'er 頄
 es' 馻
 'es 伝
 es/ 驂
@@ -8839,9 +8846,9 @@ evw 豏
 evw 禚
 evw 磏
 evz 霠
-ew 傌
 e'w 镽
 e'w 豏
+'ew 傌
 'ew 伓
 ew, 馽
 ewa 奀
@@ -8894,9 +8901,9 @@ ezb 霩
 eze 殛
 ezm 驈
 ezy 騥
-f 虓
 f 虍
 f 厂
+'f 虓
 f, 痋
 f,, 蠯
 f,, 瓥
@@ -8996,8 +9003,8 @@ fen 厔
 feo 癗
 fet 皯
 ff 虒
-ff 傂
 ff 虤
+'ff 傂
 fff 麤
 fff 麤
 ffl 厎
@@ -9092,7 +9099,7 @@ fqw 黶
 fqx 嬮
 frx 癭
 frx 廮
-fs 谹
+'fs 谹
 fsi 癰
 fsm 癵
 fso 廇
@@ -9187,8 +9194,8 @@ ghd 鶱
 ghk 褰
 ghl 寋
 gho 謇
-gi 傕
-gi 谾
+'gi 傕
+'gi 谾
 gir 寊
 gj 宁
 'gj 儜
@@ -9211,7 +9218,7 @@ g'm 寯
 gnn 窐
 gnu 窞
 gnz 窙
-go 傛
+'go 傛
 go. 悹
 god 鶷
 gq 窅
@@ -9241,8 +9248,8 @@ g'y 窱
 h 卌
 h 丱
 h' 艽
-h' 谼
 h'' 莌
+'h' 谼
 'h' 倛
 h, 茧
 h,' 萒
@@ -9388,8 +9395,8 @@ hax 蓌
 hay 蓁
 haz 芩
 haz 靲
-hb 傇
 hb 艿
+'hb 傇
 hb. 蘟
 hba 藂
 hbl 蘵
@@ -9611,10 +9618,10 @@ hlx 荍
 hlx 蕸
 hlz 蓫
 hlz 蘧
-hm 傋
 hm 菛
 h'm 蒨
 h'm 蓨
+'hm 傋
 hm. 蕄
 hma 芮
 hma 藃
@@ -9753,6 +9760,7 @@ htj 蓴
 htl 芚
 htm 萳
 htm 蒴
+htm 黼
 htr 蕡
 htt 蘄
 htt 莗
@@ -10440,7 +10448,7 @@ kjo 笴
 kjq 簎
 kjt 籜
 kkt 簰
-kl 仡
+'kl 仡
 kl, 氠
 kl. 忥
 kl/ 氕
@@ -10493,7 +10501,7 @@ kqt 筸
 kqx 复
 ks/ 篸
 ksh 笲
-kt 仵
+'kt 仵
 kta 簐
 kta 箑
 ktc 簠
@@ -10599,9 +10607,9 @@ lqd 鶛
 lqd 勓
 lr 貣
 lsx 逡
-lt 牮
-lt 谻
 lt 丮
+'lt 牮
+'lt 谻
 'lt 僆
 lt; 逑
 ltd 鴇
@@ -10619,8 +10627,8 @@ lwr 顈
 lwr 顣
 lx; 邍
 lxt 逄
-ly 偨
-ly 柋
+'ly 偨
+'ly 柋
 lyd 鶐
 lyx 遫
 lzm 遹
@@ -10757,9 +10765,9 @@ mln 脡
 mln 閮
 mlo 膇
 mlt 闥
-mm 尳
 mm' 骫
 m'm 臇
+'mm 尳
 'mm 倗
 mma 胦
 mma 肭
@@ -11626,6 +11634,7 @@ osx 畯
 osx 踆
 osy 躒
 osy 圞
+ot 毌
 ot' 嗔
 ot' 蹎
 'ot 僤
@@ -11635,7 +11644,6 @@ otb 鄲
 otd 鷝
 otd 鷤
 otd 嘒
-otj 毌
 otj 塼
 otk 囔
 otl 吨
@@ -11700,7 +11708,7 @@ p,t 幦
 p,w 繴
 p,x 嬖
 p,y 糪
-p/ 伬
+'p/ 伬
 p/a 屣
 p/d 鳲
 p/m 屩
@@ -11739,8 +11747,8 @@ pxq 睯
 pxw 綮
 pxy 棨
 'pz 僝
-q 旮
 q' 旯
+'q 旮
 'q' 俔
 'q' 倎
 q, 眒
@@ -11826,7 +11834,6 @@ q'e 暩
 qed 昜
 qed 眄
 qed 鴠
-qee 裶
 qee 眐
 qei 矐
 qei 曤
@@ -12063,11 +12070,13 @@ seq 絔
 sew 紑
 sex 纋
 sex 綆
+sf' 纊
 sfc 纑
 sfj 縟
 sfs 紘
 sfw 縓
 sg' 綄
+sg' 紞
 sgj 紵
 sgl 綩
 sgl 紽
@@ -12169,6 +12178,7 @@ sww 緂
 swz 絼
 s'x 緶
 sx. 紁
+sxc 盭
 sxo 綹
 sxt 絺
 sxw 繺
@@ -12179,8 +12189,8 @@ syo 綀
 syq 緗
 syy 綝
 szm 繘
-t' 傎
 t'' 帨
+'t' 傎
 t', 蟿
 t,, 蟗
 t,a 輆
@@ -12341,9 +12351,9 @@ tvl 轙
 tvx 鼖
 twm 帩
 twm 輎
-tx 伎
 t'x 毄
 t'x 軗
+'tx 伎
 tx. 慦
 txb 郪
 txd 鶈
@@ -12602,7 +12612,7 @@ vgj 羜
 vhb 郱
 vhd 鵧
 vhr 頩
-vi 傞
+'vi 傞
 viu 齹
 'vj 僔
 vjd 鷷
@@ -12613,14 +12623,14 @@ vm. 愬
 vmy 槊
 vnl 艵
 vob 鄯
-vq 馗
+'vq 馗
 vqb 鄫
 vsd 鶿
 vsx 羧
 vtb 鄣
 vtr 羵
 vua 羰
-vw 傔
+'vw 傔
 vwd 鶼
 v'x 羖
 ''w 僬
@@ -12711,7 +12721,6 @@ wel 烑
 wel 甐
 weq 粨
 wf' 爌
-wf' 纊
 wfa 焮
 wfl 麊
 wfl 熝
@@ -12724,7 +12733,6 @@ wfw 爊
 wfx 粄
 wg' 党
 wg' 熐
-wg' 紞
 wgi 焢
 wgj 牚
 wgl 焥
@@ -12810,7 +12818,6 @@ wsx 焌
 'wt 僯
 wtj 糐
 wtl 炖
-wtm 黼
 wtm 烳
 wtr 頖
 wtx 粀
@@ -12870,10 +12877,10 @@ wzy 煣
 wzy 糅
 x 卍
 x 乂
-x 殳
+'x 殳
 ''x 敓
 ''x 癹
-x, 颾
+'x, 颾
 x,, 螽
 x,a 嫙
 x,e 嬗
@@ -12917,8 +12924,8 @@ x/y 姝
 x/y 姀
 x/y 婇
 'x; 佟
-xa 跾
-xa 鎥
+'xa 跾
+'xa 鎥
 xaa 嬐
 xad 姱
 xah 媕
@@ -12941,8 +12948,8 @@ xca 嬽
 xcd 姖
 xck 嬛
 xco 嫟
-xd 翛
 x'd 妢
+'xd 翛
 xd/ 嫪
 xdc 嬧
 xdd 嫋
@@ -13052,8 +13059,8 @@ x's 妐
 xsa 娭
 xt 夆
 xt 妦
-xt 鞗
 x't 姵
+'xt 鞗
 'xt 俙
 xtb 郗
 xtd 鵗
