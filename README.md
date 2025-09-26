@@ -1,3 +1,4 @@
 # 三碼中文輸入法 - 查碼、練打網站：<a href="https://3code-type.github.io" target="_blank">3code-type.github.io</a>
 可以在網路上直接以鍵盤及網頁虛擬鍵盤使用「三碼中文輸入法」查碼、練打的網站。一字最多三碼，取決按鍵字元，符號輸入容易，速度潛力無限。您只需準備一段想要輸打的文字，然後貼在「查碼區」，即可出現每個文字的編碼，然後在英文模式下，直接使用鍵盤輸入對應的編碼，即可如同真的使用「三碼」在打字喔！是一個快速學習「三碼中文輸入法」的最佳網站！
 # Facebook臉書社團：<a href="https://www.facebook.com/groups/756940847492021" target="_blank">三碼中文輸入法【無書自通】</a>
+# <a href="https://3code-type.github.io/3code.pdf" target="_blank">三碼中文輸入法說明檔</a>
