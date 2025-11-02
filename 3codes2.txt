@@ -13702,7 +13702,7 @@ zzy	猱
 aa	仌
 'a	𠆧
 aa	𠓜
-'aa	㐺
+''a	㐺
 'aa	𠇒
 /aa	𫡑
 /aa	𠂹
