@@ -227,7 +227,7 @@
             /* 調低按鍵高度 (65px) */
             line-height: 65px; 
             min-height: 65px;
-            font-size: 2.0rem; /* 修正處 3: 數字、字母、符號字體從 2.5rem 縮小至 2.0rem */
+            font-size: 1.8rem; /* 修正處: 數字、字母、符號字體從 2.0rem 縮小至 1.8rem */
             font-weight: bold;
         }
 
@@ -237,18 +237,18 @@
             /* 調低按鍵高度 (65px) */
             line-height: 65px; 
             min-height: 65px;
-            font-size: 2.0rem; 
+            font-size: 1.8rem; /* 修正處: 功能鍵字體從 2.0rem 縮小至 1.8rem */
             font-weight: bold; /* 功能鍵設定為粗體 */
         }
         
-        /* 修正處 1: 縮小 lang_toggle 鍵的字體 */
+        /* 修正處 1: 縮小 lang_toggle 鍵的字體 (保留 1.2rem) */
         .key[data-code="lang_toggle"] {
-            font-size: 1.2rem; /* 保留: 避免跳行 */
+            font-size: 1.2rem; 
         }
         
-        /* 修正處 2: 放大 enter 鍵的字體二倍 */
+        /* 修正處 2: 放大 enter 鍵的字體二倍 (保留 4.0rem) */
         .key[data-code="enter"] {
-            font-size: 4.0rem; /* 保留: 放大二倍 */
+            font-size: 4.0rem; 
         }
         
         /* 調整功能鍵的寬度比例 (6 個功能鍵的新比例) */
