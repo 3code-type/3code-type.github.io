@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
     <style>
         /* ----------------------------------------------------- */
-        /* 手機優化樣式，參考 keyboard.css 和 index-0.html 樣式 */
+        /* 手機優化樣式 */
         /* ----------------------------------------------------- */
 
         :root {
@@ -28,7 +28,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent; 
+            -webkit-tap-highlight-color: transparent; /* 移除點擊高亮 */
             outline: none;
         }
 
@@ -99,7 +99,7 @@
             cursor: text;
         }
 
-        /* 候選字與輸入區容器 */
+        /* 候選字與輸入區 */
         #input-area {
             width: 100%;
             background-color: var(--container-bg);
@@ -110,7 +110,6 @@
             border: 1px solid var(--border-color);
         }
 
-        /* 編碼輸入顯示 */
         #main-input {
             width: 100%;
             padding: 8px;
@@ -125,20 +124,21 @@
             overflow-x: auto;
         }
         
-        /* 候選字橫向滾動容器 */
+        /* === 候選字區域：修改為橫向滑動 === */
         #candidate-display {
-            display: flex;
+            display: flex; /* 確保內容在同一行 */
             align-items: center;
             padding: 8px;
-            gap: 12px;
-            white-space: nowrap; /* 確保所有候選字在一行 */
+            gap: 12px; /* 增加間距 */
+            white-space: nowrap; /* 內容不換行 */
             overflow-x: scroll; /* 允許橫向滾動 */
-            -webkit-overflow-scrolling: touch; /* 提升 iOS 上的滾動體驗 */
+            -webkit-overflow-scrolling: touch; /* 改善 iOS 上的滑動體驗 */
             min-height: 40px;
         }
         
+        /* 隱藏滾動條 */
         #candidate-display::-webkit-scrollbar {
-            display: none; /* 隱藏滾動條 */
+            display: none; 
         }
 
         #candidate-display span {
@@ -148,8 +148,9 @@
             transition: all 0.2s;
             user-select: none;
             white-space: nowrap;
-            font-size: 1.2rem; /* 略微放大字體 */
-            flex-shrink: 0; /* 防止候選字被壓縮 */
+            font-size: 1.2rem; /* 稍大一點的字體 */
+            flex-shrink: 0; /* 確保文字不被壓縮 */
+            text-align: center;
         }
         
         #candidate-display span:active, #candidate-display span:hover {
@@ -190,7 +191,7 @@
 
         .key {
             flex-grow: 1;
-            flex-basis: 0;
+            flex-basis: 0; 
             padding: 0;
             border-radius: 6px;
             background-color: var(--key-bg);
@@ -199,7 +200,7 @@
             user-select: none;
             transition: background-color 0.1s;
             box-shadow: 0 2px 3px rgba(0, 0, 0, 0.2);
-            line-height: 50px;
+            line-height: 50px; 
             min-height: 50px;
             font-size: 1.2rem;
             font-weight: bold;
@@ -213,7 +214,7 @@
         }
 
         .key.space-key {
-            flex: 2; /* 兩倍寬 */
+            flex: 2; 
             background-color: #c5cae9;
         }
 
@@ -246,24 +247,24 @@
         </div>
 
     <script>
-        // --- 資料處理與解析 (從 index-0.html 擷取核心部分) ---
+        // --- 資料處理與解析 ---
         let currentCodemap = {};
+        let currentReverseCodemap = {};
         
         const keyname_map_upper = {
-            'a': '一', 'b': '工', 'c': '人', 'd': '心', 'e': '大', 'f': '手', 'g': '木',
-            'h': '土', 'i': '口', 'j': '女', 'k': '艸', 'l': '田', 'm': '山', 'n': 'P',
-            'o': '金', 'p': '月', 'q': '水', 'r': '日', 's': '竹', 't': '禾', 'u': '卜',
-            'v': '戈', 'w': 'O', 'x': 'X', 'y': 'Y', 'z': 'Z',
-            // 符號對應
-            "'": "〃", ';': '；', ',': '，', '.': '．', '/': '／', ' ': '空白', 'enter': '換行', 'backspace': '刪除', 'shift': '中/英',
+            'a': 'Ａ', 'b': 'Ｂ', 'c': 'Ｃ', 'd': 'Ｄ', 'e': 'Ｅ', 'f': 'Ｆ', 'g': 'Ｇ',
+            'h': 'Ｈ', 'i': 'Ｉ', 'j': 'Ｊ', 'k': 'Ｋ', 'l': 'Ｌ', 'm': 'Ｍ', 'n': 'Ｎ',
+            'o': 'Ｏ', 'p': 'Ｐ', 'q': 'Ｑ', 'r': 'Ｒ', 's': 'Ｓ', 't': 'Ｔ', 'u': 'Ｕ',
+            'v': 'Ｖ', 'w': 'Ｗ', 'x': 'Ｘ', 'y': 'Ｙ', 'z': 'Ｚ',
+            // 符號對應 (按鍵顯示)
+            "'": "〃", ';': '；', ',': '，', '.': '．', '/': '／', ' ': '空白鍵', 'enter': 'Enter', 'backspace': '刪除鍵', 'shift': '中/英',
         };
         const keyname_map_lower = {
             'a': 'a', 'b': 'b', 'c': 'c', 'd': 'd', 'e': 'e', 'f': 'f', 'g': 'g',
             'h': 'h', 'i': 'i', 'j': 'j', 'k': 'k', 'l': 'l', 'm': 'm', 'n': 'n',
             'o': 'o', 'p': 'p', 'q': 'q', 'r': 'r', 's': 's', 't': 't', 'u': 'u',
             'v': 'v', 'w': 'w', 'x': 'x', 'y': 'y', 'z': 'z',
-            // 符號對應
-            "'": "'", ';': ';', ',': ',', '.': '.', '/': '/', ' ': ' ', 'enter': 'Enter', 'backspace': 'Back', 'shift': 'Shift',
+            "'": "'", ';': ';', ',': ',', '.': '.', '/': '/', ' ': ' ', 'enter': 'Enter', 'backspace': '刪除鍵', 'shift': '中/英',
         };
 
         // DOM 元素
@@ -278,29 +279,35 @@
         const MAX_CODE_LENGTH = 3;
         let currentCode = '';
         let currentCandidates = [];
+        // let currentPage = 0;             // 已移除分頁邏輯
+        // const candidatesPerPage = 10;    // 已移除分頁邏輯
         let isEnglishMode = false;
         
-        // 函式：格式化碼表資料為物件 (從 index-0.html 擷取)
         function parseCinData(data) {
             const newCodemap = {};
+            const newReverseCodemap = {};
             const lines = data.trim().split('\n');
             lines.forEach(line => {
                 const parts = line.split('\t');
                 if (parts.length >= 2 && !line.startsWith('#')) {
-                    const code = parts[0].trim().toLowerCase(); // 確保編碼小寫
+                    const code = parts[0].trim();
                     const char = parts[1].trim(); 
                     if (code && char) {
                         if (!newCodemap[code]) {
                             newCodemap[code] = [];
                         }
                         newCodemap[code].push(char);
+                        
+                        if (!newReverseCodemap[char]) {
+                            newReverseCodemap[char] = [];
+                        }
+                        newReverseCodemap[char].push(code);
                     }
                 }
             });
-            return newCodemap;
+            return { newCodemap, newReverseCodemap };
         }
 
-        // 函式：載入次常用字碼表 (僅載入 3codes2.txt)
         async function loadSecondaryCodemap() {
             const fileName = './3codes2.txt'; 
             try {
@@ -309,19 +316,25 @@
                     throw new Error('Network response was not ok');
                 }
                 const text = await response.text();
-                currentCodemap = parseCinData(text);
+                const { newCodemap, newReverseCodemap } = parseCinData(text);
+                currentCodemap = newCodemap;
+                currentReverseCodemap = newReverseCodemap;
                 updateModeDisplay();
                 mainInput.textContent = '編碼表載入成功';
             } catch (error) {
                 console.error(`載入 ${fileName} 時發生錯誤:`, error);
-                mainInput.textContent = `錯誤：無法載入編碼檔 ${fileName}。請確認檔案存在且與此 HTML 位於相同目錄下。`;
+                mainInput.textContent = `錯誤：無法載入編碼檔 ${fileName}。請確認檔案存在。`;
             }
             resetInputState();
         }
 
         // --- 處理中文模式輸入的核心函數 ---
         function handleChineseInput(code) {
-            
+            // 忽略數字鍵
+            if (code.match(/^[1-90]$/)) {
+                return;
+            }
+
             if (code === 'backspace') {
                 if (currentCode.length > 0) {
                     currentCode = currentCode.slice(0, -1);
@@ -332,9 +345,8 @@
                 return;
             }
             if (code === 'enter') {
-                // 如果有候選字，選第一個上字
                 if (currentCandidates.length > 0) {
-                    selectCandidate(0);
+                    selectCandidate(0); // 選第一個候選字上字
                 } else {
                     textOutput.textContent += '\n'; // 換行
                 }
@@ -343,7 +355,7 @@
             
             if (code === ' ') {
                 if (currentCandidates.length > 0) {
-                    selectCandidate(0);
+                    selectCandidate(0); // 選第一個候選字上字
                 } else {
                     textOutput.textContent += '　'; // 輸出全形空格
                 }
@@ -351,7 +363,7 @@
             }
             
             const inputChar = code.toLowerCase();
-            // 接受所有 26 字母和 5 符號的輸入: a-z, ; ' , . /
+            // 接受所有 26 字母和 5 符號的輸入
             if (inputChar.match(/^[a-z;'./,<>]$/)) {
                 if (currentCode.length === MAX_CODE_LENGTH) {
                     if (currentCandidates.length > 0) {
@@ -391,7 +403,7 @@
         
         // --- 核心狀態更新與顯示函數 (中文模式專用) ---
         function updateStateAndDisplay() {
-            mainInput.textContent = `輸入編碼: ${formatCode(currentCode)}`;
+            mainInput.textContent = formatCode(currentCode);
             currentCandidates = currentCodemap[currentCode] || [];
             
             if (currentCode.length === MAX_CODE_LENGTH) {
@@ -400,7 +412,7 @@
                     resetInputState();
                     return;
                 } else if (currentCandidates.length === 0) {
-                    // 沒有候選字，清空輸入
+                    // 如果沒有候選字，清空輸入，不做任何輸出
                     resetInputState();
                     return;
                 }
@@ -409,7 +421,7 @@
             showCandidates();
         }
         
-        // --- 顯示候選字為可滑動列表 (更新) ---
+        // --- 顯示候選字為**滑動列表 (已移除編號和分頁)** ---
         function showCandidates() {
             candidateDisplay.innerHTML = '';
             
@@ -421,19 +433,24 @@
                 return;
             }
 
-            // 顯示所有候選字並支援點擊
+            // 顯示所有候選字
             currentCandidates.forEach((candidate, index) => {
                 const span = document.createElement('span');
-                // 移除數字標記，直接顯示漢字
-                span.textContent = candidate;
-                span.onclick = () => selectCandidate(index);
+                // 不顯示編號
+                span.textContent = candidate; 
+                // 直接使用陣列索引
+                span.onclick = () => selectCandidate(index); 
                 candidateDisplay.appendChild(span);
             });
+            
+            // 確保候選字滾動到最左邊
+            candidateDisplay.scrollLeft = 0;
         }
         
-        // --- 選擇候選字並清空輸入 ---
+        // --- 選擇候選字並清空輸入 (已移除分頁邏輯) ---
         function selectCandidate(index) {
-            const selectedCandidate = currentCandidates[index];
+            // 使用絕對索引
+            const selectedCandidate = currentCandidates[index]; 
             if (selectedCandidate) {
                 textOutput.textContent += selectedCandidate;
                 resetInputState();
@@ -444,7 +461,7 @@
         function resetInputState() {
             currentCode = '';
             currentCandidates = [];
-            mainInput.textContent = isEnglishMode ? '英文模式' : '編碼顯示在此';
+            mainInput.textContent = '編碼顯示在此';
             showCandidates();
         }
         
@@ -452,7 +469,7 @@
         function formatCode(code) {
             let displayString = '';
             for (const char of code) {
-                // 顯示基礎字根/符號
+                // 使用大寫字母/全形符號顯示編碼
                 displayString += keyname_map_upper[char] || char.toUpperCase();
             }
             return displayString;
@@ -464,7 +481,6 @@
             document.querySelectorAll('.key[data-code]').forEach(keyElement => {
                 const code = keyElement.dataset.code;
                 if (map[code]) {
-                    // 功能鍵使用原始標籤，字符鍵使用大小寫/字根
                     keyElement.textContent = map[code];
                 }
             });
@@ -477,12 +493,11 @@
 
         // --- 動態生成手機優化鍵盤 ---
         function generateMobileKeyboard() {
-            // 佈局包含 26 字母和 5 個特殊符號: ; ' , . /
             const layout_mobile = [
                 ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
                 ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ';'],
-                ['Shift', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', ',', '.', '/', "'"],
-                ['Space', 'Back', 'Enter'] // 移除 123
+                ['Z', 'X', 'C', 'V', 'B', 'N', 'M', ',', '.', '/', "'"],
+                ['Shift', 'Space', 'Back', 'Enter']
             ];
 
             keyboardContainer.innerHTML = ''; 
@@ -545,7 +560,6 @@
                 return;
             }
             
-            // 嘗試使用現代瀏覽器的 Clipboard API
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(textToCopy).then(() => {
                     alert('文字已成功複製到剪貼簿！');
@@ -554,7 +568,6 @@
                     alert('複製失敗，可能需要 HTTPS 或手動選取。');
                 });
             } else {
-                // 後備方案
                 const tempInput = document.createElement('textarea');
                 tempInput.value = textToCopy;
                 document.body.appendChild(tempInput);
@@ -582,7 +595,7 @@
         // 頁面啟動
         document.addEventListener('DOMContentLoaded', () => {
             generateMobileKeyboard();
-            loadSecondaryCodemap(); // 啟動時載入次常用字碼表
+            loadSecondaryCodemap(); 
             
             copyButton.addEventListener('click', copyTextToClipboard);
             clearButton.addEventListener('click', clearOutput);
