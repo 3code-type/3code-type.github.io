@@ -82,7 +82,7 @@
             align-items: center;
         }
 
-        /* 輸入結果顯示區 (現在是可編輯區域) */
+        /* 輸入結果顯示區 (現在是靜態 div + 自定義游標) */
         #text-output {
             width: 100%;
             background-color: var(--container-bg);
@@ -97,8 +97,25 @@
             white-space: pre-wrap;
             word-break: break-word;
             color: var(--text-color);
-            /* 設置 cursor 為 text，並確保它能顯示游標 */
-            cursor: text; 
+            /* 設置 cursor 為 default，避免像文字輸入區 */
+            cursor: default; 
+            overflow-y: auto; /* 允許文字溢出時滾動 */
+        }
+        
+        /* 游標動畫 CSS */
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 2px;
+            height: 1.2em; /* 匹配字體高度 */
+            background-color: var(--primary-color); 
+            vertical-align: middle;
+            margin-left: 2px;
+            animation: blink 1s step-end infinite;
         }
 
         /* 候選字與輸入區 */
@@ -241,7 +258,7 @@
     </div>
     
     <div id="app-container">
-        <div id="text-output" contenteditable="true" spellcheck="false"></div>
+        <div id="text-output" spellcheck="false"></div>
 
         <div id="input-area">
             <div id="main-input">編碼顯示在此</div>
@@ -257,11 +274,12 @@
         let currentCodemap = {};
         let currentReverseCodemap = {};
         let isEnglishMode = false;
-        let isShiftActive = false; // 控制大寫和符號切換的狀態
+        let isShiftActive = false;
+        
+        // --- 游標 HTML 定義 ---
+        const CURSOR_HTML = '<span id="main-cursor" class="cursor"></span>';
         
         // --- 鍵盤顯示內容映射表 (四種狀態) ---
-        
-        // 字母鍵的基礎映射
         const letter_maps = {
             'cn_normal': (key) => key.toUpperCase(), 
             'cn_shifted': (key) => key.toUpperCase(), 
@@ -270,7 +288,6 @@
         };
 
         const key_display_maps = {
-            // [0, 0] Chinese Normal (Default)
             'cn_normal': { 
                 '1': '1', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6', '7': '7', '8': '8', '9': '9', '0': '0',
                 ';': '；', "'": '〃', ',': '，', '.': '．', '/': '／', 
@@ -278,9 +295,8 @@
                 'case_shift': '⇧', 
                 'backspace': '⌫',
                 'enter': '↵',
-                ' ': ' ' // 空白鍵顯示 ' '
+                ' ': ' ' 
             },
-            // [0, 1] Chinese Shifted (與 cn_normal 相同，除了 case_shift 鍵本身)
             'cn_shifted': { 
                 '1': '1', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6', '7': '7', '8': '8', '9': '9', '0': '0',
                 ';': '；', "'": '〃', ',': '，', '.': '．', '/': '／', 
@@ -290,7 +306,6 @@
                 'enter': '↵',
                 ' ': ' '
             },
-            // [1, 0] English Normal (Lowercase)
             'en_normal': {
                 '1': '1', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6', '7': '7', '8': '8', '9': '9', '0': '0',
                 ';': ';', "'": "'", ',': ',', '.': '.', '/': '/',
@@ -300,7 +315,6 @@
                 'enter': '↵',
                 ' ': ' '
             },
-            // [1, 1] English Shifted (Uppercase + Secondary Symbols)
             'en_shifted': {
                 '1': '!', '2': '@', '3': '#', '4': '$', '5': '%', '6': '^', '7': '&', '8': '*', '9': '(', '0': ')',
                 ';': ':', "'": '"', ',': '<', '.': '>', '/': '?',
@@ -320,13 +334,11 @@
             return key_display_maps[`${mode}_${shift}`];
         }
 
-        // 獲取當前模式下按下某個鍵時應輸出的實際字元（非編碼鍵）
         function getOutputChar(code) {
             const mapKey = isEnglishMode ? (isShiftActive ? 'en_shifted' : 'en_normal') : 
                                            (isShiftActive ? 'cn_shifted' : 'cn_normal');
             const map = key_display_maps[mapKey];
             
-            // 1. 檢查是否為英文模式下的直接輸出 
             if (isEnglishMode) {
                 if (code.match(/^[a-z]$/)) {
                     return letter_maps[mapKey](code); 
@@ -339,32 +351,64 @@
             return null; 
         }
 
-        // --- 核心工具函數：管理游標與輸入 ---
+        // --- 核心工具函數：管理游標與輸出 ---
+        
+        /**
+         * 將字元插入到輸出區文字的末尾（在游標之前）。
+         * @param {string} char 要插入的字元。
+         */
+        function appendCharToOutput(char) {
+            const outputDiv = document.getElementById('text-output');
+            
+            // 由於 outputDiv.textContent 包含所有文字，我們必須從 innerHTML 移除游標
+            const existingCursor = document.getElementById('main-cursor');
+            if (existingCursor) {
+                outputDiv.removeChild(existingCursor);
+            }
+            
+            // 新增文字到 textContent (確保換行符正確)
+            outputDiv.textContent += char;
+            
+            // 重新插入游標
+            outputDiv.insertAdjacentHTML('beforeend', CURSOR_HTML);
 
-        // 確保游標在 contenteditable 元素的末尾
-        function focusAndMoveCaretToEnd() {
-            textOutput.focus();
-            const range = document.createRange();
-            const selection = window.getSelection();
-            
-            // 將範圍設定為 contenteditable 元素的所有內容
-            range.selectNodeContents(textOutput);
-            // 將游標收縮到範圍的末尾 (即文字末尾)
-            range.collapse(false); 
-            
-            selection.removeAllRanges();
-            selection.addRange(range);
+            // 滾動到最下方以確保游標可見
+            outputDiv.scrollTop = outputDiv.scrollHeight;
         }
 
-        // 在游標位置插入文字 (適用於 contenteditable)
-        function insertTextAtCaret(text) {
-            textOutput.focus(); 
-            // 這是模擬鍵盤輸入最可靠的方式，它會在游標位置插入文字
-            document.execCommand('insertText', false, text); 
-            // 由於 execCommand 可能不會移動到絕對末尾，確保游標被重新定位
-            focusAndMoveCaretToEnd(); 
-        }
+        /**
+         * 執行一次文字刪除（移除游標前的最後一個字元）。
+         */
+        function backspaceOutput() {
+            const outputDiv = document.getElementById('text-output');
+            
+            // 移除舊游標
+            const existingCursor = document.getElementById('main-cursor');
+            if (existingCursor) {
+                outputDiv.removeChild(existingCursor);
+            }
+            
+            // 移除最後一個字元
+            let currentText = outputDiv.textContent;
+            if (currentText.length > 0) {
+                outputDiv.textContent = currentText.slice(0, -1);
+            }
+            
+            // 重新插入游標
+            outputDiv.insertAdjacentHTML('beforeend', CURSOR_HTML);
 
+            // 滾動到最下方
+            outputDiv.scrollTop = outputDiv.scrollHeight;
+        }
+        
+        /**
+         * 初始化輸出區，只顯示游標。
+         */
+        function initializeOutput() {
+            const outputDiv = document.getElementById('text-output');
+            outputDiv.innerHTML = CURSOR_HTML;
+            outputDiv.scrollTop = outputDiv.scrollHeight;
+        }
 
         // --- 舊有代碼區塊 ---
 
@@ -422,7 +466,7 @@
                 mainInput.textContent = `錯誤：無法載入編碼檔 ${fileName}。請確認檔案存在。`;
             }
             resetInputState();
-            focusAndMoveCaretToEnd(); // 載入後立即定位游標
+            initializeOutput(); // 載入後初始化游標
         }
 
         // --- 處理中文模式輸入的核心函數 ---
@@ -434,7 +478,7 @@
                 if (currentCandidates.length > 0) {
                     selectCandidate(0); 
                 }
-                insertTextAtCaret(inputChar); // 插入數字
+                appendCharToOutput(inputChar); // 使用自定義插入
                 return;
             }
 
@@ -444,9 +488,7 @@
                     currentCode = currentCode.slice(0, -1);
                     updateStateAndDisplay();
                 } else {
-                     // 游標位置刪除
-                    textOutput.focus();
-                    document.execCommand('delete', false, null); 
+                    backspaceOutput(); // 使用自定義刪除
                 }
                 return;
             }
@@ -454,7 +496,7 @@
                 if (currentCandidates.length > 0) {
                     selectCandidate(0); 
                 } else {
-                    insertTextAtCaret('\n'); 
+                    appendCharToOutput('\n'); // 插入換行
                 }
                 return;
             }
@@ -463,7 +505,7 @@
                 if (currentCandidates.length > 0) {
                     selectCandidate(0); 
                 } else {
-                    insertTextAtCaret('　'); // 輸出全形空白
+                    appendCharToOutput('　'); // 輸出全形空白
                 }
                 return;
             }
@@ -486,36 +528,34 @@
         function handleEnglishInput(code) {
              // 1. 處理功能鍵
             if (code === 'backspace') {
-                textOutput.focus();
-                document.execCommand('delete', false, null); // 游標位置刪除
+                backspaceOutput(); // 使用自定義刪除
                 return;
             }
             if (code === 'enter') {
-                insertTextAtCaret('\n');
+                appendCharToOutput('\n');
                 return;
             }
             if (code === ' ') {
-                insertTextAtCaret(' '); // 輸出半形空白
+                appendCharToOutput(' '); // 輸出半形空白
                 return;
             }
             
             // 2. 處理英文字母、數字和符號 
             const outputChar = getOutputChar(code);
             if (outputChar) {
-                insertTextAtCaret(outputChar);
+                appendCharToOutput(outputChar);
             }
         }
         
         // --- 核心狀態更新與顯示函數 (中文模式專用) ---
         function updateStateAndDisplay() {
-            // 修正: 僅顯示編碼，不加自定義游標
             mainInput.textContent = formatCode(currentCode); 
             
             currentCandidates = currentCodemap[currentCode] || [];
             
             if (currentCode.length === MAX_CODE_LENGTH) {
                 if (currentCandidates.length === 1) {
-                    insertTextAtCaret(currentCandidates[0]); // 使用 insertTextAtCaret
+                    appendCharToOutput(currentCandidates[0]);
                     resetInputState();
                     return;
                 } else if (currentCandidates.length === 0) {
@@ -553,7 +593,7 @@
         function selectCandidate(index) {
             const selectedCandidate = currentCandidates[index]; 
             if (selectedCandidate) {
-                insertTextAtCaret(selectedCandidate); // 使用 insertTextAtCaret
+                appendCharToOutput(selectedCandidate);
                 resetInputState();
             }
         }
@@ -563,10 +603,18 @@
             currentCode = '';
             currentCandidates = [];
             
-            // 更新輸入提示文字 (純文字)
             mainInput.textContent = isEnglishMode ? '英文模式' : '編碼顯示在此';
             showCandidates();
-            focusAndMoveCaretToEnd(); // 重設後確保游標在輸出區
+            
+            // 確保模式切換或重設後游標仍在輸出區
+            const outputDiv = document.getElementById('text-output');
+            const existingCursor = document.getElementById('main-cursor');
+            if (existingCursor && outputDiv.lastChild !== existingCursor) {
+                outputDiv.removeChild(existingCursor);
+                outputDiv.insertAdjacentHTML('beforeend', CURSOR_HTML);
+            } else if (!existingCursor) {
+                outputDiv.insertAdjacentHTML('beforeend', CURSOR_HTML);
+            }
         }
         
         // --- 格式化編碼顯示 ---
@@ -647,7 +695,6 @@
 
                     // --- 鍵盤點擊事件 ---
                     key.addEventListener('click', (event) => {
-                        // 阻止點擊鍵盤時，文字輸出區失去焦點
                         event.preventDefault(); 
 
                         if (code === 'lang_toggle') {
@@ -673,10 +720,9 @@
         }
         
         /**
-         * 複製文字
+         * 複製文字 (需要從 textContent 獲取，因為 innerHTML 包含游標 span)
          */
         function copyTextToClipboard() {
-            // contenteditable 區域的文字內容
             const textToCopy = textOutput.textContent; 
             if (!textToCopy) {
                 alert('輸出區沒有文字可以複製！');
@@ -703,17 +749,17 @@
                 }
                 document.body.removeChild(tempInput);
             }
-            focusAndMoveCaretToEnd(); // 複製後，游標保持活躍
+            resetInputState();
         }
         
         /**
-         * 清空文字
+         * 清空文字 (需要重設游標)
          */
         function clearOutput() {
             if (confirm('確定要清空所有已輸入的文字嗎？')) {
-                textOutput.textContent = '';
+                textOutput.textContent = ''; // 清空內容
+                initializeOutput(); // 重設游標
                 resetInputState();
-                focusAndMoveCaretToEnd(); // 清空後確保游標在輸出區
             }
         }
 
