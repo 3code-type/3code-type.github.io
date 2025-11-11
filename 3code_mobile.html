@@ -227,7 +227,7 @@
             /* 調低按鍵高度 (65px) */
             line-height: 65px; 
             min-height: 65px;
-            font-size: 1.8rem; /* 修正處: 數字、字母、符號字體從 2.0rem 縮小至 1.8rem */
+            font-size: 1.8rem; /* 數字、字母、符號字體 */
             font-weight: bold;
         }
 
@@ -237,18 +237,16 @@
             /* 調低按鍵高度 (65px) */
             line-height: 65px; 
             min-height: 65px;
-            font-size: 1.8rem; /* 修正處: 功能鍵字體從 2.0rem 縮小至 1.8rem */
+            font-size: 1.8rem; /* 功能鍵字體 */
             font-weight: bold; /* 功能鍵設定為粗體 */
         }
         
-        /* 修正處 1: 縮小 lang_toggle 鍵的字體 (保留 1.2rem) */
         .key[data-code="lang_toggle"] {
             font-size: 1.2rem; 
         }
         
-        /* 修正處 2: 放大 enter 鍵的字體二倍 (保留 4.0rem) */
         .key[data-code="enter"] {
-            font-size: 3.0rem; 
+            font-size: 4.0rem; 
         }
         
         /* 調整功能鍵的寬度比例 (6 個功能鍵的新比例) */
@@ -262,7 +260,7 @@
         }
 
         .key.space-key {
-            flex-grow: 2.8; /* 縮小空白鍵以容納第六個功能鍵 */
+            flex-grow: 2.8; 
             flex-basis: 0;
             background-color: #c5cae9;
         }
@@ -495,15 +493,75 @@
         }
         
         /**
-         * 處理方向鍵移動
+         * 處理方向鍵移動 (修正 ↑ 和 ↓ 的邏輯)
          */
         function moveCursor(direction) {
             if (direction === '←') {
                 cursorPosition = Math.max(0, cursorPosition - 1);
             } else if (direction === '→') {
                 cursorPosition = Math.min(committedText.length, cursorPosition + 1);
-            } 
-            // 簡化處理：↑和↓
+            } else if (direction === '↑') {
+                // 向上移動：移動到上列的同行位置，無上列時到行首
+
+                // 1. 找到當前行的開始位置 (currentLineStart)
+                let currentLineStart = committedText.lastIndexOf('\n', cursorPosition - 1);
+                currentLineStart = (currentLineStart === -1) ? 0 : currentLineStart + 1;
+                
+                // 2. 計算當前行的水平偏移量
+                const horizontalOffset = cursorPosition - currentLineStart;
+                
+                // 3. 找到上一個換行符的位置 (prevNewlineIndex)
+                // 尋找目標是在 currentLineStart 之前且最近的 '\n'
+                let prevNewlineIndex = committedText.lastIndexOf('\n', currentLineStart - 2); 
+                
+                // 4. 判斷是否有上一行
+                if (currentLineStart === 0) {
+                    // 無上一行 (已在第一行)，移動到文本開頭 (行首)
+                    cursorPosition = 0; 
+                } else {
+                    // 有上一行
+                    const prevLineStart = (prevNewlineIndex === -1) ? 0 : prevNewlineIndex + 1;
+                    const prevLineEnd = currentLineStart - 1; 
+                    const prevLineLength = prevLineEnd - prevLineStart;
+                    
+                    // 新位置 = 上一行開始位置 + 最小(當前偏移量, 上一行長度)
+                    cursorPosition = prevLineStart + Math.min(horizontalOffset, prevLineLength);
+                }
+
+            } else if (direction === '↓') {
+                // 向下移動：移動到下列的同行位置，無下列時到文字末尾
+
+                // 1. 找到當前行的結束位置 (currentLineEnd)
+                let currentLineEnd = committedText.indexOf('\n', cursorPosition);
+                // 如果找不到換行符，則代表在最後一行，結束位置就是文本末尾
+                currentLineEnd = (currentLineEnd === -1) ? committedText.length : currentLineEnd;
+
+                // 2. 找到當前行的開始位置 (currentLineStart)
+                let currentLineStart = committedText.lastIndexOf('\n', cursorPosition - 1);
+                currentLineStart = (currentLineStart === -1) ? 0 : currentLineStart + 1;
+
+                // 3. 計算當前行的水平偏移量
+                const horizontalOffset = cursorPosition - currentLineStart;
+                
+                // 4. 找到下一行的開始位置 (nextLineStart)
+                let nextLineStart = (currentLineEnd === committedText.length) ? -1 : currentLineEnd + 1;
+                
+                // 5. 判斷是否有下一行
+                if (nextLineStart === -1 || nextLineStart > committedText.length) {
+                    // 無下一行 (已在最後一行)，移動到文字末尾
+                    cursorPosition = committedText.length;
+                } else {
+                    // 有下一行
+                    // 找到下一行的結束位置 (nextLineEnd)
+                    let nextLineEnd = committedText.indexOf('\n', nextLineStart);
+                    nextLineEnd = (nextLineEnd === -1) ? committedText.length : nextLineEnd;
+                    
+                    const nextLineLength = nextLineEnd - nextLineStart;
+                    
+                    // 新位置 = 下一行開始位置 + 最小(當前偏移量, 下一行長度)
+                    cursorPosition = nextLineStart + Math.min(horizontalOffset, nextLineLength);
+                }
+            }
             updateOutputDisplay();
         }
 
@@ -908,5 +966,4 @@
         
     </script>
 </body>
-
 </html>
