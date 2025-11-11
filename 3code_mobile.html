@@ -28,7 +28,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent; /* 移除點擊高亮 */
+            -webkit-tap-highlight-color: transparent; 
             outline: none;
         }
 
@@ -124,15 +124,15 @@
             overflow-x: auto;
         }
         
-        /* === 候選字區域：修改為橫向滑動 === */
+        /* 候選字區域：橫向滑動 */
         #candidate-display {
-            display: flex; /* 確保內容在同一行 */
+            display: flex;
             align-items: center;
             padding: 8px;
-            gap: 12px; /* 增加間距 */
-            white-space: nowrap; /* 內容不換行 */
-            overflow-x: scroll; /* 允許橫向滾動 */
-            -webkit-overflow-scrolling: touch; /* 改善 iOS 上的滑動體驗 */
+            gap: 12px; 
+            white-space: nowrap; 
+            overflow-x: scroll; 
+            -webkit-overflow-scrolling: touch; 
             min-height: 40px;
         }
         
@@ -148,22 +148,13 @@
             transition: all 0.2s;
             user-select: none;
             white-space: nowrap;
-            font-size: 1.2rem; /* 稍大一點的字體 */
-            flex-shrink: 0; /* 確保文字不被壓縮 */
+            font-size: 1.2rem; 
+            flex-shrink: 0; 
             text-align: center;
         }
         
         #candidate-display span:active, #candidate-display span:hover {
             background-color: #e8eaf6;
-        }
-
-        #mode-display {
-            font-size: 1rem;
-            color: #757575;
-            align-self: flex-start;
-            padding: 0 10px 10px;
-            width: 100%;
-            text-align: right;
         }
 
         /* ------------------ 虛擬鍵盤 ------------------ */
@@ -240,8 +231,7 @@
             <div id="candidate-display">候選字顯示在此...</div>
         </div>
         
-        <div id="mode-display">模式：三碼次常</div>
-    </div>
+        </div>
     
     <div class="keyboard-container" id="keyboard-container">
         </div>
@@ -251,20 +241,24 @@
         let currentCodemap = {};
         let currentReverseCodemap = {};
         
+        // 中文模式下的鍵盤顯示 (Shift 鍵顯示為 '三碼')
         const keyname_map_upper = {
             'a': 'Ａ', 'b': 'Ｂ', 'c': 'Ｃ', 'd': 'Ｄ', 'e': 'Ｅ', 'f': 'Ｆ', 'g': 'Ｇ',
             'h': 'Ｈ', 'i': 'Ｉ', 'j': 'Ｊ', 'k': 'Ｋ', 'l': 'Ｌ', 'm': 'Ｍ', 'n': 'Ｎ',
             'o': 'Ｏ', 'p': 'Ｐ', 'q': 'Ｑ', 'r': 'Ｒ', 's': 'Ｓ', 't': 'Ｔ', 'u': 'Ｕ',
             'v': 'Ｖ', 'w': 'Ｗ', 'x': 'Ｘ', 'y': 'Ｙ', 'z': 'Ｚ',
-            // 符號對應 (按鍵顯示)
-            "'": "〃", ';': '；', ',': '，', '.': '．', '/': '／', ' ': '空白鍵', 'enter': 'Enter', 'backspace': '刪除鍵', 'shift': '中/英',
+            // 符號對應
+            "'": "〃", ';': '；', ',': '，', '.': '．', '/': '／', ' ': '空白鍵', 'enter': 'Enter', 'backspace': '刪除鍵', 
+            'shift': '三碼', // *** 修正: 中文模式顯示 '三碼'
         };
+        // 英文模式下的鍵盤顯示 (Shift 鍵顯示為 'En')
         const keyname_map_lower = {
             'a': 'a', 'b': 'b', 'c': 'c', 'd': 'd', 'e': 'e', 'f': 'f', 'g': 'g',
             'h': 'h', 'i': 'i', 'j': 'j', 'k': 'k', 'l': 'l', 'm': 'm', 'n': 'n',
             'o': 'o', 'p': 'p', 'q': 'q', 'r': 'r', 's': 's', 't': 't', 'u': 'u',
             'v': 'v', 'w': 'w', 'x': 'x', 'y': 'y', 'z': 'z',
-            "'": "'", ';': ';', ',': ',', '.': '.', '/': '/', ' ': ' ', 'enter': 'Enter', 'backspace': '刪除鍵', 'shift': '中/英',
+            "'": "'", ';': ';', ',': ',', '.': '.', '/': '/', ' ': ' ', 'enter': 'Enter', 'backspace': '刪除鍵', 
+            'shift': 'En', // *** 修正: 英文模式顯示 'En'
         };
 
         // DOM 元素
@@ -272,15 +266,13 @@
         const mainInput = document.getElementById('main-input');
         const candidateDisplay = document.getElementById('candidate-display');
         const keyboardContainer = document.getElementById('keyboard-container');
-        const modeDisplay = document.getElementById('mode-display');
+        // const modeDisplay = document.getElementById('mode-display'); // 已移除
         const copyButton = document.getElementById('copy-btn');
         const clearButton = document.getElementById('clear-btn');
         
         const MAX_CODE_LENGTH = 3;
         let currentCode = '';
         let currentCandidates = [];
-        // let currentPage = 0;             // 已移除分頁邏輯
-        // const candidatesPerPage = 10;    // 已移除分頁邏輯
         let isEnglishMode = false;
         
         function parseCinData(data) {
@@ -319,7 +311,7 @@
                 const { newCodemap, newReverseCodemap } = parseCinData(text);
                 currentCodemap = newCodemap;
                 currentReverseCodemap = newReverseCodemap;
-                updateModeDisplay();
+                // updateModeDisplay(); // 已移除
                 mainInput.textContent = '編碼表載入成功';
             } catch (error) {
                 console.error(`載入 ${fileName} 時發生錯誤:`, error);
@@ -346,18 +338,18 @@
             }
             if (code === 'enter') {
                 if (currentCandidates.length > 0) {
-                    selectCandidate(0); // 選第一個候選字上字
+                    selectCandidate(0); 
                 } else {
-                    textOutput.textContent += '\n'; // 換行
+                    textOutput.textContent += '\n'; 
                 }
                 return;
             }
             
             if (code === ' ') {
                 if (currentCandidates.length > 0) {
-                    selectCandidate(0); // 選第一個候選字上字
+                    selectCandidate(0); 
                 } else {
-                    textOutput.textContent += '　'; // 輸出全形空格
+                    textOutput.textContent += '　'; 
                 }
                 return;
             }
@@ -367,7 +359,7 @@
             if (inputChar.match(/^[a-z;'./,<>]$/)) {
                 if (currentCode.length === MAX_CODE_LENGTH) {
                     if (currentCandidates.length > 0) {
-                        selectCandidate(0); // 超過三碼，自動選第一個上字
+                        selectCandidate(0); 
                     }
                     currentCode = inputChar;
                 } else {
@@ -412,7 +404,6 @@
                     resetInputState();
                     return;
                 } else if (currentCandidates.length === 0) {
-                    // 如果沒有候選字，清空輸入，不做任何輸出
                     resetInputState();
                     return;
                 }
@@ -421,7 +412,7 @@
             showCandidates();
         }
         
-        // --- 顯示候選字為**滑動列表 (已移除編號和分頁)** ---
+        // --- 顯示候選字為滑動列表 ---
         function showCandidates() {
             candidateDisplay.innerHTML = '';
             
@@ -433,23 +424,18 @@
                 return;
             }
 
-            // 顯示所有候選字
             currentCandidates.forEach((candidate, index) => {
                 const span = document.createElement('span');
-                // 不顯示編號
                 span.textContent = candidate; 
-                // 直接使用陣列索引
                 span.onclick = () => selectCandidate(index); 
                 candidateDisplay.appendChild(span);
             });
             
-            // 確保候選字滾動到最左邊
             candidateDisplay.scrollLeft = 0;
         }
         
-        // --- 選擇候選字並清空輸入 (已移除分頁邏輯) ---
+        // --- 選擇候選字並清空輸入 ---
         function selectCandidate(index) {
-            // 使用絕對索引
             const selectedCandidate = currentCandidates[index]; 
             if (selectedCandidate) {
                 textOutput.textContent += selectedCandidate;
@@ -461,7 +447,7 @@
         function resetInputState() {
             currentCode = '';
             currentCandidates = [];
-            mainInput.textContent = '編碼顯示在此';
+            mainInput.textContent = isEnglishMode ? '英文模式' : '編碼顯示在此';
             showCandidates();
         }
         
@@ -469,13 +455,12 @@
         function formatCode(code) {
             let displayString = '';
             for (const char of code) {
-                // 使用大寫字母/全形符號顯示編碼
                 displayString += keyname_map_upper[char] || char.toUpperCase();
             }
             return displayString;
         }
 
-        // --- 更新鍵盤按鍵顯示 ---
+        // --- 更新鍵盤按鍵顯示 (專門處理 Shift 鍵的變動) ---
         function updateKeyboardDisplay() {
             const map = isEnglishMode ? keyname_map_lower : keyname_map_upper;
             document.querySelectorAll('.key[data-code]').forEach(keyElement => {
@@ -484,13 +469,14 @@
                     keyElement.textContent = map[code];
                 }
             });
+            
+            // 確保 Shift 鍵在模式切換時正確顯示
+            const shiftKey = document.querySelector('.key[data-code="shift"]');
+            if (shiftKey) {
+                shiftKey.textContent = isEnglishMode ? keyname_map_lower['shift'] : keyname_map_upper['shift'];
+            }
         }
         
-        // --- 更新模式顯示 ---
-        function updateModeDisplay() {
-            modeDisplay.textContent = isEnglishMode ? '模式：英文' : '模式：三碼次常';
-        }
-
         // --- 動態生成手機優化鍵盤 ---
         function generateMobileKeyboard() {
             const layout_mobile = [
@@ -528,12 +514,13 @@
                     }
 
                     key.dataset.code = code;
+                    // 初始顯示為中文模式 ('三碼')
                     key.textContent = keyname_map_upper[code] || keyText;
 
                     key.addEventListener('click', () => {
                         if (code === 'shift') {
                             isEnglishMode = !isEnglishMode;
-                            updateModeDisplay();
+                            // updateModeDisplay(); // 已移除
                             updateKeyboardDisplay();
                             resetInputState();
                         } else if (isEnglishMode) {
