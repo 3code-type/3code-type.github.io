@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
     <style>
         /* ----------------------------------------------------- */
-        /* 樣式定義 (保持不變) */
+        /* 樣式定義 */
         /* ----------------------------------------------------- */
 
         :root {
@@ -38,6 +38,7 @@
             align-items: center;
             background-color: var(--background-color);
             min-height: 100vh;
+            /* 保持足夠的底部空間以容納鍵盤 */
             padding-bottom: 490px; 
         }
         
@@ -67,6 +68,46 @@
         #toolbar button:active {
             background-color: #5c6bc0;
         }
+        
+        /* 查碼區塊樣式 */
+        .search-area {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            flex-wrap: wrap; 
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background-color: var(--container-bg);
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            margin-bottom: 10px;
+        }
+
+        #search-input {
+            flex-grow: 0;
+            width: 120px; 
+            height: 40px;
+            padding: 8px;
+            font-size: 1.1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        #search-result {
+            flex-grow: 1;
+            min-height: 40px;
+            padding: 8px;
+            font-size: 1rem;
+            color: #555;
+            background-color: #fafafa;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+        }
+        /* 結束查碼區塊樣式 */
 
         #app-container {
             width: 100%;
@@ -271,6 +312,10 @@
         <button id="clear-btn">❌ 清空文字</button>
     </div>
     
+    <div class="search-area">
+        <input type="text" id="search-input" placeholder="在此輸入漢字 (1字)" maxlength="1">
+        <div id="search-result">查詢結果顯示在此</div>
+    </div>
     <div id="app-container">
         <div id="text-output" spellcheck="false"></div>
     </div>
@@ -403,6 +448,15 @@
             }
             return displayString;
         }
+        
+        // 查碼功能專用：編碼格式化
+        function formatCodeForSearch(code) {
+             let displayString = '';
+             for (const char of code) {
+                 displayString += char.toUpperCase();
+             }
+             return displayString;
+        }
 
         function formatComposition(code) {
             if (!code) return '';
@@ -418,6 +472,8 @@
         const keyboardContainer = document.getElementById('keyboard-container');
         const copyButton = document.getElementById('copy-btn');
         const clearButton = document.getElementById('clear-btn');
+        const searchInput = document.getElementById('search-input');
+        const searchResult = document.getElementById('search-result');
         
         const MAX_CODE_LENGTH = 3;
         let currentCode = '';
@@ -766,7 +822,10 @@
                         if (!newReverseCodemap[char]) {
                             newReverseCodemap[char] = [];
                         }
-                        newReverseCodemap[char].push(code);
+                        // 避免重複編碼，只儲存第一個
+                        if (!newReverseCodemap[char].includes(code)) {
+                             newReverseCodemap[char].push(code);
+                        }
                     }
                 }
             });
@@ -786,7 +845,7 @@
                 }
                 
                 textToParse = await response.text();
-                statusMessage = `已成功載入 ${fileName}`;
+                statusMessage = `已成功載入 ${fileName} (含反查碼)`;
 
             } catch (error) {
                 console.error('外部檔案讀取錯誤:', error.message);
@@ -958,8 +1017,7 @@
             } else if (isEnglishMode) { 
                  mainInput.textContent = '英文模式';
             } else {
-                 // 這裡使用當前的 statusMessage 而不是硬編碼
-                 if (mainInput.textContent.startsWith('已成功載入')) {
+                 if (mainInput.textContent.startsWith('已成功載入') || mainInput.textContent.startsWith('載入')) {
                     // 保持載入狀態訊息，直到有新的輸入
                  } else {
                     mainInput.textContent = '編碼顯示在此';
@@ -1119,10 +1177,38 @@
                 resetInputState();
             }
         }
+        
+        // --- 查碼功能事件處理 ---
+        function handleSearchInput(event) {
+            const charToSearch = searchInput.value;
+            if (charToSearch.length === 1) {
+                // 檢查是否為中文字 (簡單判斷)
+                if (charToSearch.match(/[\u4e00-\u9fff]/)) {
+                    const codes = currentReverseCodemap[charToSearch];
+                    if (codes && codes.length > 0) {
+                        const formattedCodes = codes.map(code => formatCodeForSearch(code));
+                        searchResult.textContent = `編碼：　${formattedCodes.join('　')}`;
+                    } else {
+                        searchResult.textContent = '找不到該漢字編碼。';
+                    }
+                } else {
+                    searchResult.textContent = '請輸入一個中文字查詢。';
+                }
+            } else {
+                searchResult.textContent = '查詢結果顯示在此';
+            }
+        }
+        
+        function handleSearchKeydown(event) {
+            if (event.key === 'Backspace') {
+                event.stopPropagation();
+            }
+        }
+
 
         // 頁面啟動
         document.addEventListener('DOMContentLoaded', () => {
-            generateMobileKeyboard();
+            generateMobileKeyboard(); // 確保鍵盤生成
             loadSecondaryCodemap(); 
             
             // 游標觸碰移動的事件監聽
@@ -1131,6 +1217,10 @@
             
             copyButton.addEventListener('click', copyTextToClipboard);
             clearButton.addEventListener('click', clearOutput);
+            
+            // 查碼功能事件監聽
+            searchInput.addEventListener('input', handleSearchInput);
+            searchInput.addEventListener('keydown', handleSearchKeydown);
         });
         
     </script>
