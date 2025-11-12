@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
     <style>
         /* ----------------------------------------------------- */
-        /* 樣式定義 (未變動) */
+        /* 樣式定義 */
         /* ----------------------------------------------------- */
 
         :root {
@@ -41,34 +41,7 @@
             padding-bottom: 490px; 
         }
         
-        #toolbar {
-            width: 100%;
-            max-width: 600px;
-            display: flex;
-            justify-content: space-around;
-            padding: 10px;
-            margin-bottom: 10px;
-        }
-
-        #toolbar button {
-            flex-grow: 1;
-            margin: 0 5px;
-            padding: 10px 15px;
-            font-size: 1rem;
-            border: none;
-            border-radius: 8px;
-            background-color: var(--primary-color);
-            color: white;
-            cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            transition: background-color 0.2s;
-        }
-
-        #toolbar button:active {
-            background-color: #5c6bc0;
-        }
-        
-        /* 查碼區塊樣式 */
+        /* 查碼區塊樣式 - 間距優化 */
         .search-area {
             width: 100%;
             max-width: 600px;
@@ -76,11 +49,12 @@
             flex-wrap: wrap; 
             align-items: center;
             gap: 10px;
-            padding: 10px;
+            padding: 8px; /* 內部填充縮小 */
             background-color: var(--container-bg);
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            margin-bottom: 10px;
+            margin-bottom: 5px; /* 外部間距縮小 */
+            margin-top: 5px; /* 外部間距縮小 */
         }
 
         #search-input {
@@ -107,25 +81,55 @@
             align-items: center;
         }
         /* 結束查碼區塊樣式 */
+        
+        /* 工具列樣式 - 間距優化 */
+        #toolbar {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            justify-content: space-around;
+            padding: 5px; /* 內部填充縮小 */
+            margin-bottom: 5px; /* 外部間距縮小 */
+        }
 
+        #toolbar button {
+            flex-grow: 1;
+            margin: 0 5px;
+            padding: 8px 15px; /* 按鈕垂直填充縮小 */
+            font-size: 1rem;
+            border: none;
+            border-radius: 8px;
+            background-color: var(--primary-color);
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.2s;
+        }
+
+        #toolbar button:active {
+            background-color: #5c6bc0;
+        }
+
+        /* App 容器樣式 - 間距優化 */
         #app-container {
             width: 100%;
             max-width: 600px;
-            padding: 10px;
+            padding: 5px; /* 容器填充縮小 */
             display: flex;
             flex-direction: column;
             align-items: center;
         }
 
+        /* 輸出文字區塊 - 高度增加與間距優化 */
         #text-output {
             width: 100%;
             background-color: var(--container-bg);
             border: 1px solid var(--border-color);
             border-radius: 8px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-            margin-bottom: 10px;
-            padding: 10px;
-            height: 30vh; 
+            margin-bottom: 5px; /* 外部間距縮小 */
+            padding: 8px; /* 內部填充縮小 */
+            height: 40vh; /* 高度增加 */
             font-size: 1.5rem;
             line-height: 1.6;
             white-space: normal; 
@@ -165,6 +169,7 @@
             display: inline;
         }
         
+        /* 輸入區與候選區的位置 (未變動，但間接因為輸出區變高，它們的位置會更往上) */
         #input-area {
             width: 100%;
             max-width: 600px;
@@ -306,15 +311,16 @@
     </style>
 </head>
 <body>
-    <div id="toolbar">
-        <button id="copy-btn">📋 複製文字</button>
-        <button id="clear-btn">❌ 清空文字</button>
-    </div>
     
     <div class="search-area">
         <input type="text" id="search-input" placeholder="在此輸入字符 (1字)" maxlength="1">
         <div id="search-result">查詢結果顯示在此</div>
     </div>
+    <div id="toolbar">
+        <button id="copy-btn">📋 複製文字</button>
+        <button id="clear-btn">❌ 清空文字</button>
+    </div>
+    
     <div id="app-container">
         <div id="text-output" spellcheck="false"></div>
     </div>
@@ -830,7 +836,8 @@
 
         async function loadSecondaryCodemap() {
             const fileName = './3codes2.txt'; 
-            let textToParse = `# 這是備用的模擬編碼表\nqwe\t測試\n「\t[;'\n」\t';]\n○\tqwe\n`; // 增加測試符號
+            // 保持備用碼表用於測試符號，如果外部檔案載入失敗
+            let textToParse = `# 這是備用的模擬編碼表\nqwe\t測試\n「\t;'\n」\t';\n○\tqwe\n`; 
             let statusMessage = '編碼表載入中...';
 
             try {
@@ -1174,7 +1181,7 @@
             }
         }
         
-        // --- 查碼功能事件處理 (已修復) ---
+        // --- 查碼功能事件處理 ---
         function handleSearchInput(event) {
             const charToSearch = searchInput.value;
             if (charToSearch.length === 1) {
