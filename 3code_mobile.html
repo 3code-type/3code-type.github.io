@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
     <style>
         /* ----------------------------------------------------- */
-        /* 手機優化樣式 (略 - 與前文相同) */
+        /* 樣式定義 (保持不變) */
         /* ----------------------------------------------------- */
 
         :root {
@@ -298,7 +298,7 @@
         const CURSOR_HTML = '<span id="main-cursor" class="cursor">\u200c</span>';
         const NON_BREAK_ANCHOR = '\ufeff'; 
         
-        // --- 鍵盤顯示內容映射表 (略 - 保持與前文一致) ---
+        // --- 鍵盤顯示內容映射表 ---
         const letter_maps = {
             'cn_normal': (key) => key.toUpperCase(), 
             'cn_shifted': (key) => key.toUpperCase(), 
@@ -355,7 +355,62 @@
             return key_display_maps[`${mode}_${shift}`];
         }
 
-        // --- 核心工具函數：管理游標與輸出 (略 - 保持與前文一致) ---
+        function getOutputChar(code) {
+            const mapKey = isEnglishMode ? (isShiftActive ? 'en_shifted' : 'en_normal') : 
+                                           (isShiftActive ? 'cn_shifted' : 'cn_normal');
+            
+            if (isSymbolMode) {
+                const map = key_display_maps[isShiftActive ? 'symbol_shifted' : 'symbol_normal'];
+                const outputChar = map[code];
+                if (outputChar) {
+                    if (['↑', '←', '↓', '→'].includes(outputChar)) {
+                        return { type: 'control', char: outputChar };
+                    }
+                    return { type: 'text', char: outputChar };
+                }
+                return null;
+            } else if (isEnglishMode) {
+                const map = key_display_maps[mapKey];
+                if (code.match(/^[a-z]$/)) {
+                    return { type: 'text', char: letter_maps[mapKey](code) };
+                }
+                if (code.match(/^[0-9;'./,<>]$/)) { 
+                    return { type: 'text', char: map[code] || code };
+                }
+                return null;
+            }
+            return null; 
+        }
+
+        function formatCode(code) {
+            let displayString = '';
+            const map = key_display_maps.cn_normal; 
+            
+            for (const char of code) {
+                if (char.match(/^[a-z]$/)) {
+                    const upperCaseChar = char.toUpperCase();
+                    if (upperCaseChar >= 'A' && upperCaseChar <= 'Z') {
+                         const fullwidthChar = String.fromCharCode(upperCaseChar.charCodeAt(0) - 0x20 + 0xFF00);
+                         displayString += fullwidthChar;
+                    } else {
+                        displayString += upperCaseChar;
+                    }
+                } else if (map[char]) {
+                    displayString += map[char];
+                } else {
+                    displayString += char;
+                }
+            }
+            return displayString;
+        }
+
+        function formatComposition(code) {
+            if (!code) return '';
+            let displayString = formatCode(code);
+            return `<span class="composition-text">${displayString}</span>`;
+        }
+
+        // --- 核心工具函數：管理游標與輸出 ---
         
         const textOutput = document.getElementById('text-output');
         const mainInput = document.getElementById('main-input');
@@ -368,17 +423,330 @@
         let currentCode = '';
         let currentCandidates = [];
         
-        // 這些函數（getOutputChar, formatCode, formatComposition, setupTempDiv, getVisualCursorInfo,
-        // updateOutputDisplay, mapDOMOffsetToTextIndex, handleTextTap, commitText, backspaceOutput,
-        // moveCursor, parseCinData, handleChineseInput, handleEnglishInput, handleSymbolInput,
-        // updateStateAndDisplay, showCandidates, selectCandidate, resetInputState, 
-        // updateKeyboardDisplay, generateMobileKeyboard, copyTextToClipboard, clearOutput）
-        // 應保留與前文完整的程式碼區塊一致。
-        // 為節省篇幅，此處僅放載入函數和主要事件監聽。
+        function setupTempDiv() {
+            const tempDiv = document.createElement('div');
+            tempDiv.style.visibility = 'hidden';
+            tempDiv.style.position = 'absolute';
+            tempDiv.style.width = textOutput.clientWidth + 'px'; 
+            tempDiv.style.padding = getComputedStyle(textOutput).padding;
+            tempDiv.style.fontSize = getComputedStyle(textOutput).fontSize; 
+            tempDiv.style.lineHeight = getComputedStyle(textOutput).lineHeight;
+            tempDiv.style.whiteSpace = 'normal'; 
+            tempDiv.style.wordBreak = 'break-word';
+            tempDiv.style.boxSizing = 'border-box';
+            tempDiv.style.fontFamily = getComputedStyle(textOutput).fontFamily;
+            
+            document.body.appendChild(tempDiv);
+            return tempDiv;
+        }
 
-        // ------------------------------------------------------------------
-        // *** 核心修改部分：修復外部檔案讀取邏輯 ***
-        // ------------------------------------------------------------------
+        function getVisualCursorInfo() {
+            const lines = []; 
+            const softWrapPoints = []; 
+            let currentLineIndex = -1; 
+            let offset = 0; 
+            
+            const tempDiv = setupTempDiv();
+            const computedStyle = getComputedStyle(textOutput);
+            const baseLineHeight = parseFloat(computedStyle.lineHeight) || (parseFloat(computedStyle.fontSize) * 1.6);
+            
+            tempDiv.textContent = '\u200b'; 
+            let currentHeight = tempDiv.offsetHeight;
+            tempDiv.textContent = ''; 
+
+            let lineStartIndex = 0; 
+            let lineText = ''; 
+            
+            for (let i = 0; i <= committedText.length; i++) {
+                const char = committedText[i];
+                const isEndOfText = i === committedText.length;
+                let softWrapDetected = false;
+
+                if (char === '\n') {
+                    
+                    if (cursorPosition === i) {
+                        currentLineIndex = lines.length;
+                        offset = lineText.length; 
+                    }
+
+                    lines.push({ text: lineText, startPos: lineStartIndex, isSoftWrap: false });
+                    
+                    lineText = '';
+                    lineStartIndex = i + 1; 
+                    
+                    tempDiv.textContent = '\u200b';
+                    currentHeight = tempDiv.offsetHeight;
+                    
+                    if (cursorPosition === i + 1) {
+                        currentLineIndex = lines.length;
+                        offset = 0;
+                    }
+                    continue; 
+                }
+
+                if (isEndOfText) {
+                    if (lineText.length > 0 || committedText.length === 0) {
+                        lines.push({ text: lineText, startPos: lineStartIndex, isSoftWrap: false });
+                    }
+                    
+                    if (cursorPosition === i) {
+                         currentLineIndex = lines.length - 1;
+                         offset = lineText.length;
+                    }
+                    break;
+                }
+
+                const testText = lineText + char;
+                tempDiv.textContent = testText;
+                const newHeight = tempDiv.offsetHeight;
+                
+                if (lineText.length > 0 && (newHeight - currentHeight) > (baseLineHeight * 1.05)) { 
+                    softWrapDetected = true;
+                }
+                
+                if (softWrapDetected) {
+                    lines.push({ text: lineText, startPos: lineStartIndex, isSoftWrap: true });
+                    
+                    softWrapPoints.push(i);
+
+                    if (cursorPosition >= lineStartIndex && cursorPosition < i) {
+                        currentLineIndex = lines.length - 1; 
+                        offset = cursorPosition - lineStartIndex;
+                    }
+
+                    lineText = char; 
+                    lineStartIndex = i;
+                    currentHeight = newHeight; 
+                    
+                } else {
+                    lineText = testText;
+                    currentHeight = newHeight;
+                }
+
+                if (cursorPosition === i) {
+                    currentLineIndex = lines.length; 
+                    
+                    if (softWrapDetected) {
+                        offset = 0; 
+                    } else {
+                        offset = i - lineStartIndex; 
+                    }
+                }
+            }
+            
+            document.body.removeChild(tempDiv);
+            
+            if (currentLineIndex !== -1 && lines[currentLineIndex] && cursorPosition >= lines[currentLineIndex].startPos) {
+                 offset = cursorPosition - lines[currentLineIndex].startPos;
+            }
+            if (cursorPosition === committedText.length && committedText.length > 0) {
+                 const lastLine = lines[lines.length - 1];
+                 currentLineIndex = lines.length - 1;
+                 offset = lastLine ? lastLine.text.length : 0;
+            }
+
+
+            return { 
+                currentLine: currentLineIndex, 
+                lines: lines,                 
+                offset: offset,
+                softWrapPoints: softWrapPoints 
+            };
+        }
+        
+        function updateOutputDisplay() {
+            const { softWrapPoints } = getVisualCursorInfo(); 
+            
+            let outputHtml = '';
+            let currentPos = 0;
+            
+            let compositionHtml = '';
+            if (!isEnglishMode && !isSymbolMode && currentCode.length > 0) {
+                compositionHtml = formatComposition(currentCode);
+            } 
+            
+            const fullTextLength = committedText.length;
+
+            while (currentPos <= fullTextLength) {
+                
+                if (softWrapPoints.includes(currentPos)) {
+                    if (currentPos > 0 && committedText[currentPos - 1] !== '\n') {
+                         outputHtml += NON_BREAK_ANCHOR; 
+                    }
+                }
+
+                if (currentPos === cursorPosition) {
+                    outputHtml += compositionHtml + CURSOR_HTML; 
+                    compositionHtml = ''; 
+                }
+                
+                if (currentPos < fullTextLength) {
+                    const char = committedText[currentPos];
+                    if (char === '\n') {
+                        outputHtml += '<br>';
+                    } else {
+                        outputHtml += char; 
+                    }
+                }
+                
+                currentPos++;
+            }
+
+            textOutput.innerHTML = outputHtml;
+
+            const cursorElement = document.getElementById('main-cursor');
+            if (cursorElement) {
+                cursorElement.scrollIntoView({ behavior: 'auto', block: 'nearest' });
+            }
+        }
+
+        function mapDOMOffsetToTextIndex(targetNode, targetOffset) {
+            let committedIndex = 0;
+            const outputDiv = document.getElementById('text-output');
+            
+            const walker = document.createTreeWalker(
+                outputDiv,
+                NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT,
+                { acceptNode: (node) => {
+                     if (node.nodeType === Node.ELEMENT_NODE && (node.classList.contains('cursor') || node.classList.contains('composition-text'))) {
+                         return NodeFilter.FILTER_SKIP;
+                     }
+                     return NodeFilter.FILTER_ACCEPT;
+                }},
+                false
+            );
+
+            let node;
+            while (node = walker.nextNode()) {
+                if (node.nodeType === Node.TEXT_NODE) {
+                    const textContent = node.textContent;
+                    
+                    if (node === targetNode) {
+                        let count = 0;
+                        for (let i = 0; i < targetOffset; i++) {
+                            const char = textContent[i];
+                            if (char !== NON_BREAK_ANCHOR && char !== '\u200c') {
+                                count++;
+                            }
+                        }
+                        committedIndex += count;
+                        return committedIndex; 
+                    }
+                    
+                    for (const char of textContent) {
+                        if (char !== NON_BREAK_ANCHOR && char !== '\u200c') {
+                            committedIndex++;
+                        }
+                    }
+                    
+                } else if (node.nodeName === 'BR') {
+                    committedIndex++; 
+                } 
+            }
+
+            return committedText.length;
+        }
+
+        function handleTextTap(event) {
+            event.preventDefault(); 
+            
+            const x = event.clientX || (event.changedTouches && event.changedTouches[0].clientX);
+            const y = event.clientY || (event.changedTouches && event.changedTouches[0].clientY);
+            
+            if (x === undefined || y === undefined) return;
+
+            let targetPosition;
+            
+            if (document.caretPositionFromPoint) {
+                targetPosition = document.caretPositionFromPoint(x, y);
+            } else if (document.caretRangeFromPoint) {
+                targetPosition = document.caretRangeFromPoint(x, y);
+            }
+
+            if (targetPosition) {
+                let newNode, newOffset;
+
+                if (targetPosition instanceof CaretPosition) {
+                    newNode = targetPosition.offsetNode;
+                    newOffset = targetPosition.offset;
+                } else if (targetPosition instanceof Range) {
+                    newNode = targetPosition.endContainer;
+                    newOffset = targetPosition.endOffset;
+                }
+
+                if (newNode && textOutput.contains(newNode)) {
+                    const newCursorPos = mapDOMOffsetToTextIndex(newNode, newOffset);
+                    
+                    if (newCursorPos !== cursorPosition) {
+                        cursorPosition = newCursorPos;
+                        preferredOffset = -1; 
+                        updateOutputDisplay();
+                    }
+                } else if (newNode === textOutput && newOffset === textOutput.childNodes.length) {
+                    if (cursorPosition !== committedText.length) {
+                         cursorPosition = committedText.length;
+                         preferredOffset = -1;
+                         updateOutputDisplay();
+                    }
+                }
+            }
+        }
+
+        function commitText(textToCommit) {
+            committedText = committedText.slice(0, cursorPosition) + textToCommit + committedText.slice(cursorPosition);
+            cursorPosition += textToCommit.length; 
+            preferredOffset = -1; 
+            resetInputState();
+        }
+
+        function backspaceOutput() {
+            if (cursorPosition > 0) {
+                committedText = committedText.slice(0, cursorPosition - 1) + committedText.slice(cursorPosition);
+                cursorPosition -= 1;
+                preferredOffset = -1;
+                updateOutputDisplay();
+            }
+        }
+        
+        function moveCursor(direction) {
+            if (direction === '←') {
+                cursorPosition = Math.max(0, cursorPosition - 1);
+                preferredOffset = -1;
+            } else if (direction === '→') {
+                cursorPosition = Math.min(committedText.length, cursorPosition + 1);
+                preferredOffset = -1;
+            } 
+            else if (direction === '↑' || direction === '↓') {
+                
+                if (committedText.length === 0) return;
+
+                const { currentLine, lines, offset } = getVisualCursorInfo(); 
+                
+                const startOffset = preferredOffset === -1 ? offset : preferredOffset;
+                preferredOffset = startOffset; 
+
+                let targetLineIndex;
+                if (direction === '↑') {
+                    targetLineIndex = currentLine - 1;
+                } else {
+                    targetLineIndex = currentLine + 1;
+                }
+
+                if (targetLineIndex < 0) {
+                    cursorPosition = 0;
+                    preferredOffset = 0; 
+                } else if (targetLineIndex >= lines.length) {
+                    cursorPosition = committedText.length;
+                    preferredOffset = lines[lines.length - 1] ? lines[lines.length - 1].text.length : 0; 
+                } else {
+                    const targetLine = lines[targetLineIndex];
+                    const newOffset = Math.min(startOffset, targetLine.text.length);
+                    
+                    cursorPosition = targetLine.startPos + newOffset;
+                }
+            }
+            updateOutputDisplay();
+        }
 
         function parseCinData(data) { 
             const newCodemap = {};
@@ -405,39 +773,31 @@
             return { newCodemap, newReverseCodemap };
         }
 
-
-        // 恢復外部檔案讀取的函式 (已包含備用方案)
         async function loadSecondaryCodemap() {
             const fileName = './3codes2.txt'; 
             let textToParse = `# 這是備用的模擬編碼表\nqwe\t測試\n`; 
-            let statusMessage = '編碼表載入成功';
+            let statusMessage = '編碼表載入中...';
 
             try {
-                // *** 嘗試使用 fetch 讀取外部檔案 ***
                 const response = await fetch(fileName);
                 
                 if (!response.ok) {
-                     // 如果讀取失敗 (例如 404 或 CORS 錯誤)
-                     throw new Error(`無法載入外部檔案 (${response.status})。請確認檔案是否存在於伺服器。`);
+                     throw new Error(`無法載入外部檔案 (${response.status})。`);
                 }
                 
-                // 成功取得檔案內容
                 textToParse = await response.text();
                 statusMessage = `已成功載入 ${fileName}`;
 
             } catch (error) {
-                // 捕捉到 CORS 或其他網路錯誤
                 console.error('外部檔案讀取錯誤:', error.message);
                 statusMessage = `載入 ${fileName} 失敗，已切換至備用編碼。`;
             }
             
-            // 不論是否成功讀取外部檔案，都解析內容
             try {
                 const { newCodemap, newReverseCodemap } = parseCinData(textToParse);
                 currentCodemap = newCodemap;
                 currentReverseCodemap = newReverseCodemap;
             } catch (e) {
-                // 如果連備用編碼都解析失敗
                 currentCodemap = {};
                 currentReverseCodemap = {};
                 statusMessage = '錯誤：編碼表解析失敗。';
@@ -448,25 +808,329 @@
             updateOutputDisplay();
         }
 
-        // ------------------------------------------------------------------
-        // *** [請自行補充] 其他輸入、游標處理、鍵盤生成等函數 ***
-        // (保持與您上一個完整程式碼區塊中的函數定義一致)
-        // ------------------------------------------------------------------
-        // ... [省略所有中間函數，請確保它們都在您的實際檔案中]
-        // ------------------------------------------------------------------
+        function handleChineseInput(code) {
+            const inputChar = code.toLowerCase();
+            
+            if (inputChar.match(/^[0-9]$/)) {
+                if (currentCandidates.length > 0) {
+                    selectCandidate(0); 
+                }
+                commitText(inputChar); 
+                return;
+            }
+            if (code === 'backspace') {
+                if (currentCode.length > 0) {
+                    currentCode = currentCode.slice(0, -1);
+                    updateStateAndDisplay();
+                } else {
+                    backspaceOutput();
+                }
+                return;
+            }
+            if (code === 'enter') {
+                if (currentCandidates.length > 0) {
+                    selectCandidate(0); 
+                } else {
+                    commitText('\n'); 
+                }
+                return;
+            }
+            if (code === ' ') {
+                if (currentCandidates.length > 0) {
+                    selectCandidate(0); 
+                } else {
+                    commitText('　');
+                }
+                return;
+            }
+            
+            if (inputChar.match(/^[a-z;'./,<>]$/)) {
+                if (currentCode.length === MAX_CODE_LENGTH) {
+                    if (currentCandidates.length > 0) {
+                        selectCandidate(0); 
+                    }
+                    currentCode = inputChar;
+                } else {
+                    currentCode += inputChar;
+                }
+                updateStateAndDisplay();
+            }
+        }
+        
+        function handleEnglishInput(code) {
+            if (code === 'backspace') {
+                backspaceOutput(); 
+                return;
+            }
+            if (code === 'enter') {
+                commitText('\n');
+                return;
+            }
+            if (code === ' ') {
+                commitText(' '); 
+                return;
+            }
+            
+            const outputResult = getOutputChar(code);
+            if (outputResult && outputResult.type === 'text') {
+                commitText(outputResult.char);
+            }
+        }
+        
+        function handleSymbolInput(code) {
+            if (code === 'backspace') {
+                backspaceOutput(); 
+                return;
+            }
+            if (code === 'enter') {
+                commitText('\n');
+                return;
+            }
+            if (code === ' ') {
+                commitText(' '); 
+                return;
+            }
+            
+            const outputResult = getOutputChar(code);
+            if (outputResult) {
+                if (outputResult.type === 'text') {
+                    commitText(outputResult.char);
+                } else if (outputResult.type === 'control') {
+                    moveCursor(outputResult.char);
+                }
+            }
+        }
+        
+        function updateStateAndDisplay() {
+            mainInput.textContent = formatCode(currentCode); 
+            currentCandidates = currentCodemap[currentCode] || [];
+            
+            if (currentCode.length === MAX_CODE_LENGTH) {
+                if (currentCandidates.length === 1) {
+                    commitText(currentCandidates[0]);
+                    return;
+                } else if (currentCandidates.length === 0) {
+                    resetInputState();
+                    return;
+                }
+            }
+            
+            updateOutputDisplay();
+            showCandidates();
+        }
+        
+        function showCandidates() {
+            candidateDisplay.innerHTML = '';
+            
+            if (isSymbolMode || isEnglishMode || (currentCandidates.length === 0 && currentCode.length === 0)) {
+                candidateDisplay.textContent = '候選字顯示在此...';
+                return;
+            }
+
+            if (currentCandidates.length === 0) {
+                 candidateDisplay.textContent = '無候選字';
+                 return;
+            }
+
+            currentCandidates.forEach((candidate, index) => {
+                const span = document.createElement('span');
+                span.textContent = candidate; 
+                span.onclick = () => selectCandidate(index); 
+                candidateDisplay.appendChild(span);
+            });
+            
+            candidateDisplay.scrollLeft = 0;
+        }
+        
+        function selectCandidate(index) {
+            const selectedCandidate = currentCandidates[index]; 
+            if (selectedCandidate) {
+                commitText(selectedCandidate);
+            }
+        }
+        
+        function resetInputState() {
+            currentCode = '';
+            currentCandidates = [];
+            
+            if (isSymbolMode) {
+                 mainInput.textContent = '符號模式';
+            } else if (isEnglishMode) { 
+                 mainInput.textContent = '英文模式';
+            } else {
+                 // 這裡使用當前的 statusMessage 而不是硬編碼
+                 if (mainInput.textContent.startsWith('已成功載入')) {
+                    // 保持載入狀態訊息，直到有新的輸入
+                 } else {
+                    mainInput.textContent = '編碼顯示在此';
+                 }
+            }
+            
+            showCandidates();
+            updateOutputDisplay(); 
+        }
+        
+        function updateKeyboardDisplay() {
+            const map = getCurrentDisplayMap();
+            const letterMap = isEnglishMode ? (isShiftActive ? letter_maps.en_shifted : letter_maps.en_normal) : letter_maps.cn_normal;
+            
+            document.querySelectorAll('.key[data-code]').forEach(keyElement => {
+                const code = keyElement.dataset.code;
+                
+                if (code === 'lang_toggle') {
+                    keyElement.textContent = isEnglishMode ? 'En' : '三碼';
+                    return;
+                }
+                
+                if (code === 'case_shift') {
+                    keyElement.textContent = isShiftActive ? '⬆' : '⇧';
+                    return;
+                }
+                
+                if (map[code]) {
+                    keyElement.textContent = map[code];
+                } else if (code.match(/^[a-z]$/)) {
+                    keyElement.textContent = letterMap(code);
+                }
+            });
+        }
+        
+        function generateMobileKeyboard() {
+            const layout_mobile = [
+                ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'], 
+                ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
+                ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ';', "'"], 
+                ['Z', 'X', 'C', 'V', 'B', 'N', 'M', ',', '.', '/'], 
+                ['Case_Shift', 'Lang_Toggle', 'Symbol_Toggle', 'Space', 'Back', 'Enter'] 
+            ];
+
+            keyboardContainer.innerHTML = ''; 
+
+            layout_mobile.forEach(rowKeys => {
+                const row = document.createElement('div');
+                row.className = 'key-row';
+
+                rowKeys.forEach(keyText => {
+                    const key = document.createElement('div');
+                    key.className = 'key';
+                    
+                    let code = keyText.toLowerCase();
+                    
+                    if (keyText === 'Back') {
+                        code = 'backspace';
+                        key.classList.add('function-key');
+                    } else if (keyText === 'Enter') {
+                        code = 'enter';
+                        key.classList.add('function-key');
+                    } else if (keyText === 'Space') {
+                        code = ' ';
+                        key.classList.add('space-key');
+                    } else if (keyText === 'Lang_Toggle') {
+                        code = 'lang_toggle'; 
+                        key.classList.add('function-key');
+                    } else if (keyText === 'Symbol_Toggle') { 
+                        code = 'symbol_toggle'; 
+                        key.classList.add('function-key');
+                    } else if (keyText === 'Case_Shift') {
+                        code = 'case_shift'; 
+                        key.classList.add('function-key');
+                    }
+
+                    key.dataset.code = code;
+                    
+                    const initialMap = getCurrentDisplayMap();
+                    if (initialMap[code]) {
+                         key.textContent = initialMap[code];
+                    } else if (code.match(/^[a-z]$/)) {
+                         key.textContent = letter_maps.cn_normal(code);
+                    } else {
+                         key.textContent = keyText; 
+                    }
+
+                    key.addEventListener('click', (event) => {
+                        event.preventDefault(); 
+                        preferredOffset = -1; 
+
+                        if (code === 'lang_toggle') {
+                            isEnglishMode = !isEnglishMode;
+                            isSymbolMode = false;
+                            isShiftActive = false; 
+                            updateKeyboardDisplay();
+                            resetInputState(); 
+                        } else if (code === 'symbol_toggle') { 
+                            isSymbolMode = !isSymbolMode; 
+                            isShiftActive = false;
+                            updateKeyboardDisplay();
+                            resetInputState();
+                        } else if (code === 'case_shift') {
+                            isShiftActive = !isShiftActive; 
+                            updateKeyboardDisplay();
+                        } else if (isSymbolMode) {
+                            handleSymbolInput(code);
+                        } else if (isEnglishMode) {
+                            handleEnglishInput(code);
+                        } else {
+                            handleChineseInput(code);
+                        }
+                    });
+
+                    row.appendChild(key);
+                });
+
+                keyboardContainer.appendChild(row);
+            });
+        }
+        
+        function copyTextToClipboard() {
+            const textToCopy = committedText; 
+            if (!textToCopy) {
+                alert('輸出區沒有文字可以複製！');
+                return;
+            }
+            
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    alert('文字已成功複製到剪貼簿！');
+                }).catch(err => {
+                    console.error('複製失敗: ', err);
+                    alert('複製失敗，可能需要 HTTPS 或手動選取。');
+                });
+            } else {
+                const tempInput = document.createElement('textarea');
+                tempInput.value = textToCopy;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                try {
+                    document.execCommand('copy');
+                    alert('文字已成功複製到剪貼簿！');
+                } catch (err) {
+                    alert('複製失敗，請手動選取文字。');
+                }
+                document.body.removeChild(tempInput);
+            }
+            resetInputState();
+        }
+        
+        function clearOutput() {
+            if (confirm('確定要清空所有已輸入的文字嗎？')) {
+                committedText = ''; 
+                cursorPosition = 0;
+                preferredOffset = -1;
+                resetInputState();
+            }
+        }
 
         // 頁面啟動
         document.addEventListener('DOMContentLoaded', () => {
-            // 這裡假設 generateMobileKeyboard, handleTextTap 等函數已定義
-            // generateMobileKeyboard(); 
+            generateMobileKeyboard();
             loadSecondaryCodemap(); 
             
             // 游標觸碰移動的事件監聽
-            // textOutput.addEventListener('click', handleTextTap);
-            // textOutput.addEventListener('touchend', handleTextTap);
+            textOutput.addEventListener('click', handleTextTap);
+            textOutput.addEventListener('touchend', handleTextTap);
             
-            // copyButton.addEventListener('click', copyTextToClipboard);
-            // clearButton.addEventListener('click', clearOutput);
+            copyButton.addEventListener('click', copyTextToClipboard);
+            clearButton.addEventListener('click', clearOutput);
         });
         
     </script>
