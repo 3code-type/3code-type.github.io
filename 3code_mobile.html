@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
     <style>
         /* ----------------------------------------------------- */
-        /* 樣式定義 */
+        /* 樣式定義 (未變動) */
         /* ----------------------------------------------------- */
 
         :root {
@@ -38,7 +38,6 @@
             align-items: center;
             background-color: var(--background-color);
             min-height: 100vh;
-            /* 保持足夠的底部空間以容納鍵盤 */
             padding-bottom: 490px; 
         }
         
@@ -313,7 +312,7 @@
     </div>
     
     <div class="search-area">
-        <input type="text" id="search-input" placeholder="在此輸入漢字 (1字)" maxlength="1">
+        <input type="text" id="search-input" placeholder="在此輸入字符 (1字)" maxlength="1">
         <div id="search-result">查詢結果顯示在此</div>
     </div>
     <div id="app-container">
@@ -343,7 +342,7 @@
         const CURSOR_HTML = '<span id="main-cursor" class="cursor">\u200c</span>';
         const NON_BREAK_ANCHOR = '\ufeff'; 
         
-        // --- 鍵盤顯示內容映射表 ---
+        // --- 鍵盤顯示內容映射表 (與前次一致) ---
         const letter_maps = {
             'cn_normal': (key) => key.toUpperCase(), 
             'cn_shifted': (key) => key.toUpperCase(), 
@@ -427,6 +426,10 @@
             return null; 
         }
 
+        /**
+         * 核心格式化函數：將半型英文字母/符號碼轉換為全型顯示。
+         * 用於：輸入區 (main-input) 和 查碼結果 (search-result)。
+         */
         function formatCode(code) {
             let displayString = '';
             const map = key_display_maps.cn_normal; 
@@ -435,27 +438,20 @@
                 if (char.match(/^[a-z]$/)) {
                     const upperCaseChar = char.toUpperCase();
                     if (upperCaseChar >= 'A' && upperCaseChar <= 'Z') {
+                         // 將 A-Z 轉為全型 Ａ-Ｚ (U+FF21 - U+FF3A)
                          const fullwidthChar = String.fromCharCode(upperCaseChar.charCodeAt(0) - 0x20 + 0xFF00);
                          displayString += fullwidthChar;
                     } else {
                         displayString += upperCaseChar;
                     }
                 } else if (map[char]) {
+                    // 處理 ; ' , . / 轉為全型符號 ； 〃 ， ． ／
                     displayString += map[char];
                 } else {
                     displayString += char;
                 }
             }
             return displayString;
-        }
-        
-        // 查碼功能專用：編碼格式化
-        function formatCodeForSearch(code) {
-             let displayString = '';
-             for (const char of code) {
-                 displayString += char.toUpperCase();
-             }
-             return displayString;
         }
 
         function formatComposition(code) {
@@ -834,7 +830,7 @@
 
         async function loadSecondaryCodemap() {
             const fileName = './3codes2.txt'; 
-            let textToParse = `# 這是備用的模擬編碼表\nqwe\t測試\n`; 
+            let textToParse = `# 這是備用的模擬編碼表\nqwe\t測試\n「\t[;'\n」\t';]\n○\tqwe\n`; // 增加測試符號
             let statusMessage = '編碼表載入中...';
 
             try {
@@ -1178,21 +1174,21 @@
             }
         }
         
-        // --- 查碼功能事件處理 ---
+        // --- 查碼功能事件處理 (已修復) ---
         function handleSearchInput(event) {
             const charToSearch = searchInput.value;
             if (charToSearch.length === 1) {
-                // 檢查是否為中文字 (簡單判斷)
-                if (charToSearch.match(/[\u4e00-\u9fff]/)) {
-                    const codes = currentReverseCodemap[charToSearch];
-                    if (codes && codes.length > 0) {
-                        const formattedCodes = codes.map(code => formatCodeForSearch(code));
-                        searchResult.textContent = `編碼：　${formattedCodes.join('　')}`;
-                    } else {
-                        searchResult.textContent = '找不到該漢字編碼。';
-                    }
+                
+                // 移除字符類型檢查，直接查找碼表
+                const codes = currentReverseCodemap[charToSearch];
+                
+                if (codes && codes.length > 0) {
+                    // 使用 formatCode 函數確保編碼以全型字元顯示
+                    const formattedCodes = codes.map(code => formatCode(code));
+                    searchResult.textContent = `編碼：　${formattedCodes.join('　')}`;
                 } else {
-                    searchResult.textContent = '請輸入一個中文字查詢。';
+                    // 修正提示訊息，接受所有字符
+                    searchResult.textContent = '找不到該字符的編碼。';
                 }
             } else {
                 searchResult.textContent = '查詢結果顯示在此';
