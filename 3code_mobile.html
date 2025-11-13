@@ -17,11 +17,11 @@
             --text-color: #212121;
             --background-color: #f5f6fa;
             --container-bg: #ffffff;
-            --key-bg: #f9f9f9; /* 淺色按鍵底色 */
+            --key-bg: #f9f9f9; 
             --key-active-bg: #a0a0a0;
-            --special-key-bg: #e5e5e5; /* 功能鍵底色 */
+            --special-key-bg: #e5e5e5; 
             --border-color: #e0e0e0;
-            --keyboard-bg: #aeb5b5; /* 鍵盤背景顏色 */
+            --keyboard-bg: #aeb5b5; 
         }
 
         * {
@@ -229,7 +229,6 @@
             background-color: #e8eaf6;
         }
         
-        /* 鍵盤樣式 (保持不變) */
         #keyboard {
             width: 100%;
             max-width: 600px;
@@ -265,12 +264,19 @@
             cursor: pointer;
             user-select: none;
             transition: background-color 0.1s;
-            box-shadow: 0 2px 3px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 0 3px rgba(0, 0, 0, 0.2); 
             position: relative;
             height: 50px; 
             font-size: 1.2rem;
             color: var(--text-color);
             min-width: 0;
+        }
+        
+        .keyboard-key.highlighted {
+            background-color: var(--key-active-bg); 
+            color: white;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); 
+            transform: translateY(1px); 
         }
         
         .visual-wrapper {
@@ -289,10 +295,6 @@
             right: 4px;
             line-height: 1;
         }
-
-        .special-key {
-            background-color: var(--special-key-bg);
-        }
         
         .kbr-key-active {
             background-color: var(--primary-color) !important;
@@ -300,13 +302,15 @@
             font-weight: bold;
         }
 
-        .keyboard-key:active,
-        .highlighted {
-            background-color: var(--key-active-bg);
-            color: white;
-            box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+        .special-key {
+            background-color: var(--special-key-bg);
         }
         
+        /* 確保 :active 樣式不會干擾 */
+        .keyboard-key:active {
+             background-color: var(--key-bg); 
+        }
+
         .keyboard-key > span {
             display: block;
             text-align: center;
@@ -350,14 +354,19 @@
     <div id="keyboard-overlay" style="display:none;"></div> 
 
     <script>
-        // --- 狀態變數 (保留舊輸入法核心狀態) ---
+        // --- 狀態變數 ---
         let currentCodemap = {};
         let currentReverseCodemap = {};
-        let isEnglishMode = false; // false = 三碼中文模式
+        let isEnglishMode = false; 
         let isSymbolMode = false;
         let committedText = ''; 
         let cursorPosition = 0; 
         let preferredOffset = -1; 
+        
+        // --- 長按相關狀態 ---
+        let longPressTimer = null;
+        let longPressCommitted = false; 
+        const LONG_PRESS_TIMEOUT = 500; 
         
         // --- 游標 HTML 定義 ---
         const CURSOR_HTML = '<span id="main-cursor" class="cursor">\u200c</span>';
@@ -377,7 +386,9 @@
         const MAX_CODE_LENGTH = 3;
         const KEY_TAG="BUTTON"; 
 
-        // --- 鍵盤配置 (使用 0 代替 KEYCODE_a|index，讓邏輯直接使用 dataset.label) ---
+        // 刪除 FULL_WIDTH_PUNCTUATION_DISPLAY，因為主顯示將改為半形
+
+        // --- 鍵盤配置 (修正標點 ALT 碼為全形，主碼保留半形) ---
         const KEYCODE_SHIFT=-1;
         const KEYCODE_STATE=-2;
         const KEYCODE_SWITCH_number=-10;
@@ -385,7 +396,6 @@
         const KEYCODE_DEL=0x08;
         const KEYCODE_ENTER=0x0d;
         const KEYCODE_SPACE=0x20;
-        // 移除 KEYCODE_a, KEYCODE_b, KEYCODE_c ... 等，避免錯誤映射
 
         var Keyboards = {
             english: {
@@ -393,16 +403,21 @@
                 alt : {
                     'q':'Ｑ', 'w':'Ｗ', 'e':'Ｅ', 'r':'Ｒ', 't':'Ｔ', 'y':'Ｙ', 'u':'Ｕ', 'i':'Ｉ', 'o':'Ｏ', 'p':'Ｐ',
                     'a':'Ａ', 's':'Ｓ', 'd':'Ｄ', 'f':'Ｆ', 'g':'Ｇ', 'h':'Ｈ', 'j':'Ｊ', 'k':'Ｋ', 'l':'Ｌ',
-                    ';':'：', 'z':'Ｚ', 'x':'Ｘ', 'c':'Ｃ', 'v':'Ｖ', 'b':'Ｂ', 'n':'Ｎ', 'm':'Ｍ',
-                    ',':'，', '.':'．', '\'':'〃', '/':'？',
+                    // **修正點：** Alt 碼設置為用戶要求的全形標點符號
+                    ';':'；', // 半形分號 -> 全形分號
+                    '\'':'〃', // 半形單引號 -> 全形引號
+                    ',':'，', // 半形逗號 -> 全形逗號
+                    '.':'．', // 半形句點 -> 全形間隔號/點
+                    '/':'／', // 半形斜線 -> 全形斜線
+                    'z':'Ｚ', 'x':'Ｘ', 'c':'Ｃ', 'v':'Ｖ', 'b':'Ｂ', 'n':'Ｎ', 'm':'Ｍ',
                 },
                 upper: {
                     'q':'Q','w':'W','e':'E','r':'R','t':'T', 'y':'Y','u':'U','i':'I','o':'O','p':'P',
-                    'a':'A','s':'S','d':'D','f':'F','g':'G', 'h':'H','j':'J','k':'K','l':'L',
+                    'a':'A','s':'S','d':'D','f':'F','g':'G', 
+                    'h':'H','j':'J','k':'K','l':'L',
                     ';':';', 'z':'Z','x':'X','c':'C','v':'V','b':'B', 'n':'N','m':'M',
                     ',':',', '.':'.', '\'':'\'', '/' : '/',
                 },
-                // 字母鍵統一使用 c:0，讓邏輯直接讀取 keyData.v (dataset.label)
                 key : [
                     [{v:'q',c:0},{v:'w',c:0},{v:'e',c:0},{v:'r',c:0},{v:'t',c:0},
                      {v:'y',c:0},{v:'u',c:0},{v:'i',c:0},{v:'o',c:0},{v:'p',c:0}],
@@ -418,13 +433,9 @@
                      {v:'↵',r:1.5,c:KEYCODE_ENTER,s:true}]
                 ]
             },
-            // ... (Keyboards.number 和 Keyboards.number2 保持不變，因為它們的字符鍵本來就是獨立的數字/符號)
             number: { 
                 shifted : false,
-                alt : {
-                    '⇪':'→|', '中/En':'M', '\'':'"', '.':'/', '[':'{', ']':'}',
-                    '1':'%', '2':'^', '3':'&', '4':'(', '5':'=', '6':')', '7':'#', '8':'-', '9':'*', '0':'+', '~':'_'
-                },
+                alt : {}, 
                 upper: {
                     "1":"`", "2":"~", "3":"_", "4":"^", "5":"±", "6":"|", "7":"[", "8":"]", "9":"{", "0":"}",
                     "@":"「", "#":"」", "$":"『", "%":"』", "&":"【", "*":"】", "-":"<", "+":">",
@@ -448,7 +459,6 @@
             number2: { 
                 width:5,
                 index:0,
-                // ... 保持不變
                 key0: [
                     [{v:'數字',c:-14,s:true},{v:'1'},{v:'2'},{v:'3'},{v:'⌫',c:KEYCODE_DEL,s:true}],
                     [{v:'符號',c:-15,s:true},{v:'4'},{v:'5'},{v:'6'},{v:'↵',c:KEYCODE_ENTER,s:true}],
@@ -481,7 +491,7 @@
         }
 
         /**
-         * 鍵盤渲染函數：使用 Keyboards 數據繪製鍵盤 
+         * 鍵盤渲染函數
          */
         function drawKeyboard() {
             const layout = currentLayout;
@@ -512,18 +522,19 @@
                     } else if (code === KEYCODE_SHIFT) {
                         displayChar = layout.shifted ? '⬆' : '⇧';
                     } else if (!isEnglishMode && currentLayout === Keyboards.english) {
-                         // 三碼中文模式：預設將鍵盤顯示為大寫字母 (Q, W, E...)
+                        // 三碼模式下，字母顯示大寫作為編碼提示
                         if (keyChar.match(/^[a-z]$/)) {
                             displayChar = keyChar.toUpperCase();
+                        // 處理標點符號：這裡保留為半形 keyChar 顯示，以實現用戶要求
+                        } else if (keyChar.match(/^[';,./]$/)) {
+                            displayChar = keyChar; // 顯示為半形
                         }
                     } 
                     
-                    // 覆蓋：處理 Shift 狀態下的字母/符號
                     if (layout.shifted && layout.upper && layout.upper[keyChar]) {
                         displayChar = layout.upper[keyChar];
                     } 
                     
-                    // 決定按鍵樣式/活躍狀態
                     if (keyData.s) { 
                         key.classList.add('special-key');
                     }
@@ -540,7 +551,6 @@
                         }
                     }
 
-                    // 設置屬性和內容
                     key.style.width = keyWidth + 'px';
                     key.dataset.code = code;
                     key.dataset.label = keyChar; 
@@ -553,7 +563,7 @@
                     wrapper.className = 'visual-wrapper';
                     wrapper.innerHTML = `<span>${displayChar}</span>`;
 
-                    // Alt Note (輔助碼)
+                    // Alt Note (輔助碼) - 這裡使用的值在 Keyboards.english.alt 中，設置為全形
                     if (layout.alt && layout.alt[keyChar]) {
                         wrapper.innerHTML += `<div class="alt-note">${layout.alt[keyChar]}</div>`;
                     }
@@ -565,11 +575,9 @@
                 keyboardContainer.appendChild(rowDiv);
             });
             
-            // 重新綁定事件
-            bindKeyEvents();
+            bindKeyEvents(); 
             
-            // 處理浮層 (emoji/符號鍵盤)
-            if (layout === Keyboards.number2 && layout.index === 2) {
+            if (currentLayout === Keyboards.number2 && currentLayout.index === 2) {
                  emoji(0);
             } else if (overlayDiv.style.display !== 'none') {
                  overlayDiv.style.display = 'none';
@@ -578,7 +586,7 @@
         }
         
         /**
-         * 浮層處理函數 (模擬 overlay/emoji)
+         * 浮層處理函數 (保持不變)
          */
         function emoji(subIndex) {
             const emojis=[[
@@ -630,121 +638,231 @@
         }
         
         /**
-         * 事件處理函數：修正字母/字符的輸入邏輯
+         * 處理長按事件：提交輔助字符
+         */
+        function handleLongPress(keyElement, altChar) {
+            longPressCommitted = true; 
+            keyElement.classList.remove('highlighted');
+            
+            // 提交輔助字元 (altChar 已經是全形)
+            commitText(altChar); 
+        }
+
+        /**
+         * 處理短按事件：執行編碼或普通字符輸入
+         */
+        function handleShortPress(keyElement) {
+            preferredOffset = -1; 
+            let code = parseInt(keyElement.dataset.code);
+            let keyChar = keyElement.dataset.label; // keyChar 是底層的半形字元
+
+            if (code === 0) { 
+                let charToCommit = keyChar;
+                
+                if (currentLayout.shifted && currentLayout.upper && currentLayout.upper[keyChar]) {
+                    charToCommit = currentLayout.upper[keyChar];
+                } 
+                
+                 if (!isEnglishMode && !isSymbolMode && charToCommit.match(/^[a-zA-Z]$/i) && !currentLayout.shifted) {
+                     // 三碼模式 + Shift 關閉 -> 輸入字母編碼
+                     handleChineseInput(charToCommit.toLowerCase());
+                 } else if (!isEnglishMode && !isSymbolMode && keyChar.match(/^[';,./]$/) && !currentLayout.shifted) {
+                     // 三碼模式 + 標點符號 (主顯示為半形)
+                     
+                     // 標點主顯示邏輯：
+                     // 1. 如果有編碼，嘗試以半形 keyChar 作為編碼輸入（即：;',./）
+                     if (currentCode.length > 0 || currentCodemap[keyChar]) {
+                          handleChineseInput(keyChar.toLowerCase());
+                     } else {
+                          // 2. 如果編碼區為空，直接輸出全形標點 (與長按功能一致，方便輸入)
+                          // 這裡需要手動從 alt 碼獲取全形符號進行輸出
+                          const fullWidthPunctuation = Keyboards.english.alt[keyChar];
+                          commitText(fullWidthPunctuation || keyChar); // 找不到全形就輸出半形
+                     }
+                 } else {
+                    // 英文模式/符號模式/三碼模式+Shift開啟 -> 輸入字符
+                    handleCharInput(charToCommit); 
+                 }
+                
+                return;
+            }
+            
+            // 處理功能鍵
+            handleFunctionKey(code, keyChar);
+        }
+        
+        /**
+         * 處理功能鍵邏輯
+         */
+        function handleFunctionKey(code, keyChar) {
+             switch(code) {
+                case KEYCODE_SHIFT:
+                    currentLayout.shifted = !currentLayout.shifted;
+                    if (!isEnglishMode && !isSymbolMode && currentCode.length > 0) {
+                         // 這裡可以選擇清除編碼或忽略 Shift 操作，目前選擇切換 Shift 狀態
+                    }
+                    drawKeyboard();
+                    break;
+                case KEYCODE_STATE:
+                    isEnglishMode = !isEnglishMode;
+                    isSymbolMode = false;
+                    currentLayout.shifted = false; 
+                    currentLayout = Keyboards.english; 
+                    drawKeyboard();
+                    resetInputState(); 
+                    break;
+                case KEYCODE_SWITCH_number:
+                    isEnglishMode = false;
+                    isSymbolMode = true;
+                    currentLayout.shifted = false;
+                    currentLayout = Keyboards.number;
+                    drawKeyboard();
+                    resetInputState();
+                    break;
+                case KEYCODE_SWITCH_english:
+                    isEnglishMode = true;
+                    isSymbolMode = false;
+                    currentLayout.shifted = false;
+                    currentLayout = Keyboards.english;
+                    drawKeyboard();
+                    resetInputState();
+                    break;
+                // 處理 number2 的切換 (數字/符號/表情)
+                case -14: case -15: case -16: 
+                     if(currentLayout === Keyboards.number2) {
+                         currentLayout.index = code + 14; 
+                         drawKeyboard();
+                     }
+                     break;
+                case KEYCODE_DEL:
+                    backspaceOutput();
+                    break;
+                case KEYCODE_ENTER:
+                    if (isEnglishMode || isSymbolMode) {
+                        commitText('\n');
+                    } else {
+                        handleChineseInput('enter');
+                    }
+                    break;
+                case KEYCODE_SPACE:
+                    if (isEnglishMode || isSymbolMode) {
+                        commitText(' ');
+                    } else {
+                        handleChineseInput(' ');
+                    }
+                    break;
+                default:
+                    console.log('Unhandled keycode:', code);
+                    break;
+            }
+        }
+        
+        /**
+         * 統一的事件綁定函數 (同時支援 Touch 和 Mouse)
          */
         function bindKeyEvents() {
             document.querySelectorAll('.keyboard-key').forEach(keyElement => {
-                keyElement.onclick = (event) => {
+                keyElement.onclick = null; 
+                keyElement.oncontextmenu = (e) => e.preventDefault(); 
+                keyElement.ontouchstart = null;
+                keyElement.ontouchend = null;
+                keyElement.ontouchmove = null;
+                keyElement.onmousedown = null;
+                keyElement.onmouseup = null;
+                keyElement.onmouseleave = null;
+                
+                const keyChar = keyElement.dataset.label;
+                const altChar = currentLayout.alt[keyChar]; 
+                
+                const handlePressDown = (event) => {
                     event.preventDefault(); 
-                    preferredOffset = -1; 
+                    longPressCommitted = false; 
+                    keyElement.classList.add('highlighted');
 
-                    let code = parseInt(keyElement.dataset.code);
-                    let keyChar = keyElement.dataset.label; // 原始小寫字母或符號標籤
-                    
-                    // --- 處理非功能性按鍵 (字母、數字、符號) ---
-                    if (code === 0) { 
-                        let charToCommit = keyChar;
-                        
-                        // 應用 Shift 狀態 (用於英文/符號模式)
-                        if (currentLayout.shifted && currentLayout.upper && currentLayout.upper[keyChar]) {
-                            charToCommit = currentLayout.upper[keyChar];
-                        } 
-                        
-                        // 如果在中文模式 (三碼) 且是字母，則傳遞小寫字母作為編碼
-                         if (!isEnglishMode && !isSymbolMode && charToCommit.match(/^[a-zA-Z]$/i)) {
-                             // 將字母轉為小寫作為編碼輸入
-                             handleChineseInput(charToCommit.toLowerCase());
-                         } else {
-                            // 否則，作為普通字符 (數字/符號/英文模式下的字母) 提交
-                            handleCharInput(charToCommit); 
-                         }
-                        
-                        return;
-                    }
-
-                    // --- 處理功能性按鍵 (負數代碼或特殊代碼) ---
-                    switch(code) {
-                        case KEYCODE_SHIFT:
-                            currentLayout.shifted = !currentLayout.shifted;
-                            drawKeyboard();
-                            break;
-                        case KEYCODE_STATE:
-                            isEnglishMode = !isEnglishMode;
-                            isSymbolMode = false;
-                            currentLayout.shifted = false; 
-                            currentLayout = Keyboards.english; 
-                            drawKeyboard();
-                            resetInputState(); 
-                            break;
-                        case KEYCODE_SWITCH_number:
-                            isEnglishMode = false;
-                            isSymbolMode = true;
-                            currentLayout.shifted = false;
-                            currentLayout = Keyboards.number;
-                            drawKeyboard();
-                            resetInputState();
-                            break;
-                        case KEYCODE_SWITCH_english:
-                            isEnglishMode = true;
-                            isSymbolMode = false;
-                            currentLayout.shifted = false;
-                            currentLayout = Keyboards.english;
-                            drawKeyboard();
-                            resetInputState();
-                            break;
-                        case KEYCODE_DEL:
-                            backspaceOutput();
-                            break;
-                        case KEYCODE_ENTER:
-                            if (isEnglishMode || isSymbolMode) {
-                                commitText('\n');
-                            } else {
-                                handleChineseInput('enter');
-                            }
-                            break;
-                        case KEYCODE_SPACE:
-                            if (isEnglishMode || isSymbolMode) {
-                                commitText(' ');
-                            } else {
-                                handleChineseInput(' ');
-                            }
-                            break;
-                        default:
-                            console.log('Unhandled keycode:', code);
-                            break;
+                    if (currentLayout === Keyboards.english && altChar) {
+                        if (longPressTimer) clearTimeout(longPressTimer);
+                        longPressTimer = setTimeout(() => {
+                            handleLongPress(keyElement, altChar);
+                        }, LONG_PRESS_TIMEOUT);
                     }
                 };
+
+                const handlePressUp = (event) => {
+                    event.preventDefault(); 
+                    keyElement.classList.remove('highlighted');
+                    
+                    if (longPressTimer) {
+                        clearTimeout(longPressTimer);
+                        longPressTimer = null;
+                    }
+                    
+                    if (!longPressCommitted) {
+                        handleShortPress(keyElement);
+                    }
+                    longPressCommitted = false;
+                };
+                
+                const handlePressCancel = () => {
+                     if (longPressTimer) {
+                        clearTimeout(longPressTimer);
+                        longPressTimer = null;
+                    }
+                     keyElement.classList.remove('highlighted');
+                };
+
+                keyElement.addEventListener('touchstart', handlePressDown);
+                keyElement.addEventListener('touchend', handlePressUp);
+                keyElement.addEventListener('touchmove', handlePressCancel); 
+                
+                keyElement.addEventListener('mousedown', (e) => {
+                    if (e.button === 0) { 
+                         handlePressDown(e);
+                    }
+                });
+                keyElement.addEventListener('mouseup', handlePressUp);
+                keyElement.addEventListener('mouseleave', handlePressCancel); 
             });
         }
         
         /**
-         * 處理單字符輸入 (用於數字/符號/英文字母模式下的非字母按鍵)
+         * 處理單字符輸入 (用於英文/符號模式或 Shift+字母)
          */
         function handleCharInput(char) {
-             if (isEnglishMode || isSymbolMode) {
-                commitText(char);
+             if (currentLayout.shifted) {
+                 commitText(char);
+                 if (currentLayout === Keyboards.english && char.match(/^[a-zA-Z]$/)) {
+                     currentLayout.shifted = false;
+                     drawKeyboard();
+                 }
+            } else if (isEnglishMode || isSymbolMode) {
+                 commitText(char);
             } else if (currentLayout === Keyboards.number || currentLayout === Keyboards.number2) {
-                 // 在中文模式下，數字鍵盤的輸入直接輸出字符
                  commitText(char);
             } else {
-                 // 這是備用邏輯，理應被 bindKeyEvents 中的 if (!isEnglishMode...) 處理
-                 handleChineseInput(char.toLowerCase());
+                 commitText(char);
             }
         }
         
-        // --- 核心輸入法邏輯 (從前次回復中保留) ---
+        // --- 核心輸入法邏輯 (其餘部分保持不變) ---
         
         var currentCode = '';
         var currentCandidates = [];
 
         function formatCode(code) {
             let displayString = '';
-            const map = {';':'；', "'":'〃', ',':'，', '.':'．', '/': '／'}; 
+            // 這裡的 map 用於編碼區的視覺顯示，應使用半形輸入對應的全形符號
+            // 這裡調整為使用全形符號作為編碼區顯示的提示
+            const map = {
+                ';':'；', // 半形分號 -> 全形分號
+                '\'':'〃', // 半形單引號 -> 全形引號
+                ',':'，', // 半形逗號 -> 全形逗號
+                '.':'．', // 半形句點 -> 全形間隔號/點
+                '/':'／', // 半形斜線 -> 全形斜線
+            }; 
             
             for (const char of code) {
                 if (char.match(/^[a-z]$/)) {
                     const upperCaseChar = char.toUpperCase();
-                    // 將 A-Z 轉為全型 Ａ-Ｚ (這段邏輯是正確的，它將編碼字母轉為全型顯示)
                     const fullwidthChar = String.fromCharCode(upperCaseChar.charCodeAt(0) - 0x20 + 0xFF00);
                     displayString += fullwidthChar;
                 } else if (map[char]) {
@@ -826,7 +944,7 @@
                 cursorPosition -= 1;
                 preferredOffset = -1;
                 updateOutputDisplay();
-                resetInputState(); // 確保英文/符號模式下刪除後重設狀態
+                resetInputState(); 
             }
         }
         
@@ -892,12 +1010,23 @@
         function handleChineseInput(code) {
             const inputChar = code.toLowerCase();
             
-            if (inputChar === 'backspace' || inputChar === 'enter' || inputChar === ' ') {
-                 // 這些功能鍵已經在 bindKeyEvents 中處理，這裡不再需要
-                 return;
+            if (inputChar === 'enter') {
+                if (currentCandidates.length > 0) {
+                    selectCandidate(0); 
+                } else {
+                    commitText('\n'); 
+                }
+                return;
+            }
+            if (inputChar === ' ') {
+                if (currentCandidates.length > 0) {
+                    selectCandidate(0); 
+                } else {
+                    commitText('　');
+                }
+                return;
             }
             
-            // 確保只接受編碼字符 (a-z, 0-9, ; ' . / ,)
             if (inputChar.match(/^[a-z0-9;'./,<>]$/)) {
                 if (currentCode.length === MAX_CODE_LENGTH) {
                     if (currentCandidates.length > 0) {
@@ -976,7 +1105,7 @@
             updateOutputDisplay(); 
         }
 
-        // --- 工具列與查碼功能 (保持不變) ---
+        // --- 工具列與查碼功能 (其餘部分保持不變) ---
 
         function copyTextToClipboard() {
             const textToCopy = committedText; 
@@ -1127,7 +1256,7 @@
 
         // 頁面啟動
         document.addEventListener('DOMContentLoaded', () => {
-            drawKeyboard(); // 使用新函數繪製鍵盤
+            drawKeyboard(); 
             loadSecondaryCodemap(); 
             
             textOutput.addEventListener('click', handleTextTap);
