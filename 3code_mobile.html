@@ -129,7 +129,7 @@
             height: 40vh; 
             font-size: 1.5rem;
             line-height: 1.6;
-            white-space: normal; 
+            white-space: pre-wrap; /* 修正：將 normal 改為 pre-wrap 以保留連續空白並允許換行 */
             word-break: break-word;
             color: var(--text-color);
             cursor: text; 
@@ -205,7 +205,7 @@
             white-space: nowrap; 
             overflow-x: scroll; 
             -webkit-overflow-scrolling: touch; 
-            min-height: 48px; 
+            min-height: 60px; /* 修正：增加最小高度 */
             background-color: #fff;
             box-shadow: 0 1px 0 var(--border-color);
         }
@@ -221,7 +221,7 @@
             transition: all 0.2s;
             user-select: none;
             white-space: nowrap;
-            font-size: 1.2rem; 
+            font-size: 1.4rem; /* 修正：加大字體 */
             flex-shrink: 0; 
             text-align: center;
         }
@@ -414,7 +414,7 @@
         const KEYCODE_ENTER=0x0d;
         const KEYCODE_SPACE=0x20;
 
-        // --- 鍵盤配置 (使用 MODE 佔位符) ---
+        // --- 鍵盤配置 ---
         var Keyboards = {
             english: {
                 shifted : false,
@@ -428,13 +428,14 @@
                     '/':'／', // 全形
                     'z':'Ｚ', 'x':'Ｘ', 'c':'Ｃ', 'v':'Ｖ', 'b':'Ｂ', 'n':'Ｎ', 'm':'Ｍ',
                 },
+                // [修改點 1]: 移除標點符號的 Shifted 映射，使其在 Shift 狀態下仍為原始值
                 upper: {
                     'q':'Q','w':'W','e':'E','r':'R','t':'T', 'y':'Y','u':'U','i':'I','o':'O','p':'P',
                     'a':'A','s':'S','d':'D','f':'F','g':'G', 
                     'h':'H','j':'H','k':'K','l':'L',
-                    ';':':', // Shifted ; -> :
+                    // ';':':', // 移除: 保持 ';'
                     'z':'Z','x':'Z','c':'C','v':'V','b':'B', 'n':'N','m':'M',
-                    ',':'<', '.':'>', '\'':'"', '/' : '?',
+                    // ',':'<', '.':'>', '\'':'"', '/' : '?', // 移除: 保持 ', . / \''
                 },
                 key : [
                     [{v:'q',c:0},{v:'w',c:0},{v:'e',c:0},{v:'r',c:0},{v:'t',c:0},
@@ -567,22 +568,27 @@
                         } else if (keyChar.match(/^[';,./]$/)) {
                             // --- 標點符號鍵 (',', '/', etc.) ---
                             if (!isEnglishMode) {
-                                // 三碼模式: 顯示半形字元作為編碼鍵 (符合使用者要求)
+                                // 三碼模式: 顯示半形字元作為編碼鍵
                                 displayChar = keyChar; 
-                            } else if (layout.shifted) {
-                                 // 英文模式 Shift On: 顯示 Shift 符號 (半形)
-                                 displayChar = layout.upper[keyChar] || keyChar;
                             } else {
-                                 // 英文模式 Shift Off: 顯示半形符號
+                                 // 英文模式 (無論 Shift On/Off): 顯示半形符號 (符合最新要求)
                                  displayChar = keyChar; 
                             }
+                            // 移除原有的: else if (layout.shifted) { displayChar = layout.upper[keyChar] || keyChar; }
                         }
                     } 
                     
                     // --- 2. 處理功能鍵文字 (MODE, SHIFT 等，覆蓋 QWERTY 邏輯) ---
                     if (code === KEYCODE_STATE) {
                          // 模式切換鍵
-                         displayChar = isEnglishMode ? 'En' : '三碼'; 
+                         // 根據當前鍵盤判斷 MODE 鍵的顯示狀態
+                         if (currentLayout === Keyboards.english) {
+                             // QWERTY 鍵盤上顯示當前模式
+                             displayChar = isEnglishMode ? 'En' : '三碼'; 
+                         } else {
+                             // 符號鍵盤上顯示下次返回 QWERTY 時的模式
+                             displayChar = wasInEnglishModeBeforeSymbol ? 'En' : '三碼';
+                         }
                     } else if (code === KEYCODE_SHIFT) {
                         // Shift 鍵佔位符
                         displayChar = '⇧'; 
@@ -740,21 +746,32 @@
             if (code === 0) { 
                 let charToCommit = keyChar;
                 
+                // 決定如果不是中文編碼輸入時，要提交哪個字符 (Shifted 或 Unshifted)
                 if (currentLayout.shifted && currentLayout.upper && currentLayout.upper[keyChar]) {
                     charToCommit = currentLayout.upper[keyChar];
                 } 
                 
-                 // 檢查是否為三碼模式且 Shift 關閉
-                 if (!isEnglishMode && !isSymbolMode && !currentLayout.shifted) {
-                     // 檢查是否為字母或編碼標點符號
-                     if (charToCommit.match(/^[a-z]$/i) || keyChar.match(/^[';,./]$/)) {
+                // [修改點 2]: 處理 En 模式下的標點符號不變邏輯
+                if (isEnglishMode && currentLayout === Keyboards.english) {
+                    // 檢查是否為標點符號鍵
+                    if (keyChar.match(/^[';,./]$/)) {
+                        // 在 En 模式下，這些標點符號鍵無論 Shift On/Off 都不改變，直接使用 keyChar
+                        handleCharInput(keyChar);
+                        return;
+                    }
+                }
+                
+                // 檢查是否為三碼模式 (不論 Shift 狀態)
+                if (!isEnglishMode && !isSymbolMode) {
+                     // 檢查是否為字母或編碼標點符號 (使用 keyChar 進行判斷)
+                     if (keyChar.match(/^[a-z]$/i) || keyChar.match(/^[';,./]$/)) {
                          // 三碼模式下，字母和這五個標點符號都視為編碼輸入
                          handleChineseInput(keyChar.toLowerCase());
                          return;
                      }
                  }
                 
-                // 其他情況 (英文模式/符號模式/三碼模式+Shift開啟) -> 輸入字符
+                // 其他情況 (英文模式下的字母 + Shift On, 符號模式, 或三碼模式下按了非編碼鍵) -> 輸入字符
                 handleCharInput(charToCommit); 
                 return;
             }
@@ -769,25 +786,30 @@
         function handleFunctionKey(code, keyChar) {
              switch(code) {
                 case KEYCODE_SHIFT:
-                    currentLayout.shifted = !currentLayout.shifted;
+                    // 讓 Shift 狀態鎖定並在 QWERTY 和 Symbol 鍵盤間保持記憶
+                    const newShiftState = !Keyboards.english.shifted; 
+                    Keyboards.english.shifted = newShiftState;
+                    Keyboards.number.shifted = newShiftState; 
+                    
+                    // 確保 currentLayout 的 shifted 屬性也被更新
+                    if (currentLayout === Keyboards.english || currentLayout === Keyboards.number) {
+                        currentLayout.shifted = newShiftState;
+                    }
+
                     drawKeyboard();
                     break;
                 case KEYCODE_STATE:
                     // 模式切換鍵 (三碼 <-> En)
-                    if (isEnglishMode || isSymbolMode) {
-                        // 如果在 En 或 Symbol 模式，強制切回 三碼
-                        isEnglishMode = false;
+                    if (currentLayout === Keyboards.english) {
+                        // QWERTY 模式：切換當前模式
+                        isEnglishMode = !isEnglishMode;
+                        wasInEnglishModeBeforeSymbol = isEnglishMode; // 同步 QWERTY 模式下的預設返回狀態
                         isSymbolMode = false;
-                        currentLayout.shifted = false; 
-                        currentLayout = Keyboards.english; 
-                        wasInEnglishModeBeforeSymbol = false; // 重設為 三碼
+                        // 不改變 Shift 狀態
                     } else {
-                        // 如果在 三碼 模式，切換到 En 模式
-                        isEnglishMode = true;
-                        isSymbolMode = false;
-                        currentLayout.shifted = false; 
-                        currentLayout = Keyboards.english; 
-                        wasInEnglishModeBeforeSymbol = true; // 重設為 En
+                        // 符號/數字模式：只切換下次返回 QWERTY 時的模式 (wasInEnglishModeBeforeSymbol)
+                        wasInEnglishModeBeforeSymbol = !wasInEnglishModeBeforeSymbol;
+                        // 不改變 Shift 狀態
                     }
                     drawKeyboard();
                     resetInputState(); 
@@ -799,7 +821,7 @@
                     }
                     isSymbolMode = true;
                     isEnglishMode = false; 
-                    currentLayout.shifted = false;
+                    // 不改變 Shift 狀態 (它已經被 Keyboards.number.shifted 記憶)
                     currentLayout = Keyboards.number; 
                     drawKeyboard();
                     resetInputState();
@@ -808,7 +830,7 @@
                     isSymbolMode = false;
                     // *** 修正點 2：恢復切換前的 QWERTY 狀態 (三碼 或 En) ***
                     isEnglishMode = wasInEnglishModeBeforeSymbol; 
-                    currentLayout.shifted = false;
+                    // 不改變 Shift 狀態 (它已經被 Keyboards.english.shifted 記憶)
                     currentLayout = Keyboards.english;
                     drawKeyboard();
                     resetInputState();
@@ -918,10 +940,7 @@
         function handleCharInput(char) {
              if (currentLayout.shifted) {
                  commitText(char);
-                 if (currentLayout === Keyboards.english && char.match(/^[a-zA-Z]$/)) {
-                     currentLayout.shifted = false;
-                     drawKeyboard();
-                 }
+                 // 保持 Shift 狀態鎖定
             } else if (isEnglishMode || isSymbolMode) {
                  commitText(char);
             } else if (currentLayout === Keyboards.number || currentLayout === Keyboards.number2) {
