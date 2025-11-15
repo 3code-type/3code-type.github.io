@@ -880,7 +880,7 @@
                 if (keyElement.handlePressDown) {
                     keyElement.removeEventListener('touchstart', keyElement.handlePressDown);
                     keyElement.removeEventListener('touchend', keyElement.handlePressUp);
-                    keyElement.removeEventListener('touchmove', keyElement.handlePressCancel);
+                    keyElement.removeEventListener('touchmove', keyElement.handlePressCancel); // 移除舊的 touchmove 綁定
                     keyElement.removeEventListener('touchcancel', keyElement.handlePressCancel);
                     keyElement.removeEventListener('mousedown', keyElement.handlePressDown);
                     keyElement.removeEventListener('mouseup', keyElement.handlePressUp);
@@ -939,13 +939,12 @@
                 
                 // 3. 處理取消 (Move/Leave/Cancel)
                 const handlePressCancel = (event) => { // 接受 event
+                     // **重要修正：touchmove 不再觸發此函數來取消計時器**
                      if (longPressTimer) {
                         clearTimeout(longPressTimer);
                         longPressTimer = null;
                     }
-                     // *** 修正點 1：輕微的 touchmove 不再移除高亮，避免瞬間反白消失。***
                      // 只有在滑鼠離開 (mouseleave) 或系統明確取消 (touchcancel) 時，才移除高亮。
-                     // 正常的 touchend/mouseup 會在 handlePressUp 中移除高亮。
                      if (event.type === 'mouseleave' || event.type === 'touchcancel') {
                          keyElement.classList.remove('highlighted');
                      }
@@ -960,7 +959,8 @@
                 keyElement.addEventListener('touchstart', handlePressDown);
                 keyElement.addEventListener('touchend', handlePressUp);
                 keyElement.addEventListener('touchcancel', handlePressCancel); // 處理觸摸中斷
-                keyElement.addEventListener('touchmove', handlePressCancel);   // 處理手指移動取消長按計時器
+                // *** 核心修正：移除此行，讓輕微的 touchmove 不會取消長按計時器 ***
+                // keyElement.addEventListener('touchmove', handlePressCancel);   // <--- 原有的問題代碼
                 
                 // Mouse Events (用於桌面測試)
                 keyElement.addEventListener('mousedown', handlePressDown);
