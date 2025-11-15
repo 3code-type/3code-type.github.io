@@ -205,7 +205,7 @@
             white-space: nowrap; 
             overflow-x: scroll; 
             -webkit-overflow-scrolling: touch; 
-            min-height: 60px; /* 修正：增加最小高度 */
+            min-height: 48px; 
             background-color: #fff;
             box-shadow: 0 1px 0 var(--border-color);
         }
@@ -221,7 +221,7 @@
             transition: all 0.2s;
             user-select: none;
             white-space: nowrap;
-            font-size: 1.4rem; /* 修正：加大字體 */
+            font-size: 1.2rem; 
             flex-shrink: 0; 
             text-align: center;
         }
@@ -869,9 +869,23 @@
         
         /**
          * 統一的事件綁定函數 (同時支援 Touch 和 Mouse)
+         * 【修正區域：優化反白邏輯】
          */
         function bindKeyEvents() {
             document.querySelectorAll('.keyboard-key').forEach(keyElement => {
+                
+                // 1. 為了避免重複綁定，先移除可能已經存在的舊事件處理器 (通過儲存在元素上的屬性)
+                if (keyElement.handlePressDown) {
+                    keyElement.removeEventListener('touchstart', keyElement.handlePressDown);
+                    keyElement.removeEventListener('touchend', keyElement.handlePressUp);
+                    keyElement.removeEventListener('touchmove', keyElement.handlePressCancel);
+                    keyElement.removeEventListener('touchcancel', keyElement.handlePressCancel); // 新增：確保移除 touchcancel
+                    keyElement.removeEventListener('mousedown', keyElement.handlePressDown);
+                    keyElement.removeEventListener('mouseup', keyElement.handlePressUp);
+                    keyElement.removeEventListener('mouseleave', keyElement.handlePressCancel);
+                }
+                
+                // 清空舊的 onxxx 屬性
                 keyElement.onclick = null; 
                 keyElement.oncontextmenu = (e) => e.preventDefault(); 
                 keyElement.ontouchstart = null;
@@ -880,14 +894,19 @@
                 keyElement.onmousedown = null;
                 keyElement.onmouseup = null;
                 keyElement.onmouseleave = null;
-                
+
                 const keyChar = keyElement.dataset.label;
-                const altChar = currentLayout.alt[keyChar]; 
+                // 修正 altChar 檢查，防止 currentLayout.alt 未定義時出錯
+                const altChar = currentLayout.alt ? currentLayout.alt[keyChar] : null; 
                 
+                // 1. 處理按下 (Press Down)
                 const handlePressDown = (event) => {
-                    event.preventDefault(); 
+                    // 只處理左鍵點擊 (滑鼠) 或觸摸事件
+                    if (event.type === 'mousedown' && event.button !== 0) return;
+                    if (event.type.startsWith('touch')) event.preventDefault(); 
+                    
                     longPressCommitted = false; 
-                    keyElement.classList.add('highlighted'); 
+                    keyElement.classList.add('highlighted'); // **添加高亮**
 
                     if (currentLayout === Keyboards.english && altChar) {
                         if (longPressTimer) clearTimeout(longPressTimer);
@@ -896,39 +915,50 @@
                         }, LONG_PRESS_TIMEOUT);
                     }
                 };
-
+                
+                // 2. 處理抬起/點擊 (Press Up)
                 const handlePressUp = (event) => {
-                    event.preventDefault(); 
-                    keyElement.classList.remove('highlighted'); 
+                    if (event.type.startsWith('touch')) event.preventDefault(); 
                     
                     if (longPressTimer) {
                         clearTimeout(longPressTimer);
                         longPressTimer = null;
                     }
                     
-                    if (!longPressCommitted) {
+                    // 只有當元素仍處於高亮狀態時才視為短按
+                    if (!longPressCommitted && keyElement.classList.contains('highlighted')) {
                         handleShortPress(keyElement);
                     }
+                    
+                    // 無論如何，抬起時都移除高亮
+                    keyElement.classList.remove('highlighted');
                     longPressCommitted = false;
                 };
                 
+                // 3. 處理取消 (Move/Leave/Cancel)
                 const handlePressCancel = () => {
                      if (longPressTimer) {
                         clearTimeout(longPressTimer);
                         longPressTimer = null;
                     }
+                     // 移動、離開或觸摸中斷時立即移除高亮
                      keyElement.classList.remove('highlighted');
+                     longPressCommitted = false;
                 };
 
+                // 將函數儲存在 DOM 元素上以便移除
+                keyElement.handlePressDown = handlePressDown;
+                keyElement.handlePressUp = handlePressUp;
+                keyElement.handlePressCancel = handlePressCancel;
+
+                // Touch Events
                 keyElement.addEventListener('touchstart', handlePressDown);
                 keyElement.addEventListener('touchend', handlePressUp);
-                keyElement.addEventListener('touchmove', handlePressCancel); 
-                
-                keyElement.addEventListener('mousedown', (e) => {
-                    if (e.button === 0) { 
-                         handlePressDown(e);
-                    }
-                });
+                keyElement.addEventListener('touchcancel', handlePressCancel); // 新增：處理觸摸中斷
+                keyElement.addEventListener('touchmove', handlePressCancel);   // 處理手指移動取消
+
+                // Mouse Events (用於桌面測試)
+                keyElement.addEventListener('mousedown', handlePressDown);
                 keyElement.addEventListener('mouseup', handlePressUp);
                 keyElement.addEventListener('mouseleave', handlePressCancel); 
             });
