@@ -274,6 +274,7 @@
         }
         
         .keyboard-key.highlighted {
+            /* 用於 touchstart/mousedown 設置的高亮狀態 */
             background-color: var(--key-active-bg) !important; 
             color: white;
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); 
@@ -313,6 +314,7 @@
         }
         
         .keyboard-key:active {
+             /* 作為降級/輔助的點擊視覺效果，但在 touchstart 設置 highlighted 後會被覆蓋 */
              background-color: var(--key-active-bg); 
              color: white; 
              box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); 
@@ -381,7 +383,8 @@
         // --- 長按相關狀態 ---
         let longPressTimer = null;
         let longPressCommitted = false; 
-        const LONG_PRESS_TIMEOUT = 500; 
+        // *** 修正點 2：延長長按時限，更容易觸發 ***
+        const LONG_PRESS_TIMEOUT = 750; // 500ms -> 750ms
         
         // --- 游標 HTML 定義 ---
         const CURSOR_HTML = '<span id="main-cursor" class="cursor">\u200c</span>';
@@ -414,7 +417,7 @@
         const KEYCODE_ENTER=0x0d;
         const KEYCODE_SPACE=0x20;
 
-        // --- 鍵盤配置 ---
+        // --- 鍵盤配置 (略) ---
         var Keyboards = {
             english: {
                 shifted : false,
@@ -510,7 +513,7 @@
         }
 
         /**
-         * 鍵盤渲染函數
+         * 鍵盤渲染函數 (略)
          */
         function drawKeyboard() {
             const layout = currentLayout;
@@ -673,7 +676,7 @@
         }
         
         /**
-         * 浮層處理函數 (保持不變)
+         * 浮層處理函數 (略)
          */
         function emoji(subIndex) {
             const emojis=[[
@@ -736,7 +739,7 @@
         }
 
         /**
-         * 處理短按事件：執行編碼或普通字符輸入
+         * 處理短按事件：執行編碼或普通字符輸入 (略)
          */
         function handleShortPress(keyElement) {
             preferredOffset = -1; 
@@ -781,7 +784,7 @@
         }
         
         /**
-         * 處理功能鍵邏輯
+         * 處理功能鍵邏輯 (略)
          */
         function handleFunctionKey(code, keyChar) {
              switch(code) {
@@ -869,7 +872,6 @@
         
         /**
          * 統一的事件綁定函數 (同時支援 Touch 和 Mouse)
-         * 【修正區域：優化反白邏輯，移除導致無法點擊的檢查】
          */
         function bindKeyEvents() {
             document.querySelectorAll('.keyboard-key').forEach(keyElement => {
@@ -879,13 +881,13 @@
                     keyElement.removeEventListener('touchstart', keyElement.handlePressDown);
                     keyElement.removeEventListener('touchend', keyElement.handlePressUp);
                     keyElement.removeEventListener('touchmove', keyElement.handlePressCancel);
-                    keyElement.removeEventListener('touchcancel', keyElement.handlePressCancel); // 新增：確保移除 touchcancel
+                    keyElement.removeEventListener('touchcancel', keyElement.handlePressCancel);
                     keyElement.removeEventListener('mousedown', keyElement.handlePressDown);
                     keyElement.removeEventListener('mouseup', keyElement.handlePressUp);
                     keyElement.removeEventListener('mouseleave', keyElement.handlePressCancel);
                 }
                 
-                // 清空舊的 onxxx 屬性
+                // 清空舊的 onxxx 屬性 (略)
                 keyElement.onclick = null; 
                 keyElement.oncontextmenu = (e) => e.preventDefault(); 
                 keyElement.ontouchstart = null;
@@ -918,16 +920,14 @@
                 
                 // 2. 處理抬起/點擊 (Press Up)
                 const handlePressUp = (event) => {
-                    // 移除 touchend 上的 preventDefault
-                    // if (event.type.startsWith('touch')) event.preventDefault(); 
-                    
+                    // if (event.type.startsWith('touch')) event.preventDefault(); // 移除 preventDefault
+
                     if (longPressTimer) {
                         clearTimeout(longPressTimer);
                         longPressTimer = null;
                     }
                     
-                    // *** 修正：只要不是長按提交的，就視為短按並觸發輸入。***
-                    // 以前的邏輯會檢查 'highlighted' 類別，但 touchmove 會移除它，導致輕微移動就無法輸入。
+                    // 只要不是長按提交的，就視為短按並觸發輸入
                     if (!longPressCommitted) { 
                         handleShortPress(keyElement);
                     }
@@ -938,14 +938,17 @@
                 };
                 
                 // 3. 處理取消 (Move/Leave/Cancel)
-                const handlePressCancel = () => {
+                const handlePressCancel = (event) => { // 接受 event
                      if (longPressTimer) {
                         clearTimeout(longPressTimer);
                         longPressTimer = null;
                     }
-                     // 移動、離開或觸摸中斷時立即移除高亮
-                     keyElement.classList.remove('highlighted');
-                     // 讓 longPressCommitted 保持原狀 (true 或 false)，它在 handlePressUp 中決定是否執行 short press
+                     // *** 修正點 1：輕微的 touchmove 不再移除高亮，避免瞬間反白消失。***
+                     // 只有在滑鼠離開 (mouseleave) 或系統明確取消 (touchcancel) 時，才移除高亮。
+                     // 正常的 touchend/mouseup 會在 handlePressUp 中移除高亮。
+                     if (event.type === 'mouseleave' || event.type === 'touchcancel') {
+                         keyElement.classList.remove('highlighted');
+                     }
                 };
 
                 // 將函數儲存在 DOM 元素上以便移除
@@ -957,8 +960,8 @@
                 keyElement.addEventListener('touchstart', handlePressDown);
                 keyElement.addEventListener('touchend', handlePressUp);
                 keyElement.addEventListener('touchcancel', handlePressCancel); // 處理觸摸中斷
-                keyElement.addEventListener('touchmove', handlePressCancel);   // 處理手指移動取消 (主要用於取消長按，但也會導致輕微移動無法反白，這是我們接受的視覺取捨)
-
+                keyElement.addEventListener('touchmove', handlePressCancel);   // 處理手指移動取消長按計時器
+                
                 // Mouse Events (用於桌面測試)
                 keyElement.addEventListener('mousedown', handlePressDown);
                 keyElement.addEventListener('mouseup', handlePressUp);
@@ -967,7 +970,7 @@
         }
         
         /**
-         * 處理單字符輸入 (用於英文/符號模式或 Shift+字母)
+         * 處理單字符輸入 (用於英文/符號模式或 Shift+字母) (略)
          */
         function handleCharInput(char) {
              if (currentLayout.shifted) {
@@ -982,7 +985,7 @@
             }
         }
         
-        // --- 核心輸入法邏輯 (其餘部分保持不變) ---
+        // --- 核心輸入法邏輯 (其餘部分略) ---
         
         var currentCode = '';
         var currentCandidates = [];
@@ -1244,7 +1247,7 @@
             updateOutputDisplay(); 
         }
 
-        // --- 工具列與查碼功能 (其餘部分保持不變) ---
+        // --- 工具列與查碼功能 (其餘部分略) ---
 
         function copyTextToClipboard() {
             const textToCopy = committedText; 
