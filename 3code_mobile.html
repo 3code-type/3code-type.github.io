@@ -869,7 +869,7 @@
         
         /**
          * 統一的事件綁定函數 (同時支援 Touch 和 Mouse)
-         * 【修正區域：優化反白邏輯】
+         * 【修正區域：優化反白邏輯，移除導致無法點擊的檢查】
          */
         function bindKeyEvents() {
             document.querySelectorAll('.keyboard-key').forEach(keyElement => {
@@ -918,15 +918,17 @@
                 
                 // 2. 處理抬起/點擊 (Press Up)
                 const handlePressUp = (event) => {
-                    if (event.type.startsWith('touch')) event.preventDefault(); 
+                    // 移除 touchend 上的 preventDefault
+                    // if (event.type.startsWith('touch')) event.preventDefault(); 
                     
                     if (longPressTimer) {
                         clearTimeout(longPressTimer);
                         longPressTimer = null;
                     }
                     
-                    // 只有當元素仍處於高亮狀態時才視為短按
-                    if (!longPressCommitted && keyElement.classList.contains('highlighted')) {
+                    // *** 修正：只要不是長按提交的，就視為短按並觸發輸入。***
+                    // 以前的邏輯會檢查 'highlighted' 類別，但 touchmove 會移除它，導致輕微移動就無法輸入。
+                    if (!longPressCommitted) { 
                         handleShortPress(keyElement);
                     }
                     
@@ -943,7 +945,7 @@
                     }
                      // 移動、離開或觸摸中斷時立即移除高亮
                      keyElement.classList.remove('highlighted');
-                     longPressCommitted = false;
+                     // 讓 longPressCommitted 保持原狀 (true 或 false)，它在 handlePressUp 中決定是否執行 short press
                 };
 
                 // 將函數儲存在 DOM 元素上以便移除
@@ -954,8 +956,8 @@
                 // Touch Events
                 keyElement.addEventListener('touchstart', handlePressDown);
                 keyElement.addEventListener('touchend', handlePressUp);
-                keyElement.addEventListener('touchcancel', handlePressCancel); // 新增：處理觸摸中斷
-                keyElement.addEventListener('touchmove', handlePressCancel);   // 處理手指移動取消
+                keyElement.addEventListener('touchcancel', handlePressCancel); // 處理觸摸中斷
+                keyElement.addEventListener('touchmove', handlePressCancel);   // 處理手指移動取消 (主要用於取消長按，但也會導致輕微移動無法反白，這是我們接受的視覺取捨)
 
                 // Mouse Events (用於桌面測試)
                 keyElement.addEventListener('mousedown', handlePressDown);
