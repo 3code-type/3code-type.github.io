@@ -126,7 +126,7 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
             margin-bottom: 5px; 
             padding: 8px; 
-            height: 40vh; 
+            height: 20vh; /* Reduced from 40vh to 20vh */
             font-size: 1.5rem;
             line-height: 1.6;
             white-space: pre-wrap;
@@ -364,9 +364,23 @@
         
         #keyboard-overlay.emoji button {
             box-sizing: border-box;
-            float: left;
+            /* 由於 flexbox 佈局，float: left 被移除 */
             text-align: center;
             font-size: 1.8rem;
+            /* ADDED: 使其看起來像獨立的按鍵 */
+            background-color: var(--key-bg); /* 使用鍵盤背景色 #f9f9f9 */
+            border: 1px solid var(--border-color); /* 添加邊框 */
+            border-radius: 6px; /* 圓角 */
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* 陰影效果 */
+            margin: 2px; /* 增加微小間隔，讓按鍵更明顯 */
+        }
+        
+        /* ADDED: 點擊時的反白效果 */
+        #keyboard-overlay.emoji button:active {
+            background-color: var(--key-active-bg); /* 使用點擊時的顏色 #a0a0a0 */
+            color: white; /* 讓表情符號更突出 */
+            box-shadow: 0 0 1px rgba(0, 0, 0, 0.2);
+            transform: translateY(1px); /* 輕微下壓效果 */
         }
         
         #keyboard-overlay.editor {
@@ -470,13 +484,19 @@
         const KEYCODE_DOWN=0xff54;
         const KEYCODE_DEL_F=0xff;
 
-        // --- 鍵盤配置 (略) ---
+        // --- 鍵盤配置 ---
         var Keyboards = {
             english: {
                 shifted : false,
                 alt : {
+                    // 頂部兩排
                     'q':'Ｑ', 'w':'Ｗ', 'e':'Ｅ', 'r':'Ｒ', 't':'Ｔ', 'y':'Ｙ', 'u':'Ｕ', 'i':'Ｉ', 'o':'Ｏ', 'p':'Ｐ',
                     'a':'Ａ', 's':'Ｓ', 'd':'Ｄ', 'f':'Ｆ', 'g':'Ｇ', 'h':'Ｈ', 'j':'Ｊ', 'k':'Ｋ', 'l':'Ｌ',
+                    
+                    // **修正點：新增底部一排 (zxcvbnm) 的全形字元**
+                    'z':'Ｚ', 'x':'Ｘ', 'c':'Ｃ', 'v':'Ｖ', 'b':'Ｂ', 'n':'Ｎ', 'm':'Ｍ', 
+
+                    // 標點符號
                     ';':'；', // 全形
                     '\'':'〃', // 全形
                     ',':'，', // 全形
@@ -516,7 +536,7 @@
                     [{v:'1'},{v:'2'},{v:'3'},{v:'4'},{v:'5'},
                      {v:'6'},{v:'7'},{v:'8'},{v:'9'},{v:'0'}],
                      [{v:'@'},{v:'#'},{v:'$'},{v:'%'},{v:'&'},
-                     {v:'*'},{v:'-'},{v:'+'},{v:'('},{v:')'}], 
+                     {v:'*'},{v:'-'},{v:'+'},{v:'('},{v:'('}], 
                     [{v:'⇪',c:KEYCODE_SHIFT,r:1.5,s:true},
                      {v:'!'},{v:'"'},{v:'\''},{v:':'},{v:';'},{v:'/'},{v:'?'},
                      {v:'⌫',c:KEYCODE_DEL,r:1.5,s:true}],
@@ -730,19 +750,22 @@
 
             if (show === false) return;
 
-            // 取得尺寸
-            const cand = document.getElementById('candidate-display');
+            // --- 修正點: 取得鍵盤的實際位置和尺寸，使其覆蓋整個按鍵區 (#keyboard) ---
             const keyboard = document.getElementById('keyboard');
-            const width = keyboard.clientWidth;
-            // 浮層高度 = 鍵盤總高度 - 候選字列高度
-            const height = keyboard.clientHeight - cand.clientHeight; 
+            const rect = keyboard.getBoundingClientRect(); // 取得鍵盤元素在視窗中的位置和尺寸
+
+            const width = rect.width;
+            const height = rect.height; // 取得按鍵區的實際高度
 
             // 配置浮層 div
             div.dataset.show = show;
             div.style.display = 'block';
-            div.style.position = 'absolute'; // 確保能定位
-            div.style.left = '0px'; 
-            div.style.top = cand.clientHeight + 'px'; 
+            div.className = type; // 應用 class for styling
+
+            // 確保浮層與鍵盤位置重合，使用 fixed 定位來精確覆蓋鍵盤 (#keyboard)
+            div.style.position = 'fixed'; 
+            div.style.left = rect.left + 'px'; 
+            div.style.top = rect.top + 'px'; // 從鍵盤頂部開始
             div.style.width = width + 'px';
             div.style.height = height + 'px';
 
@@ -750,10 +773,20 @@
             div2.style.width = width + 'px';
             div2.style.height = height + 'px';
             div2.style.overflowY = 'auto'; // 讓內容可滾動
+            
+            // --- FIX: Add Flexbox setup for 10-column layout ---
+            if (type === "emoji") {
+                div2.style.display = 'flex';
+                div2.style.flexWrap = 'wrap';
+                div2.style.alignContent = 'flex-start';
+                // 調整 padding 以容納按鍵間距
+                div2.style.padding = '3px'; 
+            }
+            // --- END FIX ---
 
             div.innerHTML = ''; // 清空內容
             div.appendChild(div2);
-            div.className = type; // 應用 class for styling
+            // --- 結束修正點 ---
 
             if (type === "emoji") {
                 const emojis = [[
@@ -775,37 +808,48 @@
                     "🎁","🎂","🎄","🎅","🎈","🎓","👌","👍","👎","👏",
                     "🎨","🎯","🎲","🏀","🏃","🏅","🏆","🏐","🏓","🏟",
                     "🏧","🐀","🐁","🐂","🐃","🐄","🐅","🐆","🐇","🐈",
-                    "🐉","🐊","🐋","🐌","🐍","🐎","🐏","🐐","🐑","🐒",
+                    "🐉","🐊","🐋","🐌","蛇","🐎","🐏","🐐","🐑","🐒",
                     "🐓","🐔","🐕","🐖","🐗","🐘","🐙","🐚","🐛","🐜",
                     "🐝","🐞","🐟","🐠","🐢","🐧","👣","👫","💊","💋"
                 ]];
                 
                 const emojiSet = emojis[show] || emojis[0];
                 const rowLength = 10;
-                const keyWidth = width / rowLength;
+                const displayRows = 4; // <--- 固定顯示 4 行
                 
-                // 計算每行有多少按鈕，然後估算每個按鈕的高度
-                const numRows = Math.ceil(emojiSet.length / rowLength);
-                const keyHeight = height / (numRows > 0 ? numRows : 1);
+                // 由於 CSS 樣式新增了 2px margin，這裡需要調整寬度計算
+                // 為了簡單起見並使用 flexbox，我們設定按鈕寬度為 10%
+                
+                const keyHeight = height / displayRows; // <--- 按鈕高度為浮層高度的 1/4
                 
                 for (let i = 0; i < emojiSet.length; i++) {
                     const one = document.createElement('button');
                     one.textContent = emojiSet[i];
-                    one.style.width = keyWidth + "px";
-                    one.style.height = keyHeight + "px";
+                    
+                    // --- FIX: 使用百分比寬度和計算高度確保 10 欄精確排列 ---
+                    one.style.width = `calc(${100 / rowLength}% - 4px)`; /* 10% 減去左右 margin (2px*2) */
+                    one.style.height = keyHeight - 4 + "px"; /* 高度減去上下 margin (2px*2) */
+                    
                     one.style.fontSize = '1.8rem';
-                    one.style.border = 'none';
-                    one.style.background = 'none';
-                    one.style.margin = '0';
-                    one.style.padding = '0';
+                    // 移除內聯樣式，讓 CSS 來控制按鍵外觀
+                    // one.style.border = 'none'; 
+                    // one.style.background = 'none';
+                    // one.style.margin = '0'; 
+                    // one.style.padding = '0';
                     div2.appendChild(one);
                 }
                 
                 div2.addEventListener('click', function(e) {
+                    // 確保點擊到的是 button
+                    if (e.target.tagName !== 'BUTTON') return; 
+                    
                     const text = e.target.textContent;
                     // 過濾掉可能存在的空白佔位符
                     if (text && text.length > 0 && text !== '　') 
                         commitText(text); 
+                    
+                    // **修正 1：點擊後不再隱藏浮層，以滿足連續輸入的需求**
+                    // overlay("emoji", false); // <--- 已移除此行
                 });
                 
             } else if (type === "editor") {
@@ -844,6 +888,75 @@
              overlay("editor", 0);
         }
         
+        // --- ADDED: 語音輸入邏輯 ---
+        
+        /**
+         * 啟動 Web Speech API 語音辨識
+         */
+        function startVoiceInput() {
+            // 檢查瀏覽器是否支援 Web Speech API
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+            if (!SpeechRecognition) {
+                alert('抱歉，您的瀏覽器不支援 Web 語音輸入功能 (Speech Recognition API)。建議使用 Chrome 瀏覽器。');
+                return;
+            }
+
+            // 建立 Recognition 物件
+            const recognition = new SpeechRecognition();
+
+            // 設定：
+            recognition.lang = 'cmn-Hant-TW'; // 繁體中文
+            recognition.continuous = false; // 每次只錄製一次
+            recognition.interimResults = false; // 只傳回最終結果
+
+            // 儲存原始 UI 狀態
+            const originalMainInput = mainInput.textContent;
+
+            // 處理事件
+            recognition.onstart = function() {
+                mainInput.textContent = '🔊 正在聆聽... 請開始說話。';
+                candidateDisplay.innerHTML = '<span style="color: red; font-weight: bold;">[語音辨識中...]</span>';
+            };
+
+            recognition.onresult = function(event) {
+                // 取得最終結果
+                const transcript = event.results[event.results.length - 1][0].transcript;
+                
+                // 將結果提交到輸出區
+                if (transcript) {
+                    commitText(transcript); 
+                }
+                
+                // 恢復 UI 狀態
+                recognition.onend();
+            };
+
+            recognition.onerror = function(event) {
+                alert('語音辨識發生錯誤: ' + event.error + ' (請檢查麥克風權限)');
+                console.error('Speech Recognition Error:', event.error);
+                // 恢復 UI 狀態
+                recognition.onend();
+            };
+
+            recognition.onend = function() {
+                // 恢復 UI 狀態
+                mainInput.textContent = originalMainInput;
+                // 重新繪製工具列
+                showCandidates(); 
+            };
+
+            try {
+                recognition.start();
+            } catch (e) {
+                alert('啟動語音輸入失敗，請檢查瀏覽器麥克風權限設定。');
+                console.error('Recognition start failed:', e);
+                // 恢復 UI 狀態
+                mainInput.textContent = originalMainInput;
+                showCandidates(); 
+            }
+        }
+        
         // --- ADDED: 工具列邏輯 ---
         
         function showToolbar() {
@@ -874,7 +987,7 @@
         function handleToolbarClick(target) {
             const tool = target.dataset.tool;
             if (tool === "1") { 
-                 console.log('Voice input triggered (Not implemented).');
+                 startVoiceInput(); // <-- 呼叫新的語音輸入函式
             } else if (tool === "2") {
                 overlay("emoji", 0);
             } else if (tool === "3") {
@@ -942,8 +1055,11 @@
          */
         function handleFunctionKey(code, keyChar) {
              // 確保在處理功能鍵時隱藏浮層
-             overlayDiv.style.display = 'none';
-             delete overlayDiv.dataset.show;
+             // **注意：如果用戶在 emoji 浮層上點擊了功能鍵（例如切換到 QWERTY），則需要關閉浮層。**
+             if (code === KEYCODE_SWITCH_english || code === KEYCODE_SWITCH_number || code === KEYCODE_STATE || code === KEYCODE_DEL || code === KEYCODE_ENTER || code === KEYCODE_SPACE) {
+                 overlayDiv.style.display = 'none';
+                 delete overlayDiv.dataset.show;
+             }
              
              switch(code) {
                 case KEYCODE_SHIFT:
@@ -1358,14 +1474,16 @@
         }
         
         /**
-         * 顯示候選字或工具列 (修正：確保無編碼時顯示工具列，而不是模式訊息)
+         * 顯示候選字或工具列 
+         * **修正 2：確保浮層開啟時，工具列（表情符號切換/關閉鍵）依然顯示。**
          */
         function showCandidates() {
             candidateDisplay.innerHTML = '';
             
-            // 1. 如果浮層開啟，優先處理浮層，清空顯示區
+            // 1. 如果浮層開啟 (Emoji/Editor)
             if (overlayDiv.dataset.show) {
-                 candidateDisplay.textContent = '';
+                 // 修正：浮層開啟時，必須顯示工具列，讓用戶可以切換頁面或關閉浮層。
+                 showToolbar(); 
                  return;
             }
             
