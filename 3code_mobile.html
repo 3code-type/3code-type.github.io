@@ -198,6 +198,7 @@
         }
         
         #candidate-display {
+            /* 修正 1: 調整最小高度 */
             display: flex;
             align-items: center;
             padding: 8px;
@@ -205,7 +206,7 @@
             white-space: nowrap; 
             overflow-x: scroll; 
             -webkit-overflow-scrolling: touch; 
-            min-height: 48px; 
+            min-height: 60px; /* 從 48px 調整為 60px */
             background-color: #fff;
             box-shadow: 0 1px 0 var(--border-color);
         }
@@ -215,13 +216,14 @@
         }
 
         #candidate-display span {
+            /* 修正 2: 調整字型大小 */
             cursor: pointer;
             padding: 5px 8px;
             border-radius: 4px;
             transition: all 0.2s;
             user-select: none;
             white-space: nowrap;
-            font-size: 1.2rem; 
+            font-size: 1.4rem; /* 從 1.2rem 調整為 1.4rem */
             flex-shrink: 0; 
             text-align: center;
         }
@@ -383,8 +385,7 @@
         // --- 長按相關狀態 ---
         let longPressTimer = null;
         let longPressCommitted = false; 
-        // *** 修正點 2：延長長按時限，更容易觸發 ***
-        const LONG_PRESS_TIMEOUT = 750; // 500ms -> 750ms
+        const LONG_PRESS_TIMEOUT = 750; 
         
         // --- 游標 HTML 定義 ---
         const CURSOR_HTML = '<span id="main-cursor" class="cursor">\u200c</span>';
@@ -880,7 +881,6 @@
                 if (keyElement.handlePressDown) {
                     keyElement.removeEventListener('touchstart', keyElement.handlePressDown);
                     keyElement.removeEventListener('touchend', keyElement.handlePressUp);
-                    keyElement.removeEventListener('touchmove', keyElement.handlePressCancel); // 移除舊的 touchmove 綁定
                     keyElement.removeEventListener('touchcancel', keyElement.handlePressCancel);
                     keyElement.removeEventListener('mousedown', keyElement.handlePressDown);
                     keyElement.removeEventListener('mouseup', keyElement.handlePressUp);
@@ -959,8 +959,7 @@
                 keyElement.addEventListener('touchstart', handlePressDown);
                 keyElement.addEventListener('touchend', handlePressUp);
                 keyElement.addEventListener('touchcancel', handlePressCancel); // 處理觸摸中斷
-                // *** 核心修正：移除此行，讓輕微的 touchmove 不會取消長按計時器 ***
-                // keyElement.addEventListener('touchmove', handlePressCancel);   // <--- 原有的問題代碼
+                // *** 核心修正：移除 touchmove 綁定 ***
                 
                 // Mouse Events (用於桌面測試)
                 keyElement.addEventListener('mousedown', handlePressDown);
