@@ -60,7 +60,7 @@
 
         #search-input {
             flex-grow: 0;
-            width: 120px; /* 修正: 欄寬設為 120px */
+            width: 140px; 
             height: 40px;
             padding: 8px;
             font-size: 1.0rem; 
@@ -95,7 +95,7 @@
             flex-grow: 1;
             margin: 0 5px;
             padding: 8px 15px; 
-            font-size: 1rem;
+            font-size: 1.0rem;
             border: none;
             border-radius: 8px;
             background-color: var(--primary-color);
@@ -129,7 +129,7 @@
             height: 40vh; 
             font-size: 1.5rem;
             line-height: 1.6;
-            white-space: pre-wrap; 
+            white-space: pre-wrap;
             word-break: break-word;
             color: var(--text-color);
             cursor: text; 
@@ -205,7 +205,7 @@
             white-space: nowrap; 
             overflow-x: scroll; 
             -webkit-overflow-scrolling: touch; 
-            min-height: 70px; /* 修正: 候選字區域高度調高到 70px */
+            min-height: 60px;
             background-color: #fff;
             box-shadow: 0 1px 0 var(--border-color);
         }
@@ -221,13 +221,24 @@
             transition: all 0.2s;
             user-select: none;
             white-space: nowrap;
-            font-size: 1.6rem; /* 修正: 候選字型加大到 1.6rem */
+            font-size: 1.4rem;
             flex-shrink: 0; 
             text-align: center;
         }
         
         #candidate-display span:active, #candidate-display span:hover {
             background-color: #e8eaf6;
+        }
+        
+        /* ADDED: Toolbar item styles */
+        #candidate-display span.toolbar-tool {
+            font-size: 1.2rem;
+            padding: 5px 15px;
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+        }
+        #candidate-display span.toolbar-tool:active {
+            background-color: #e0e0e0;
         }
         
         #keyboard {
@@ -273,16 +284,6 @@
             min-width: 0;
         }
         
-        /* *** 新增: 強化 Enter 鍵的視覺效果 (data-code="13" 是 KEYCODE_ENTER) *** */
-        .keyboard-key[data-code="13"] .visual-wrapper > span {
-            font-size: 1.5rem; 
-            font-weight: 900; 
-        }
-        .keyboard-key[data-code="13"] {
-             font-weight: bold;
-        }
-        /* *************************************************************** */
-
         .keyboard-key.highlighted {
             background-color: var(--key-active-bg) !important; 
             color: white;
@@ -345,10 +346,47 @@
             vertical-align: middle;
         }
 
-        /* *** Shift 鍵符號寬度調整 (使用 scaleX 兩倍寬) *** */
         .shift-symbol {
-            display: inline-block; /* 必須為 block 或 inline-block 才能應用 transform */
-            transform: scaleX(2); /* 水平拉伸為兩倍寬 */
+            display: inline-block;
+            transform: scaleX(2);
+        }
+        
+        /* ADDED: Overlay styles */
+        #keyboard-overlay {
+            position: absolute; /* 定位會被 JS 覆蓋 */
+            left: 0;
+            top: 0;
+            z-index: 102; /* 確保在鍵盤上方 */
+            background-color: #fff;
+            overflow: hidden;
+            box-shadow: 0 1px 0 var(--border-color), 0 -4px 10px rgba(0, 0, 0, 0.08);
+        }
+        
+        #keyboard-overlay.emoji button {
+            box-sizing: border-box;
+            float: left;
+            text-align: center;
+            font-size: 1.8rem;
+        }
+        
+        #keyboard-overlay.editor {
+            background-color: #f0f0f0;
+            padding: 10px;
+        }
+        
+        #keyboard-overlay.editor button {
+            position: absolute;
+            width: 20%;
+            height: 18%;
+            font-size: 1.2rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #fff;
+            transition: background-color 0.1s;
+        }
+        
+        #keyboard-overlay.editor button:active {
+            background-color: #ddd;
         }
     </style>
 </head>
@@ -356,7 +394,8 @@
     
     <div class="search-area">
         <input type="text" id="search-input" placeholder="在此輸入文字" maxlength="1">
-        <div id="search-result">編碼顯示在此</div> </div>
+        <div id="search-result">查詢結果顯示在此</div>
+    </div>
     
     <div id="toolbar">
         <button id="copy-btn">📋 複製文字</button>
@@ -382,7 +421,7 @@
         let currentReverseCodemap = {};
         let isEnglishMode = false; 
         let isSymbolMode = false;
-        let wasInEnglishModeBeforeSymbol = false; // 新增：追蹤切換到符號模式前的狀態
+        let wasInEnglishModeBeforeSymbol = false;
         let committedText = ''; 
         let cursorPosition = 0; 
         let preferredOffset = -1; 
@@ -390,13 +429,13 @@
         // --- 長按相關狀態 ---
         let longPressTimer = null;
         let longPressCommitted = false; 
-        const LONG_PRESS_TIMEOUT = 500; 
+        const LONG_PRESS_TIMEOUT = 750; 
         
         // --- 游標 HTML 定義 ---
         const CURSOR_HTML = '<span id="main-cursor" class="cursor">\u200c</span>';
         const NON_BREAK_ANCHOR = '\ufeff'; 
         
-        // --- DOM 元素引用 (保留) ---
+        // --- DOM 元素引用 ---
         const textOutput = document.getElementById('text-output');
         const mainInput = document.getElementById('main-input');
         const candidateDisplay = document.getElementById('candidate-display');
@@ -422,8 +461,16 @@
         const KEYCODE_DEL=0x08;
         const KEYCODE_ENTER=0x0d;
         const KEYCODE_SPACE=0x20;
+        
+        // --- ADDED: Cursor and forward delete keycodes ---
+        const KEYCODE_HOME=0xff50;
+        const KEYCODE_LEFT=0xff51;
+        const KEYCODE_UP=0xff52;
+        const KEYCODE_RIGHT=0xff53;
+        const KEYCODE_DOWN=0xff54;
+        const KEYCODE_DEL_F=0xff;
 
-        // --- 鍵盤配置 ---
+        // --- 鍵盤配置 (略) ---
         var Keyboards = {
             english: {
                 shifted : false,
@@ -435,16 +482,12 @@
                     ',':'，', // 全形
                     '.':'．', // 全形
                     '/':'／', // 全形
-                    'z':'Ｚ', 'x':'Ｘ', 'c':'Ｃ', 'v':'Ｖ', 'b':'Ｂ', 'n':'Ｎ', 'm':'Ｍ',
                 },
-                // [修改點 1]: 移除標點符號的 Shifted 映射，使其在 Shift 狀態下仍為原始值
                 upper: {
                     'q':'Q','w':'W','e':'E','r':'R','t':'T', 'y':'Y','u':'U','i':'I','o':'O','p':'P',
                     'a':'A','s':'S','d':'D','f':'F','g':'G', 
                     'h':'H','j':'H','k':'K','l':'L',
-                    // ';':':', // 移除: 保持 ';'
                     'z':'Z','x':'Z','c':'C','v':'V','b':'B', 'n':'N','m':'M',
-                    // ',':'<', '.':'>', '\'':'"', '/' : '?', // 移除: 保持 ', . / \''
                 },
                 key : [
                     [{v:'q',c:0},{v:'w',c:0},{v:'e',c:0},{v:'r',c:0},{v:'t',c:0},
@@ -519,7 +562,7 @@
         }
 
         /**
-         * 鍵盤渲染函數
+         * 鍵盤渲染函數 (略)
          */
         function drawKeyboard() {
             const layout = currentLayout;
@@ -544,43 +587,33 @@
                     const keyWidth = placeHolderWidth * ratio;
                     
                     let displayChar = keyChar; 
-                    let isSymbolShifted = false; 
+                    let isSymbolShifted = false;
                     
-                    // --- FIX: 處理數字/符號鍵盤 (Keyboards.number) 的 Shift 顯示 ---
                     if (currentLayout === Keyboards.number && code === 0) {
                         if (layout.shifted && layout.upper && layout.upper[keyChar]) {
-                            displayChar = layout.upper[keyChar]; // 顯示 Shift 符號
+                            displayChar = layout.upper[keyChar];
                             isSymbolShifted = true;
                         }
                     }
-                    // --- END FIX ---
                     
                     // --- 1. 處理 QWERTY 鍵的顯示邏輯 (字母和標點) ---
                     if (currentLayout === Keyboards.english && code === 0) {
                         
                         if (keyChar.match(/^[a-z]$/)) {
-                            // --- 字母鍵 (a-z) ---
                             if (!isEnglishMode) {
-                                // 三碼模式: 永遠顯示大寫 (視覺上)
                                 displayChar = keyChar.toUpperCase();
                             } else {
-                                // 英文模式
                                 if (layout.shifted) {
-                                    // Shift On: 顯示大寫
                                     displayChar = keyChar.toUpperCase(); 
                                 } else {
-                                    // Shift Off: 顯示小寫
                                     displayChar = keyChar;
                                 }
                             }
                             
                         } else if (keyChar.match(/^[';,./]$/)) {
-                            // --- 標點符號鍵 (',', '/', etc.) ---
                             if (!isEnglishMode) {
-                                // 三碼模式: 顯示半形字元作為編碼鍵
                                 displayChar = keyChar; 
                             } else {
-                                 // 英文模式 (無論 Shift On/Off): 顯示半形符號 (符合最新要求)
                                  displayChar = keyChar; 
                             }
                         }
@@ -588,16 +621,12 @@
                     
                     // --- 2. 處理功能鍵文字 (MODE, SHIFT 等，覆蓋 QWERTY 邏輯) ---
                     if (code === KEYCODE_STATE) {
-                         // 模式切換鍵
                          if (currentLayout === Keyboards.english) {
-                             // QWERTY 鍵盤上顯示當前模式
                              displayChar = isEnglishMode ? 'En' : '三碼'; 
                          } else {
-                             // 符號鍵盤上顯示下次返回 QWERTY 時的模式
                              displayChar = wasInEnglishModeBeforeSymbol ? 'En' : '三碼';
                          }
                     } else if (code === KEYCODE_SHIFT) {
-                        // Shift 鍵佔位符
                         displayChar = '⇧'; 
                     } 
                     
@@ -622,7 +651,7 @@
                     
                     wrapper.appendChild(innerSymbolSpan);
 
-                    // --- 2. 處理 Shift 鍵視覺 (應用 shift-symbol 類別) ---
+                    // --- 2. 處理 Shift 鍵視覺 ---
                     let applyScale = false;
                     
                     if (code === KEYCODE_SHIFT) {
@@ -630,18 +659,16 @@
                         if (layout.shifted) {
                             innerSymbolSpan.classList.add('symbol-highlight'); 
                         }
-                        applyScale = true; // 僅 Shift 鍵應用 scale
+                        applyScale = true;
                     } 
                     
                     if (applyScale) {
                         innerSymbolSpan.classList.add('shift-symbol'); 
                     }
                     
-                    // --- ADDED FIX: 高亮顯示數字/符號鍵盤的 shifted 符號 ---
                     if (isSymbolShifted) {
                          innerSymbolSpan.classList.add('symbol-highlight'); 
                     }
-                    // --- END ADDED FIX ---
                     
                     // --- 3. 處理其他功能鍵的藍底高亮 (number2 的數字/符號/表情切換鍵) ---
                     if (layout === Keyboards.number2) {
@@ -654,7 +681,7 @@
                         }
                     }
 
-                    // Alt Note (輔助碼) - 仍然顯示全形作為長按提示
+                    // Alt Note (輔助碼)
                     if (layout.alt && layout.alt[keyChar]) {
                         const altNote = document.createElement('div');
                         altNote.className = 'alt-note';
@@ -671,68 +698,199 @@
             
             bindKeyEvents(); 
             
-            if (currentLayout === Keyboards.number2 && currentLayout.index === 2) {
-                 emoji(0);
+            if (overlayDiv.dataset.show) {
+                 // 重新繪製鍵盤後，如果浮層開啟，則需要重新定位並渲染浮層內容
+                 overlay(overlayDiv.className, parseInt(overlayDiv.dataset.show));
             } else if (overlayDiv.style.display !== 'none') {
                  overlayDiv.style.display = 'none';
                  overlayDiv.innerHTML = '';
             }
         }
         
+        // --- ADDED: 浮層處理函數 ---
+        
         /**
-         * 浮層處理函數 (保持不變)
+         * 處理表情符號/編輯器的浮層顯示與隱藏
+         * @param {string} type - 'emoji' 或 'editor'
+         * @param {number|boolean} show - 0, 1 (emoji sub index) 或 false (hide)
          */
-        function emoji(subIndex) {
-            const emojis=[[
-                "😀","😁","😂","😃","😄","😅","😆","😇","😈","😉",
-                "😊","😋","😌","😍","😎","😏","😐","😑","😒","😓",
-                "😔","😕","😖","😗","😘","😙","😚","😛","😜","😝",
-                "😞","😟","😠","😡","😢","😣","😤","😥","😦","😧",
-                "😨","😩","😪","😫","😬","😭","😮","😯","😰","😱",
-                "😲","😳","😴","😵","😶","😷","😸","😹","😺","😻",
-                "😼","😽","😾","😿","🙀","🙁","🙂","🙃","🙄","🙅",
-                "🙆","🙇","🙈","🙉","🙊","🙋","🙌","🙍","🙎","🙏"
-            ]];
+        function overlay(type, show) {
+            // 使用現有的 overlayDiv 元素
+            const div = overlayDiv; 
             
+            // 隱藏/清理舊浮層
+            const isShowing = div.dataset.show;
+            if (isShowing) {
+                div.style.display = 'none';
+                div.innerHTML = '';
+                delete div.dataset.show;
+                // 如果點擊了當前正在顯示的按鈕，則隱藏後返回
+                if (isShowing == show && div.className == type) return;
+            }
+
+            if (show === false) return;
+
+            // 取得尺寸
             const cand = document.getElementById('candidate-display');
             const keyboard = document.getElementById('keyboard');
             const width = keyboard.clientWidth;
-            const height = keyboard.clientHeight - (50 * 4 + 5 * 4) - 5; 
-            
-            overlayDiv.innerHTML = '';
-            overlayDiv.className = 'emoji';
-            overlayDiv.style.display = 'block';
-            overlayDiv.style.left = '0px';
-            overlayDiv.style.top = (cand.clientHeight + 8) + 'px'; 
-            overlayDiv.style.width = width + 'px';
-            overlayDiv.style.height = height + 'px';
-            
-            const div2=document.createElement('DIV');
-            div2.style.width=width+"px";
-            div2.style.height=height+"px";
-            div2.style.overflowY = 'auto';
+            // 浮層高度 = 鍵盤總高度 - 候選字列高度
+            const height = keyboard.clientHeight - cand.clientHeight; 
 
-            const rowLength = 10;
-            const keyWidth = width / rowLength;
-            
-            for(let i=0; i < emojis[subIndex].length; i++){
-                const one=document.createElement('button');
-                one.textContent = emojis[subIndex][i];
-                one.style.width = keyWidth + "px";
-                one.style.height = (height / Math.ceil(emojis[subIndex].length / rowLength)) + "px";
-                div2.appendChild(one);
+            // 配置浮層 div
+            div.dataset.show = show;
+            div.style.display = 'block';
+            div.style.position = 'absolute'; // 確保能定位
+            div.style.left = '0px'; 
+            div.style.top = cand.clientHeight + 'px'; 
+            div.style.width = width + 'px';
+            div.style.height = height + 'px';
+
+            const div2 = document.createElement('DIV');
+            div2.style.width = width + 'px';
+            div2.style.height = height + 'px';
+            div2.style.overflowY = 'auto'; // 讓內容可滾動
+
+            div.innerHTML = ''; // 清空內容
+            div.appendChild(div2);
+            div.className = type; // 應用 class for styling
+
+            if (type === "emoji") {
+                const emojis = [[
+                    "😀","😁","😂","😃","😄","😅","😆","😇","😈","😉",
+                    "😊","😋","😌","😍","😎","😏","😐","😑","😒","😓",
+                    "😔","😕","😖","😗","😘","😙","😚","😛","😜","😝",
+                    "😞","😟","😠","😡","😢","😣","😤","😥","😦","😧",
+                    "😨","😩","😪","😫","😬","😭","😮","😯","😰","😱",
+                    "😲","😳","😴","😵","😶","😷","😸","😹","😺","😻",
+                    "😼","😽","😾","😿","🙀","🙁","🙂","🙃","🙄","🙅",
+                    "🙆","🙇","🙈","🙉","🙊","🙋","🙌","🙍","🙎","🙏"
+                ],[
+                    "☀","☁","☎","☔","☕","☝","☠","☯","♿","⚒",
+                    "⚓","⚔","⚡","⚪","⚫","⚽","⚾","⛄","⛅","⛔",
+                    "⛪","⛲","⛳","⛵","⛺","⛽","✅","✊","✋","✌",
+                    "❄","❌","❤","🆒","🆗","🆘","🆙","🆚","🌻","🌼",
+                    "🌽","🌿","🍁","🍄","🍅","🍆","🍉","🍌","🍍","🍓",
+                    "🍔","🍕","🍚","🍜","🍟","🍦","🍫","🍬","🍭","🍴",
+                    "🎁","🎂","🎄","🎅","🎈","🎓","👌","👍","👎","👏",
+                    "🎨","🎯","🎲","🏀","🏃","🏅","🏆","🏐","🏓","🏟",
+                    "🏧","🐀","🐁","🐂","🐃","🐄","🐅","🐆","🐇","🐈",
+                    "🐉","🐊","🐋","🐌","🐍","🐎","🐏","🐐","🐑","🐒",
+                    "🐓","🐔","🐕","🐖","🐗","🐘","🐙","🐚","🐛","🐜",
+                    "🐝","🐞","🐟","🐠","🐢","🐧","👣","👫","💊","💋"
+                ]];
+                
+                const emojiSet = emojis[show] || emojis[0];
+                const rowLength = 10;
+                const keyWidth = width / rowLength;
+                
+                // 計算每行有多少按鈕，然後估算每個按鈕的高度
+                const numRows = Math.ceil(emojiSet.length / rowLength);
+                const keyHeight = height / (numRows > 0 ? numRows : 1);
+                
+                for (let i = 0; i < emojiSet.length; i++) {
+                    const one = document.createElement('button');
+                    one.textContent = emojiSet[i];
+                    one.style.width = keyWidth + "px";
+                    one.style.height = keyHeight + "px";
+                    one.style.fontSize = '1.8rem';
+                    one.style.border = 'none';
+                    one.style.background = 'none';
+                    one.style.margin = '0';
+                    one.style.padding = '0';
+                    div2.appendChild(one);
+                }
+                
+                div2.addEventListener('click', function(e) {
+                    const text = e.target.textContent;
+                    // 過濾掉可能存在的空白佔位符
+                    if (text && text.length > 0 && text !== '　') 
+                        commitText(text); 
+                });
+                
+            } else if (type === "editor") {
+                const actions = [
+                    { text: "←", left: "5%", top: "30%", click: () => handleFunctionKey(KEYCODE_LEFT, null) },
+                    { text: "↑", left: "20%", top: "10%", click: () => handleFunctionKey(KEYCODE_UP, null) },
+                    { text: "→", left: "35%", top: "30%", click: () => handleFunctionKey(KEYCODE_RIGHT, null) },
+                    { text: "↓", left: "20%", top: "50%", click: () => handleFunctionKey(KEYCODE_DOWN, null) },
+                    { text: "|←", left: "5%", top: "70%", click: () => handleFunctionKey(KEYCODE_HOME, null) },
+                    { text: "刪除", left: "35%", top: "70%", click: () => handleFunctionKey(KEYCODE_DEL_F, null) },
+                    { text: "全選", left: "70%", top: "5%", click: () => console.log('Editor action: selectAll (Not implemented)') },
+                    { text: "複製", left: "70%", top: "27%", click: () => copyTextToClipboard() },
+                    { text: "剪下", left: "70%", top: "49%", click: () => console.log('Editor action: cut (Not implemented)') },
+                    { text: "貼上", left: "70%", top: "71%", click: () => console.log('Editor action: paste (Not implemented)') }
+                ];
+                
+                for (let i = 0; i < actions.length; i++) {
+                    const one = document.createElement('button');
+                    one.textContent = actions[i].text;
+                    one.style.position = 'absolute';
+                    one.style.left = actions[i].left;
+                    one.style.top = actions[i].top;
+                    one.style.width = '20%';
+                    one.style.height = '18%';
+                    one.addEventListener('click', actions[i].click);
+                    div2.appendChild(one);
+                }
             }
-            overlayDiv.appendChild(div2);
+        }
+        
+        function emoji(show) {
+             overlay("emoji", show);
+        }
 
-            div2.addEventListener('click',function(e){
-                const text=e.target.textContent;
-                if(text && text.length > 0)
-                    commitText(text); 
+        function editor(show) {
+             overlay("editor", 0);
+        }
+        
+        // --- ADDED: 工具列邏輯 ---
+        
+        function showToolbar() {
+            candidateDisplay.innerHTML = '';
+            
+            const toolbarItems = [
+                {title:"🎤",tool:"1"},
+                {title:"😊",tool:"2"}, // Emoji 1
+                {title:"☀",tool:"3"}, // Emoji 2
+                {title:"🌀",tool:"4"}, // Placeholder
+                {title:"⇄",tool:"5"}, // Editor
+                {title:"❎",tool:"9"} // Hide/Close (切回 QWERTY)
+            ];
+
+            const fragment = document.createDocumentFragment();
+            toolbarItems.forEach(item => {
+                const span = document.createElement('span');
+                span.innerHTML = item.title;
+                span.dataset.tool = item.tool;
+                span.classList.add("toolbar-tool"); 
+                // 綁定點擊事件
+                span.onclick = (e) => handleToolbarClick(e.currentTarget); 
+                fragment.appendChild(span);
             });
+            candidateDisplay.appendChild(fragment);
+        }
+        
+        function handleToolbarClick(target) {
+            const tool = target.dataset.tool;
+            if (tool === "1") { 
+                 console.log('Voice input triggered (Not implemented).');
+            } else if (tool === "2") {
+                overlay("emoji", 0);
+            } else if (tool === "3") {
+                overlay("emoji", 1);
+            } else if (tool === "4") {
+                console.log('QR Code action triggered (Not implemented).');
+            } else if (tool === "5") {
+                overlay("editor", 0);
+            } else if (tool === "9") {
+                // 模擬 App.hide()，切換回 QWERTY (英文模式/三碼模式)
+                handleFunctionKey(KEYCODE_SWITCH_english, '🌐'); 
+            }
         }
         
         /**
-         * 處理長按事件：提交輔助字符
+         * 處理長按事件：提交輔助字符 (略)
          */
         function handleLongPress(keyElement, altChar) {
             longPressCommitted = true; 
@@ -743,42 +901,34 @@
         }
 
         /**
-         * 處理短按事件：執行編碼或普通字符輸入
+         * 處理短按事件：執行編碼或普通字符輸入 (略)
          */
         function handleShortPress(keyElement) {
             preferredOffset = -1; 
             let code = parseInt(keyElement.dataset.code);
-            let keyChar = keyElement.dataset.label; // keyChar 是底層的半形字元
+            let keyChar = keyElement.dataset.label; 
 
             if (code === 0) { 
                 let charToCommit = keyChar;
                 
-                // 決定如果不是中文編碼輸入時，要提交哪個字符 (Shifted 或 Unshifted)
                 if (currentLayout.shifted && currentLayout.upper && currentLayout.upper[keyChar]) {
                     charToCommit = currentLayout.upper[keyChar];
                 } 
                 
-                // [修改點 2]: 處理 En 模式下的標點符號不變邏輯
                 if (isEnglishMode && currentLayout === Keyboards.english) {
-                    // 檢查是否為標點符號鍵
                     if (keyChar.match(/^[';,./]$/)) {
-                        // 在 En 模式下，這些標點符號鍵無論 Shift On/Off 都不改變，直接使用 keyChar
                         handleCharInput(keyChar);
                         return;
                     }
                 }
                 
-                // 檢查是否為三碼模式 (不論 Shift 狀態)
                 if (!isEnglishMode && !isSymbolMode) {
-                     // 檢查是否為字母或編碼標點符號 (使用 keyChar 進行判斷)
                      if (keyChar.match(/^[a-z]$/i) || keyChar.match(/^[';,./]$/)) {
-                         // 三碼模式下，字母和這五個標點符號都視為編碼輸入
                          handleChineseInput(keyChar.toLowerCase());
                          return;
                      }
                  }
                 
-                // 其他情況 (英文模式下的字母 + Shift On, 符號模式, 或三碼模式下按了非編碼鍵) -> 輸入字符
                 handleCharInput(charToCommit); 
                 return;
             }
@@ -788,17 +938,18 @@
         }
         
         /**
-         * 處理功能鍵邏輯
+         * 處理功能鍵邏輯 (已新增游標控制)
          */
         function handleFunctionKey(code, keyChar) {
+             // 確保在處理功能鍵時隱藏浮層
+             overlayDiv.style.display = 'none';
+             delete overlayDiv.dataset.show;
+             
              switch(code) {
                 case KEYCODE_SHIFT:
-                    // 讓 Shift 狀態鎖定並在 QWERTY 和 Symbol 鍵盤間保持記憶
                     const newShiftState = !Keyboards.english.shifted; 
                     Keyboards.english.shifted = newShiftState;
                     Keyboards.number.shifted = newShiftState; 
-                    
-                    // 確保 currentLayout 的 shifted 屬性也被更新
                     if (currentLayout === Keyboards.english || currentLayout === Keyboards.number) {
                         currentLayout.shifted = newShiftState;
                     }
@@ -806,43 +957,33 @@
                     drawKeyboard();
                     break;
                 case KEYCODE_STATE:
-                    // 模式切換鍵 (三碼 <-> En)
                     if (currentLayout === Keyboards.english) {
-                        // QWERTY 模式：切換當前模式
                         isEnglishMode = !isEnglishMode;
-                        wasInEnglishModeBeforeSymbol = isEnglishMode; // 同步 QWERTY 模式下的預設返回狀態
+                        wasInEnglishModeBeforeSymbol = isEnglishMode; 
                         isSymbolMode = false;
-                        // 不改變 Shift 狀態
                     } else {
-                        // 符號/數字模式：只切換下次返回 QWERTY 時的模式 (wasInEnglishModeBeforeSymbol)
                         wasInEnglishModeBeforeSymbol = !wasInEnglishModeBeforeSymbol;
-                        // 不改變 Shift 狀態
                     }
                     drawKeyboard();
                     resetInputState(); 
                     break;
-                case KEYCODE_SWITCH_number: // 🌐：從 QWERTY 切換到 Symbol
-                    // *** 修正點 1：保存當前 QWERTY 狀態 ***
+                case KEYCODE_SWITCH_number: 
                     if (currentLayout === Keyboards.english) {
                         wasInEnglishModeBeforeSymbol = isEnglishMode; 
                     }
                     isSymbolMode = true;
                     isEnglishMode = false; 
-                    // 不改變 Shift 狀態 (它已經被 Keyboards.number.shifted 記憶)
                     currentLayout = Keyboards.number; 
                     drawKeyboard();
                     resetInputState();
                     break;
-                case KEYCODE_SWITCH_english: // 🌎：從 Symbol 切換回 QWERTY
+                case KEYCODE_SWITCH_english: 
                     isSymbolMode = false;
-                    // *** 修正點 2：恢復切換前的 QWERTY 狀態 (三碼 或 En) ***
                     isEnglishMode = wasInEnglishModeBeforeSymbol; 
-                    // 不改變 Shift 狀態 (它已經被 Keyboards.english.shifted 記憶)
                     currentLayout = Keyboards.english;
                     drawKeyboard();
                     resetInputState();
                     break;
-                // 處理 number2 的切換 (數字/符號/表情)
                 case KEYCODE_SWITCH_index0: 
                 case KEYCODE_SWITCH_index1: 
                 case KEYCODE_SWITCH_index2: 
@@ -868,6 +1009,43 @@
                         handleChineseInput(' ');
                     }
                     break;
+                
+                // --- ADDED: 游標控制邏輯 ---
+                case KEYCODE_LEFT:
+                     if (cursorPosition > 0) {
+                         cursorPosition--;
+                         updateOutputDisplay();
+                     }
+                     break;
+                case KEYCODE_RIGHT:
+                     if (cursorPosition < committedText.length) {
+                         cursorPosition++;
+                         updateOutputDisplay();
+                     }
+                     break;
+                case KEYCODE_UP:
+                case KEYCODE_DOWN:
+                     // 簡化處理：在沒有完整編輯器邏輯時，上下鍵暫時模擬左右移動
+                     if (code === KEYCODE_UP && cursorPosition > 0) {
+                         cursorPosition--;
+                         updateOutputDisplay();
+                     } else if (code === KEYCODE_DOWN && cursorPosition < committedText.length) {
+                         cursorPosition++;
+                         updateOutputDisplay();
+                     }
+                     break;
+                case KEYCODE_HOME:
+                     cursorPosition = 0;
+                     updateOutputDisplay();
+                     break;
+                case KEYCODE_DEL_F: // Forward Delete
+                     if (cursorPosition < committedText.length) {
+                         committedText = committedText.slice(0, cursorPosition) + committedText.slice(cursorPosition + 1);
+                         updateOutputDisplay();
+                     }
+                     break;
+                // --- END ADDED ---
+                     
                 default:
                     console.log('Unhandled keycode:', code);
                     break;
@@ -875,26 +1053,32 @@
         }
         
         /**
-         * 統一的事件綁定函數 (同時支援 Touch 和 Mouse)
+         * 統一的事件綁定函數 (略)
          */
         function bindKeyEvents() {
             document.querySelectorAll('.keyboard-key').forEach(keyElement => {
+                
+                if (keyElement.handlePressDown) {
+                    keyElement.removeEventListener('touchstart', keyElement.handlePressDown);
+                    keyElement.removeEventListener('touchend', keyElement.handlePressUp);
+                    keyElement.removeEventListener('touchcancel', keyElement.handlePressCancel);
+                    keyElement.removeEventListener('mousedown', keyElement.handlePressDown);
+                    keyElement.removeEventListener('mouseup', keyElement.handlePressUp);
+                    keyElement.removeEventListener('mouseleave', keyElement.handlePressCancel);
+                }
+                
                 keyElement.onclick = null; 
                 keyElement.oncontextmenu = (e) => e.preventDefault(); 
-                keyElement.ontouchstart = null;
-                keyElement.ontouchend = null;
-                keyElement.ontouchmove = null;
-                keyElement.onmousedown = null;
-                keyElement.onmouseup = null;
-                keyElement.onmouseleave = null;
                 
                 const keyChar = keyElement.dataset.label;
-                const altChar = currentLayout.alt[keyChar]; 
+                const altChar = currentLayout.alt ? currentLayout.alt[keyChar] : null; 
                 
                 const handlePressDown = (event) => {
-                    event.preventDefault(); 
+                    if (event.type === 'mousedown' && event.button !== 0) return;
+                    if (event.type.startsWith('touch')) event.preventDefault(); 
+                    
                     longPressCommitted = false; 
-                    keyElement.classList.add('highlighted'); 
+                    keyElement.classList.add('highlighted');
 
                     if (currentLayout === Keyboards.english && altChar) {
                         if (longPressTimer) clearTimeout(longPressTimer);
@@ -903,51 +1087,51 @@
                         }, LONG_PRESS_TIMEOUT);
                     }
                 };
-
+                
                 const handlePressUp = (event) => {
-                    event.preventDefault(); 
-                    keyElement.classList.remove('highlighted'); 
-                    
                     if (longPressTimer) {
                         clearTimeout(longPressTimer);
                         longPressTimer = null;
                     }
                     
-                    if (!longPressCommitted) {
+                    if (!longPressCommitted) { 
                         handleShortPress(keyElement);
                     }
+                    
+                    keyElement.classList.remove('highlighted');
                     longPressCommitted = false;
                 };
                 
-                const handlePressCancel = () => {
+                const handlePressCancel = (event) => {
                      if (longPressTimer) {
                         clearTimeout(longPressTimer);
                         longPressTimer = null;
                     }
-                     keyElement.classList.remove('highlighted');
+                     if (event.type === 'mouseleave' || event.type === 'touchcancel') {
+                         keyElement.classList.remove('highlighted');
+                     }
                 };
+
+                keyElement.handlePressDown = handlePressDown;
+                keyElement.handlePressUp = handlePressUp;
+                keyElement.handlePressCancel = handlePressCancel;
 
                 keyElement.addEventListener('touchstart', handlePressDown);
                 keyElement.addEventListener('touchend', handlePressUp);
-                keyElement.addEventListener('touchmove', handlePressCancel); 
+                keyElement.addEventListener('touchcancel', handlePressCancel); 
                 
-                keyElement.addEventListener('mousedown', (e) => {
-                    if (e.button === 0) { 
-                         handlePressDown(e);
-                    }
-                });
+                keyElement.addEventListener('mousedown', handlePressDown);
                 keyElement.addEventListener('mouseup', handlePressUp);
                 keyElement.addEventListener('mouseleave', handlePressCancel); 
             });
         }
         
         /**
-         * 處理單字符輸入 (用於英文/符號模式或 Shift+字母)
+         * 處理單字符輸入 (用於英文/符號模式或 Shift+字母) (略)
          */
         function handleCharInput(char) {
              if (currentLayout.shifted) {
                  commitText(char);
-                 // 保持 Shift 狀態鎖定
             } else if (isEnglishMode || isSymbolMode) {
                  commitText(char);
             } else if (currentLayout === Keyboards.number || currentLayout === Keyboards.number2) {
@@ -957,7 +1141,7 @@
             }
         }
         
-        // --- 核心輸入法邏輯 (其餘部分保持不變) ---
+        // --- 核心輸入法邏輯 (其餘部分略) ---
         
         var currentCode = '';
         var currentCandidates = [];
@@ -992,8 +1176,6 @@
             return `<span class="composition-text">${displayString}</span>`;
         }
         
-        function getVisualCursorInfo() { return {lines:[], currentLine:-1, offset:0, softWrapPoints:[]}; }
-
         function updateOutputDisplay() {
             const softWrapPoints = []; 
             
@@ -1090,7 +1272,7 @@
         async function loadSecondaryCodemap() {
             const fileName = './3codes2.txt'; 
             let textToParse = `# 這是備用的模擬編碼表 (用於測試)\n測\tqwe\n試\trty\n工\taaa\n夫\tqwe\n「\t;'\n」\t';\n這\tqwe\n`; 
-            let statusMessage = '編碼表載入中...';
+            let statusMessage = '編碼表載入中...'; 
 
             try {
                 const response = await fetch(fileName);
@@ -1116,8 +1298,7 @@
                 currentReverseCodemap = {};
                 statusMessage = '錯誤：編碼表解析失敗。';
             }
-
-            mainInput.textContent = statusMessage;
+            
             resetInputState();
             updateOutputDisplay();
         }
@@ -1176,14 +1357,31 @@
              }
         }
         
+        /**
+         * 顯示候選字或工具列 (修正：確保無編碼時顯示工具列，而不是模式訊息)
+         */
         function showCandidates() {
             candidateDisplay.innerHTML = '';
             
-            if (isSymbolMode || isEnglishMode || (currentCandidates.length === 0 && currentCode.length === 0)) {
-                 candidateDisplay.textContent = isSymbolMode ? '符號模式' : (isEnglishMode ? '英文模式' : '候選字顯示在此...');
+            // 1. 如果浮層開啟，優先處理浮層，清空顯示區
+            if (overlayDiv.dataset.show) {
+                 candidateDisplay.textContent = '';
+                 return;
+            }
+            
+            // 2. 如果沒有正在輸入的編碼 (無論是否在英文/符號模式)，顯示工具列
+            if (currentCode.length === 0) {
+                 showToolbar();
                  return;
             }
 
+            // 3. 如果在英文或符號模式下，但有編碼（這通常不會發生，除非從三碼模式切換過來），顯示模式狀態
+            if (isSymbolMode || isEnglishMode) {
+                 candidateDisplay.textContent = isSymbolMode ? '符號模式' : '英文模式';
+                 return;
+            }
+
+            // 4. 處理中文輸入法的候選字
             if (currentCandidates.length === 0) {
                  candidateDisplay.textContent = `無候選字 (${formatCode(currentCode)})`;
                  return;
@@ -1208,18 +1406,14 @@
             } else if (isEnglishMode) { 
                  mainInput.textContent = '英文模式';
             } else {
-                 if (mainInput.textContent.startsWith('已成功載入') || mainInput.textContent.startsWith('載入') || mainInput.textContent.startsWith('錯誤')) {
-                    // 保持載入狀態訊息
-                 } else {
-                    mainInput.textContent = '編碼顯示在此';
-                 }
+                 mainInput.textContent = '編碼顯示在此';
             }
             
             showCandidates();
             updateOutputDisplay(); 
         }
 
-        // --- 工具列與查碼功能 (已調整) ---
+        // --- 工具列與查碼功能 (略) ---
 
         function copyTextToClipboard() {
             const textToCopy = committedText; 
@@ -1233,7 +1427,7 @@
                     alert('文字已成功複製到剪貼簿！');
                 }).catch(err => {
                     console.error('複製失敗: ', err);
-                    alert('複製失敗，可能需要 HTTPS 或手動選取。');
+                    alert('複製失敗，請手動選取。');
                 });
             } else {
                 const tempInput = document.createElement('textarea');
@@ -1259,22 +1453,20 @@
                 resetInputState();
             }
         }
-        
         function handleSearchInput(event) {
             const charToSearch = searchInput.value;
             if (charToSearch.length === 1) {
                 const codes = currentReverseCodemap[charToSearch];
                 if (codes && codes.length > 0) {
                     const formattedCodes = codes.map(code => formatCode(code));
-                    searchResult.textContent = `${formattedCodes.join('　')}`; // 修正: 移除「編碼：　」字樣
+                    searchResult.textContent = `編碼：　${formattedCodes.join('　')}`;
                 } else {
                     searchResult.textContent = '找不到該字符的編碼。';
                 }
             } else {
-                searchResult.textContent = '編碼顯示在此'; // 修正: 更新為新版預設文字
+                searchResult.textContent = '查詢結果顯示在此';
             }
         }
-        
         function handleSearchKeydown(event) { if (event.key === 'Backspace') { event.stopPropagation(); } }
         
         function mapDOMOffsetToTextIndex(targetNode, targetOffset) {
