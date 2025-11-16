@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>三碼中文輸入法 - 手機滑動選字版</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* ----------------------------------------------------- */
+        /* 手機優化樣式 */
+        /* ----------------------------------------------------- */
+
+        :root {
+            --primary-color: #3f51b5;
+            --text-color: #212121;
+            --background-color: #f5f6fa;
+            --container-bg: #ffffff;
+            --key-bg: #e0e0e0;
+            --key-active-bg: #a0a0a0;
+            --special-key-bg: #cccccc;
+            --border-color: #e0e0e0;
+        }
+
+        /* Reset and Mobile Focus */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent; 
+            outline: none;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: var(--background-color);
+            min-height: 100vh;
+            /* 保持足夠的 padding-bottom */
+            padding-bottom: 490px; 
+        }
+        
+        /* ------------------ 頂部區域 ------------------ */
+        #toolbar {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        #toolbar button {
+            flex-grow: 1;
+            margin: 0 5px;
+            padding: 10px 15px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 8px;
+            background-color: var(--primary-color);
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.2s;
+        }
+
+        #toolbar button:active {
+            background-color: #5c6bc0;
+        }
+
+        /* ------------------ 內容區域 ------------------ */
+        #app-container {
+            width: 100%;
+            max-width: 600px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* 輸入結果顯示區 (固定高度且可滾動) */
+        #text-output {
+            width: 100%;
+            background-color: var(--container-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            margin-bottom: 10px;
+            padding: 10px;
+            height: 30vh; /* 固定高度，防止被擠出 */
+            font-size: 1.5rem;
+            line-height: 1.6;
+            white-space: normal; /* 允許文字自動換行 */
+            word-break: break-word;
+            color: var(--text-color);
+            cursor: default; /* 避免觸發手機內建輸入法 */
+            overflow-y: auto; /* 內容過多時顯示滾動條 */
+        }
+        
+        /* 游標動畫 CSS */
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 2px;
+            height: 1.2em; /* 匹配字體高度 */
+            background-color: var(--primary-color); 
+            vertical-align: middle;
+            margin-left: 1px;
+            animation: blink 1s step-end infinite;
+        }
+
+        /* 組合文字 (編碼中文字) 樣式：帶有底線 */
+        .composition-text {
+            text-decoration: underline 2px solid var(--primary-color);
+            font-weight: bold;
+            display: inline;
+        }
+        
+        /* ------------------ 固定輸入區 (包含編碼提示和候選字) ------------------ */
+        #input-area {
+            /* bottom 保持不變，維持與鍵盤的 5px 間距 */
+            width: 100%;
+            max-width: 600px;
+            position: fixed;
+            bottom: 355px; 
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 101;
+            background-color: var(--container-bg);
+            border-radius: 8px 8px 0 0;
+            box-shadow: 0 1px 0 var(--border-color), 0 -4px 10px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            border-top: 1px solid var(--border-color); 
+            border-left: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+        }
+
+        #main-input {
+            width: 100%;
+            padding: 8px;
+            font-size: 1.2rem;
+            min-height: 40px;
+            line-height: 1.5; 
+            border: none;
+            border-bottom: 1px solid var(--border-color);
+            background-color: #fafafa;
+            color: #757575;
+            white-space: nowrap;
+            overflow-x: auto;
+        }
+        
+        /* 候選字區域：橫向滑動 */
+        #candidate-display {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            gap: 12px; 
+            white-space: nowrap; 
+            overflow-x: scroll; 
+            -webkit-overflow-scrolling: touch; 
+            /* 增加最小高度 */
+            min-height: 60px;
+        }
+        
+        /* 隱藏滾動條 */
+        #candidate-display::-webkit-scrollbar {
+            display: none; 
+        }
+
+        #candidate-display span {
+            cursor: pointer;
+            padding: 5px 8px;
+            border-radius: 4px;
+            transition: all 0.2s;
+            user-select: none;
+            white-space: nowrap;
+            font-size: 1.2rem; 
+            flex-shrink: 0; 
+            text-align: center;
+        }
+        
+        #candidate-display span:active, #candidate-display span:hover {
+            background-color: #e8eaf6;
+        }
+
+        /* ------------------ 虛擬鍵盤 ------------------ */
+        .keyboard-container {
+            width: 100%;
+            max-width: 600px;
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            background: #6a6f73;
+            border-top: solid 1px #000;
+            padding: 5px;
+            padding-bottom: env(safe-area-inset-bottom, 5px);
+        }
+
+        .key-row {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            gap: 5px;
+            margin-bottom: 5px;
+        }
+
+        .key {
+            flex-grow: 1;
+            flex-basis: 0; /* 確保所有按鍵預設為等寬 */
+            padding: 0;
+            border-radius: 6px;
+            background-color: var(--key-bg);
+            text-align: center;
+            cursor: pointer;
+            user-select: none;
+            transition: background-color 0.1s;
+            box-shadow: 0 2px 3px rgba(0, 0, 0, 0.2);
+            /* 調低按鍵高度 (65px) */
+            line-height: 65px; 
+            min-height: 65px;
+            font-size: 1.8rem; /* 數字、字母、符號字體 */
+            font-weight: bold;
+        }
+
+        .key.function-key {
+            flex-basis: auto; 
+            background-color: #c5cae9;
+            /* 調低按鍵高度 (65px) */
+            line-height: 65px; 
+            min-height: 65px;
+            font-size: 1.8rem; /* 功能鍵字體 */
+            font-weight: bold; /* 功能鍵設定為粗體 */
+        }
+        
+        .key[data-code="lang_toggle"] {
+            font-size: 1.2rem; 
+        }
+        
+        .key[data-code="enter"] {
+            font-size: 4.0rem; 
+        }
+        
+        /* 調整功能鍵的寬度比例 (6 個功能鍵的新比例) */
+        .key[data-code="case_shift"],
+        .key[data-code="lang_toggle"],
+        .key[data-code="symbol_toggle"], 
+        .key[data-code="backspace"],
+        .key[data-code="enter"] {
+            flex-grow: 1.2; 
+            flex-basis: 0; 
+        }
+
+        .key.space-key {
+            flex-grow: 2.8; 
+            flex-basis: 0;
+            background-color: #c5cae9;
+        }
+        
+        /* 按鍵互動效果 */
+        .key:active {
+            background-color: var(--key-active-bg);
+            color: #fff;
+            box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div id="toolbar">
+        <button id="copy-btn">📋 複製文字</button>
+        <button id="clear-btn">❌ 清空文字</button>
+    </div>
+    
+    <div id="app-container">
+        <div id="text-output" spellcheck="false"></div>
+    </div>
+    
+    <div id="input-area">
+        <div id="main-input">編碼顯示在此</div>
+        <div id="candidate-display">候選字顯示在此...</div>
+    </div>
+    
+    <div class="keyboard-container" id="keyboard-container">
+    </div>
+
+    <script>
+        // --- 狀態變數 ---
+        let currentCodemap = {};
+        let currentReverseCodemap = {};
+        let isEnglishMode = false; // false = 三碼模式 (預設)，true = 英文模式
+        let isSymbolMode = false; // 符號模式狀態
+        let isShiftActive = false; 
+        let committedText = ''; 
+        let cursorPosition = 0; // 游標位置
+        
+        // --- 游標 HTML 定義 ---
+        const CURSOR_HTML = '<span id="main-cursor" class="cursor"></span>';
+        
+        // --- 鍵盤顯示內容映射表 ---
+        const letter_maps = {
+            'cn_normal': (key) => key.toUpperCase(), 
+            'cn_shifted': (key) => key.toUpperCase(), 
+            'en_normal': (key) => key.toLowerCase(), 
+            'en_shifted': (key) => key.toUpperCase() // 處理英文字母轉大寫
+        };
+
+        const key_display_maps = {
+            'cn_normal': { 
+                '1': '1', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6', '7': '7', '8': '8', '9': '9', '0': '0',
+                ';': '；', "'": '〃', ',': '，', '.': '．', '/': '／', 
+                'lang_toggle': '三碼', 'case_shift': '⇧', 'backspace': '⌫', 'enter': '↵', ' ': ' ',
+                'symbol_toggle': '🌐' 
+            },
+            'cn_shifted': { 
+                '1': '1', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6', '7': '7', '8': '8', '9': '9', '0': '0',
+                ';': '；', "'": '〃', ',': '，', '.': '．', '/': '／', 
+                'lang_toggle': '三碼', 'case_shift': '⬆', 'backspace': '⌫', 'enter': '↵', ' ': ' ',
+                'symbol_toggle': '🌐'
+            },
+            // 英文 Shift 模式下，數字與符號保持不變
+            'en_normal': {
+                '1': '1', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6', '7': '7', '8': '8', '9': '9', '0': '0',
+                ';': ';', "'": "'", ',': ',', '.': '.', '/': '/',
+                'lang_toggle': 'En', 'case_shift': '⇧', 'backspace': '⌫', 'enter': '↵', ' ': ' ',
+                'symbol_toggle': '🌐'
+            },
+            'en_shifted': {
+                '1': '1', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6', '7': '7', '8': '8', '9': '9', '0': '0',
+                ';': ';', "'": "'", ',': ',', '.': '.', '/': '/',
+                'lang_toggle': 'En', 'case_shift': '⬆', 'backspace': '⌫', 'enter': '↵', ' ': ' ',
+                'symbol_toggle': '🌐'
+            },
+            // 符號模式 (注意: 符號模式下的 lang_toggle 鍵在 updateKeyboardDisplay 中被動態覆寫)
+            'symbol_normal': {
+                '1': '1', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6', '7': '7', '8': '8', '9': '9', '0': '0',
+                'q': '!', 'w': '@', 'e': '#', 'r': '$', 't': '%', 'y': '^', 'u': '&', 'i': '*', 'o': '(', 'p': ')',
+                'a': '_', 's': '-', 'd': '=', 'f': '+', 'g': '[', 'h': ']', 'j': '{', 'k': '}', 'l': '\\', ';': '↑', "'": '|',
+                'z': '`', 'x': '~', 'c': ':', 'v': '"', 'b': '<', 'n': '>', 'm': '?', ',': '←', '.': '↓', '/': '→',
+                'lang_toggle': '三碼', /* 此處值將被動態替換 */ 'case_shift': '⇧', 'backspace': '⌫', 'enter': '↵', ' ': ' ',
+                'symbol_toggle': '🌎' 
+            },
+            'symbol_shifted': { 
+                '1': '1', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6', '7': '7', '8': '8', '9': '9', '0': '0',
+                'q': '!', 'w': '@', 'e': '#', 'r': '$', 't': '%', 'y': '^', 'u': '&', 'i': '*', 'o': '(', 'p': ')',
+                'a': '_', 's': '-', 'd': '=', 'f': '+', 'g': '[', 'h': ']', 'j': '{', 'k': '}', 'l': '\\', ';': '↑', "'": '|',
+                'z': '`', 'x': '~', 'c': ':', 'v': '"', 'b': '<', 'n': '>', 'm': '?', ',': '←', '.': '↓', '/': '→',
+                'lang_toggle': '三碼', /* 此處值將被動態替換 */ 'case_shift': '⬆', 'backspace': '⌫', 'enter': '↵', ' ': ' ',
+                'symbol_toggle': '🌎'
+            }
+        };
+
+        // --- 輔助函數：取得當前模式的映射表 ---
+        function getCurrentDisplayMap() {
+            let mode;
+            // 符號模式優先級最高
+            if (isSymbolMode) { 
+                mode = 'symbol';
+            } else if (isEnglishMode) {
+                mode = 'en';
+            } else {
+                mode = 'cn';
+            }
+            let shift = isShiftActive ? 'shifted' : 'normal';
+            return key_display_maps[`${mode}_${shift}`];
+        }
+
+        // 獲取當前模式下按下某個鍵時應輸出的實際字元/控制項
+        function getOutputChar(code) {
+            const mapKey = isEnglishMode ? (isShiftActive ? 'en_shifted' : 'en_normal') : 
+                                           (isShiftActive ? 'cn_shifted' : 'cn_normal');
+            
+            if (isSymbolMode) {
+                const map = key_display_maps[isShiftActive ? 'symbol_shifted' : 'symbol_normal'];
+                const outputChar = map[code];
+                if (outputChar) {
+                    if (['↑', '←', '↓', '→'].includes(outputChar)) {
+                        return { type: 'control', char: outputChar };
+                    }
+                    return { type: 'text', char: outputChar };
+                }
+                return null;
+            } else if (isEnglishMode) {
+                const map = key_display_maps[mapKey];
+                // 字母鍵 (使用 letter_maps 確保大小寫切換)
+                if (code.match(/^[a-z]$/)) {
+                    return { type: 'text', char: letter_maps[mapKey](code) };
+                }
+                // 符號/數字鍵 (直接從 map 取值)
+                if (code.match(/^[0-9;'./,<>]$/)) { 
+                    return { type: 'text', char: map[code] || code };
+                }
+                return null;
+            }
+            return null; 
+        }
+
+        // 格式化編碼顯示 (純文字，用於 #main-input)
+        function formatCode(code) {
+            let displayString = '';
+            const map = key_display_maps.cn_normal; 
+            
+            for (const char of code) {
+                if (char.match(/^[a-z]$/)) {
+                    // 將字母轉換為全形大寫 (例如: a -> Ａ)
+                    const upperCaseChar = char.toUpperCase();
+                    if (upperCaseChar >= 'A' && upperCaseChar <= 'Z') {
+                         const fullwidthChar = String.fromCharCode(upperCaseChar.charCodeAt(0) - 0x20 + 0xFF00);
+                         displayString += fullwidthChar;
+                    } else {
+                        displayString += upperCaseChar;
+                    }
+                } else if (map[char]) {
+                    // 符號（如 ; , /）使用 cn_normal 中的全形符號
+                    displayString += map[char];
+                } else {
+                    // 其他情況（如數字 1-0）直接使用
+                    displayString += char;
+                }
+            }
+            return displayString;
+        }
+
+        // 格式化組合文字 (Composition Text) - 包含底線的 HTML
+        function formatComposition(code) {
+            if (!code) return '';
+            let displayString = formatCode(code);
+            return `<span class="composition-text">${displayString}</span>`;
+        }
+
+        // --- 核心工具函數：管理游標與輸出 ---
+        
+        // DOM 元素
+        const textOutput = document.getElementById('text-output');
+        const mainInput = document.getElementById('main-input');
+        const candidateDisplay = document.getElementById('candidate-display');
+        const keyboardContainer = document.getElementById('keyboard-container');
+        const copyButton = document.getElementById('copy-btn');
+        const clearButton = document.getElementById('clear-btn');
+        
+        const MAX_CODE_LENGTH = 3;
+        let currentCode = '';
+        let currentCandidates = [];
+        
+        /**
+         * 更新整個輸出區的內容 (已確認文字 + 組合文字 + 游標)
+         */
+        function updateOutputDisplay() {
+            // 1. 處理已確認文字和游標位置
+            const textBeforeCursor = committedText.slice(0, cursorPosition).replace(/\n/g, '<br>');
+            const textAfterCursor = committedText.slice(cursorPosition).replace(/\n/g, '<br>');
+            
+            // 2. 取得目前組合中的文字 
+            let compositionHtml = '';
+            if (!isEnglishMode && !isSymbolMode && currentCode.length > 0) {
+                compositionHtml = formatComposition(currentCode);
+            } 
+
+            // 3. 組合最終的 innerHTML
+            textOutput.innerHTML = textBeforeCursor + compositionHtml + CURSOR_HTML + textAfterCursor;
+
+            // 4. 確保滾動到最下方以讓游標可見
+            textOutput.scrollTop = textOutput.scrollHeight;
+        }
+
+        /**
+         * 確認輸入 (Commit text)
+         */
+        function commitText(textToCommit) {
+            // 在游標位置插入文字
+            committedText = committedText.slice(0, cursorPosition) + textToCommit + committedText.slice(cursorPosition);
+            cursorPosition += textToCommit.length; // 移動游標到插入文字之後
+            resetInputState();
+        }
+
+        /**
+         * 刪除文字 (Backspace)
+         */
+        function backspaceOutput() {
+            if (cursorPosition > 0) {
+                // 刪除游標前的一個字元
+                committedText = committedText.slice(0, cursorPosition - 1) + committedText.slice(cursorPosition);
+                cursorPosition -= 1;
+                updateOutputDisplay();
+            }
+        }
+        
+        /**
+         * 處理方向鍵移動 (修正 ↑ 和 ↓ 的邏輯)
+         */
+        function moveCursor(direction) {
+            if (direction === '←') {
+                cursorPosition = Math.max(0, cursorPosition - 1);
+            } else if (direction === '→') {
+                cursorPosition = Math.min(committedText.length, cursorPosition + 1);
+            } else if (direction === '↑') {
+                // 向上移動：移動到上列的同行位置，無上列時到行首
+
+                // 1. 找到當前行的開始位置 (currentLineStart)
+                let currentLineStart = committedText.lastIndexOf('\n', cursorPosition - 1);
+                currentLineStart = (currentLineStart === -1) ? 0 : currentLineStart + 1;
+                
+                // 2. 計算當前行的水平偏移量
+                const horizontalOffset = cursorPosition - currentLineStart;
+                
+                // 3. 找到上一個換行符的位置 (prevNewlineIndex)
+                // 尋找目標是在 currentLineStart 之前且最近的 '\n'
+                let prevNewlineIndex = committedText.lastIndexOf('\n', currentLineStart - 2); 
+                
+                // 4. 判斷是否有上一行
+                if (currentLineStart === 0) {
+                    // 無上一行 (已在第一行)，移動到文本開頭 (行首)
+                    cursorPosition = 0; 
+                } else {
+                    // 有上一行
+                    const prevLineStart = (prevNewlineIndex === -1) ? 0 : prevNewlineIndex + 1;
+                    const prevLineEnd = currentLineStart - 1; 
+                    const prevLineLength = prevLineEnd - prevLineStart;
+                    
+                    // 新位置 = 上一行開始位置 + 最小(當前偏移量, 上一行長度)
+                    cursorPosition = prevLineStart + Math.min(horizontalOffset, prevLineLength);
+                }
+
+            } else if (direction === '↓') {
+                // 向下移動：移動到下列的同行位置，無下列時到文字末尾
+
+                // 1. 找到當前行的結束位置 (currentLineEnd)
+                let currentLineEnd = committedText.indexOf('\n', cursorPosition);
+                // 如果找不到換行符，則代表在最後一行，結束位置就是文本末尾
+                currentLineEnd = (currentLineEnd === -1) ? committedText.length : currentLineEnd;
+
+                // 2. 找到當前行的開始位置 (currentLineStart)
+                let currentLineStart = committedText.lastIndexOf('\n', cursorPosition - 1);
+                currentLineStart = (currentLineStart === -1) ? 0 : currentLineStart + 1;
+
+                // 3. 計算當前行的水平偏移量
+                const horizontalOffset = cursorPosition - currentLineStart;
+                
+                // 4. 找到下一行的開始位置 (nextLineStart)
+                let nextLineStart = (currentLineEnd === committedText.length) ? -1 : currentLineEnd + 1;
+                
+                // 5. 判斷是否有下一行
+                if (nextLineStart === -1 || nextLineStart > committedText.length) {
+                    // 無下一行 (已在最後一行)，移動到文字末尾
+                    cursorPosition = committedText.length;
+                } else {
+                    // 有下一行
+                    // 找到下一行的結束位置 (nextLineEnd)
+                    let nextLineEnd = committedText.indexOf('\n', nextLineStart);
+                    nextLineEnd = (nextLineEnd === -1) ? committedText.length : nextLineEnd;
+                    
+                    const nextLineLength = nextLineEnd - nextLineStart;
+                    
+                    // 新位置 = 下一行開始位置 + 最小(當前偏移量, 下一行長度)
+                    cursorPosition = nextLineStart + Math.min(horizontalOffset, nextLineLength);
+                }
+            }
+            updateOutputDisplay();
+        }
+
+        // --- 載入與狀態管理 ---
+
+        function parseCinData(data) {
+            const newCodemap = {};
+            const newReverseCodemap = {};
+            const lines = data.trim().split('\n');
+            lines.forEach(line => {
+                const parts = line.split('\t');
+                if (parts.length >= 2 && !line.startsWith('#')) {
+                    const code = parts[0].trim();
+                    const char = parts[1].trim(); 
+                    if (code && char) {
+                        if (!newCodemap[code]) {
+                            newCodemap[code] = [];
+                        }
+                        newCodemap[code].push(char);
+                        
+                        if (!newReverseCodemap[char]) {
+                            newReverseCodemap[char] = [];
+                        }
+                        newReverseCodemap[char].push(code);
+                    }
+                }
+            });
+            return { newCodemap, newReverseCodemap };
+        }
+
+        async function loadSecondaryCodemap() {
+            const fileName = './3codes2.txt'; 
+            try {
+                // 為了讓代碼可執行，如果載入失敗則使用空映射
+                const response = await fetch(fileName);
+                if (!response.ok) {
+                    throw new Error('Network response was not ok, using empty codemap.');
+                }
+                const text = await response.text();
+                const { newCodemap, newReverseCodemap } = parseCinData(text);
+                currentCodemap = newCodemap;
+                currentReverseCodemap = newReverseCodemap;
+                mainInput.textContent = '編碼表載入成功';
+            } catch (error) {
+                console.warn(`載入 ${fileName} 時發生錯誤:`, error.message);
+                currentCodemap = {};
+                currentReverseCodemap = {};
+                mainInput.textContent = `錯誤：無法載入編碼檔 ${fileName}。使用空編碼表。`;
+            }
+            resetInputState();
+            updateOutputDisplay(); // 載入後初始化游標
+        }
+
+        // --- 處理輸入邏輯 (中文模式) ---
+        function handleChineseInput(code) {
+            const inputChar = code.toLowerCase();
+            
+            // 1. 數字鍵處理 (直接輸出半形數字)
+            if (inputChar.match(/^[0-9]$/)) {
+                if (currentCandidates.length > 0) {
+                    selectCandidate(0); 
+                }
+                commitText(inputChar); 
+                return;
+            }
+
+            // 2. 處理功能鍵 
+            if (code === 'backspace') {
+                if (currentCode.length > 0) {
+                    currentCode = currentCode.slice(0, -1);
+                    updateStateAndDisplay(); // 更新組合文字顯示
+                } else {
+                    backspaceOutput(); // 刪除已確認文字
+                }
+                return;
+            }
+            if (code === 'enter') {
+                if (currentCandidates.length > 0) {
+                    selectCandidate(0); 
+                } else {
+                    commitText('\n'); 
+                }
+                return;
+            }
+            
+            if (code === ' ') {
+                if (currentCandidates.length > 0) {
+                    selectCandidate(0); 
+                } else {
+                    commitText('　'); // 輸出全形空白
+                }
+                return;
+            }
+            
+            // 3. 字母/符號用於編碼
+            if (inputChar.match(/^[a-z;'./,<>]$/)) {
+                if (currentCode.length === MAX_CODE_LENGTH) {
+                    if (currentCandidates.length > 0) {
+                        selectCandidate(0); 
+                    }
+                    currentCode = inputChar;
+                } else {
+                    currentCode += inputChar;
+                }
+                updateStateAndDisplay();
+            }
+        }
+        
+        // --- 處理輸入邏輯 (英文模式) ---
+        function handleEnglishInput(code) {
+            if (code === 'backspace') {
+                backspaceOutput(); 
+                return;
+            }
+            if (code === 'enter') {
+                commitText('\n');
+                return;
+            }
+            if (code === ' ') {
+                commitText(' '); 
+                return;
+            }
+            
+            const outputResult = getOutputChar(code);
+            if (outputResult && outputResult.type === 'text') {
+                commitText(outputResult.char);
+            }
+        }
+        
+        // --- 處理輸入邏輯 (符號模式) ---
+        function handleSymbolInput(code) {
+            if (code === 'backspace') {
+                backspaceOutput(); 
+                return;
+            }
+            if (code === 'enter') {
+                commitText('\n');
+                return;
+            }
+            if (code === ' ') {
+                commitText(' '); 
+                return;
+            }
+            
+            const outputResult = getOutputChar(code);
+            if (outputResult) {
+                if (outputResult.type === 'text') {
+                    // 輸出符號
+                    commitText(outputResult.char);
+                } else if (outputResult.type === 'control') {
+                    // 處理方向鍵
+                    moveCursor(outputResult.char);
+                }
+            }
+        }
+        
+        // --- 核心狀態更新與顯示函數 (中文模式專用) ---
+        function updateStateAndDisplay() {
+            // 1. 更新固定輸入區的編碼提示 (使用全形大寫)
+            mainInput.textContent = formatCode(currentCode); 
+            
+            // 2. 檢查候選字
+            currentCandidates = currentCodemap[currentCode] || [];
+            
+            // 3. 自動上字判斷
+            if (currentCode.length === MAX_CODE_LENGTH) {
+                if (currentCandidates.length === 1) {
+                    commitText(currentCandidates[0]);
+                    return; // commitText 會呼叫 resetInputState
+                } else if (currentCandidates.length === 0) {
+                    resetInputState();
+                    return;
+                }
+            }
+            
+            // 4. 更新輸出區 (顯示 composition text 和游標)
+            updateOutputDisplay();
+            // 5. 顯示候選字
+            showCandidates();
+        }
+        
+        // --- 顯示候選字為滑動列表 ---
+        function showCandidates() {
+            candidateDisplay.innerHTML = '';
+            
+            if (isSymbolMode || isEnglishMode) {
+                candidateDisplay.textContent = '候選字顯示在此...';
+                return;
+            }
+
+            if (currentCandidates.length === 0 && currentCode.length > 0) {
+                 candidateDisplay.textContent = '無候選字';
+                 return;
+            } else if (currentCandidates.length === 0) {
+                candidateDisplay.textContent = '候選字顯示在此...';
+                return;
+            }
+
+            currentCandidates.forEach((candidate, index) => {
+                const span = document.createElement('span');
+                span.textContent = candidate; 
+                span.onclick = () => selectCandidate(index); 
+                candidateDisplay.appendChild(span);
+            });
+            
+            candidateDisplay.scrollLeft = 0;
+        }
+        
+        // --- 選擇候選字並清空輸入 ---
+        function selectCandidate(index) {
+            const selectedCandidate = currentCandidates[index]; 
+            if (selectedCandidate) {
+                commitText(selectedCandidate);
+            }
+        }
+        
+        // --- 清空所有輸入狀態 ---
+        function resetInputState() {
+            currentCode = '';
+            currentCandidates = [];
+            
+            // 更新輸入提示文字 (依據 isSymbolMode 和 isEnglishMode 判斷)
+            if (isSymbolMode) {
+                 mainInput.textContent = '符號模式';
+            } else if (isEnglishMode) { 
+                 mainInput.textContent = '英文模式';
+            } else {
+                 mainInput.textContent = '編碼顯示在此'; // 三碼模式
+            }
+            
+            showCandidates();
+            
+            // 確保 composition text 被清空，只顯示 committed text 和游標
+            updateOutputDisplay(); 
+        }
+        
+        // --- 更新鍵盤按鍵顯示 (修正語系切換鍵的顯示) ---
+        function updateKeyboardDisplay() {
+            const map = getCurrentDisplayMap();
+            const letterMap = isEnglishMode ? (isShiftActive ? letter_maps.en_shifted : letter_maps.en_normal) : letter_maps.cn_normal;
+            
+            document.querySelectorAll('.key[data-code]').forEach(keyElement => {
+                const code = keyElement.dataset.code;
+                
+                // 1. 修正點：處理 lang_toggle 鍵 (語系切換鍵)
+                if (code === 'lang_toggle') {
+                    // 無論是否在符號模式，lang_toggle 永遠顯示當前模式（isEnglishMode 的狀態）
+                    keyElement.textContent = isEnglishMode ? 'En' : '三碼';
+                    return; // 處理完畢，跳過後續通用邏輯
+                }
+                
+                // 2. 處理其他按鍵
+                if (map[code]) {
+                    keyElement.textContent = map[code];
+                } else if (code.match(/^[a-z]$/)) {
+                    keyElement.textContent = letterMap(code);
+                }
+            });
+        }
+        
+        // --- 動態生成手機優化鍵盤 ---
+        function generateMobileKeyboard() {
+            const layout_mobile = [
+                ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'], 
+                ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
+                ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ';', "'"], 
+                ['Z', 'X', 'C', 'V', 'B', 'N', 'M', ',', '.', '/'], 
+                ['Case_Shift', 'Lang_Toggle', 'Symbol_Toggle', 'Space', 'Back', 'Enter'] 
+            ];
+
+            keyboardContainer.innerHTML = ''; 
+
+            layout_mobile.forEach(rowKeys => {
+                const row = document.createElement('div');
+                row.className = 'key-row';
+
+                rowKeys.forEach(keyText => {
+                    const key = document.createElement('div');
+                    key.className = 'key';
+                    
+                    let code = keyText.toLowerCase();
+                    
+                    if (keyText === 'Back') {
+                        code = 'backspace';
+                        key.classList.add('function-key');
+                    } else if (keyText === 'Enter') {
+                        code = 'enter';
+                        key.classList.add('function-key');
+                    } else if (keyText === 'Space') {
+                        code = ' ';
+                        key.classList.add('space-key');
+                    } else if (keyText === 'Lang_Toggle') {
+                        code = 'lang_toggle'; 
+                        key.classList.add('function-key');
+                    } else if (keyText === 'Symbol_Toggle') { 
+                        code = 'symbol_toggle'; 
+                        key.classList.add('function-key');
+                    } else if (keyText === 'Case_Shift') {
+                        code = 'case_shift'; 
+                        key.classList.add('function-key');
+                    }
+
+                    key.dataset.code = code;
+                    
+                    const initialMap = getCurrentDisplayMap();
+                    if (initialMap[code]) {
+                         key.textContent = initialMap[code];
+                    } else if (code.match(/^[a-z]$/)) {
+                         key.textContent = letter_maps.cn_normal(code);
+                    } else {
+                         key.textContent = keyText; 
+                    }
+
+                    // --- 鍵盤點擊事件 ---
+                    key.addEventListener('click', (event) => {
+                        event.preventDefault(); 
+
+                        if (code === 'lang_toggle') {
+                            // 三碼/En 鍵：切換語系，並確保離開符號模式
+                            isEnglishMode = !isEnglishMode;
+                            isSymbolMode = false; // 離開符號模式
+                            isShiftActive = false; 
+                            updateKeyboardDisplay();
+                            resetInputState(); 
+                        } else if (code === 'symbol_toggle') { 
+                            // 地球鍵：切換符號模式，isEnglishMode 狀態保持不變
+                            isSymbolMode = !isSymbolMode; 
+                            isShiftActive = false;
+                            updateKeyboardDisplay();
+                            resetInputState();
+                        } else if (code === 'case_shift') {
+                            isShiftActive = !isShiftActive; 
+                            updateKeyboardDisplay();
+                        } else if (isSymbolMode) {
+                            handleSymbolInput(code);
+                        } else if (isEnglishMode) {
+                            handleEnglishInput(code);
+                        } else {
+                            handleChineseInput(code);
+                        }
+                    });
+
+                    row.appendChild(key);
+                });
+
+                keyboardContainer.appendChild(row);
+            });
+        }
+        
+        /**
+         * 複製文字 (從 committedText 獲取內容)
+         */
+        function copyTextToClipboard() {
+            const textToCopy = committedText; 
+            if (!textToCopy) {
+                alert('輸出區沒有文字可以複製！');
+                return;
+            }
+            
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    alert('文字已成功複製到剪貼簿！');
+                }).catch(err => {
+                    console.error('複製失敗: ', err);
+                    alert('複製失敗，可能需要 HTTPS 或手動選取。');
+                });
+            } else {
+                const tempInput = document.createElement('textarea');
+                tempInput.value = textToCopy;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                try {
+                    document.execCommand('copy');
+                    alert('文字已成功複製到剪貼簿！');
+                } catch (err) {
+                    alert('複製失敗，請手動選取文字。');
+                }
+                document.body.removeChild(tempInput);
+            }
+            resetInputState();
+        }
+        
+        /**
+         * 清空文字 (清空 committedText)
+         */
+        function clearOutput() {
+            if (confirm('確定要清空所有已輸入的文字嗎？')) {
+                committedText = ''; 
+                cursorPosition = 0; // 清空時重置游標
+                resetInputState();
+            }
+        }
+
+        // 頁面啟動
+        document.addEventListener('DOMContentLoaded', () => {
+            generateMobileKeyboard();
+            loadSecondaryCodemap(); 
+            
+            copyButton.addEventListener('click', copyTextToClipboard);
+            clearButton.addEventListener('click', clearOutput);
+        });
+        
+    </script>
+</body>
+</html>
