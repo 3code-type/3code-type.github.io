@@ -3,7 +3,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <title>三碼中文輸入法 - 手機滑動選字版</title>
+    <title>三碼中文輸入法 - 線上手機版</title>
     <link rel="preconnect" href="https://fonts.googleapis.com/">
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
@@ -102,8 +102,6 @@
             color: white;
             cursor: pointer;
             box-shadow: 0 2px 5px rgba
-
-[Image of X]
 (0, 0, 0, 0.1);
             transition: background-color 0.2s;
         }
@@ -449,7 +447,7 @@
         // --- 長按相關狀態 ---
         let longPressTimer = null;
         let longPressCommitted = false; 
-        const LONG_PRESS_TIMEOUT = 750; 
+        const LONG_PRESS_TIMEOUT = 500; 
         
         // --- 游標 HTML 定義 ---
         const CURSOR_HTML = '<span id="main-cursor" class="cursor">\u200c</span>';
@@ -490,16 +488,43 @@
         const KEYCODE_DOWN=0xff54;
         const KEYCODE_DEL_F=0xff;
 
-        // --- 簡繁轉換表 (基礎示範用，完整轉換需要更大的字典) ---
-        const TS_MAP = {
-            '體': '体', '碼': '码', '說': '说', '這': '这', '個': '个', 
-            '們': '们', '樂': '乐', '風': '风', '開': '开', '對': '对',
-            '會': '会', '國': '国', '議': '议', '變': '变', '應': '应',
-            '學': '学', '發': '发', '廠': '厂', '廣': '广', '裡': '里',
-            '幾': '几', '為': '为', '從': '从', '後': '后', '麵': '面',
-            '術': '术', '隻': '只', '頭': '头', '話': '话', '裡': '里'
-        };
+        // --- 簡繁轉換表 (將從 ts.txt 外部檔案載入) ---
+        let TS_MAP = {}; // 變更：改為 let 並初始化為空物件
 
+        // 硬編碼的備用轉換表，用於外部檔案載入失敗時
+        const FALLBACK_TS_MAP_RAW = `
+# 備用簡繁轉換表 (硬編碼)
+體	体
+碼	码
+說	说
+這	这
+個	个
+們	们
+樂	乐
+風	风
+開	开
+對	对
+會	会
+國	国
+議	议
+變	变
+應	应
+學	学
+發	发
+廠	厂
+廣	广
+裡	里
+幾	几
+為	为
+從	从
+後	后
+麵	面
+術	术
+隻	只
+頭	头
+話	话
+`;
+        
         /**
          * 執行簡體字轉換
          */
@@ -904,7 +929,7 @@
             
             // **CHANGE: Replaced '🎤' with '簡/繁' toggle**
             const toolbarItems = [
-                {title: isSimplifiedMode ? "簡" : "繁", tool:"1"}, // 簡繁切換鍵
+                {title: isSimplifiedMode ? "简" : "繁", tool:"1"}, // 簡繁切換鍵
                 {title:"😊",tool:"2"}, // Emoji 1
                 {title:"☀",tool:"3"}, // Emoji 2
                 {title:"🌀",tool:"4"}, // Placeholder
@@ -1306,6 +1331,53 @@
                 resetInputState(); 
             }
         }
+
+        /**
+         * 解析並載入簡繁轉換表 (ts.txt)
+         * 預期檔案格式：繁體字\t簡體字 (一行一個)
+         */
+        async function loadTSMap() {
+            const fileName = './ts.txt'; 
+            let textToParse = FALLBACK_TS_MAP_RAW;
+            
+            try {
+                const response = await fetch(fileName);
+                if (response.ok) {
+                    const responseText = await response.text();
+                    // 檢查檔案內容是否有效，如果只有空白或註解，則使用備用內容
+                    if (responseText.trim().replace(/^#.*$/gm, '').trim().length > 0) {
+                         textToParse = responseText;
+                    }
+                    console.log(`成功載入簡繁轉換表: ${fileName}`);
+                } else {
+                     console.warn(`無法載入外部簡繁轉換表 (${response.status})，使用備用內容。`);
+                }
+            } catch (error) {
+                console.error('外部簡繁轉換表讀取錯誤:', error.message, '已切換至備用內容。');
+            }
+            
+            // 解析內容 (與 parseCinData 類似的邏輯)
+            const newTSMap = {};
+            const lines = textToParse.trim().split('\n');
+            lines.forEach(line => {
+                // 忽略註解行
+                if (line.startsWith('#') || line.trim() === '') return; 
+                
+                // 使用 Tab 或多個空格分隔
+                const parts = line.split(/[\t\s]+/); 
+                
+                if (parts.length >= 2) {
+                    const traditionalChar = parts[0].trim();
+                    const simplifiedChar = parts[1].trim(); 
+                    if (traditionalChar.length === 1 && simplifiedChar.length === 1) {
+                        newTSMap[traditionalChar] = simplifiedChar;
+                    }
+                }
+            });
+            
+            TS_MAP = newTSMap;
+            console.log(`簡繁轉換表已載入，共 ${Object.keys(TS_MAP).length} 條轉換規則。`);
+        }
         
         function parseCinData(data) { 
             const newCodemap = {};
@@ -1631,6 +1703,7 @@
         // 頁面啟動
         document.addEventListener('DOMContentLoaded', () => {
             drawKeyboard(); 
+            loadTSMap(); // **新增：載入簡繁轉換表**
             loadSecondaryCodemap(); 
             
             textOutput.addEventListener('click', handleTextTap);
@@ -1645,4 +1718,5 @@
         
     </script>
 </body>
+
 </html>
