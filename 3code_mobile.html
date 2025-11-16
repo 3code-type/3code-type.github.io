@@ -488,42 +488,10 @@
         const KEYCODE_DOWN=0xff54;
         const KEYCODE_DEL_F=0xff;
 
-        // --- 簡繁轉換表 (將從 ts.txt 外部檔案載入) ---
-        let TS_MAP = {}; // 變更：改為 let 並初始化為空物件
-
-        // 硬編碼的備用轉換表，用於外部檔案載入失敗時
-        const FALLBACK_TS_MAP_RAW = `
-# 備用簡繁轉換表 (硬編碼)
-體	体
-碼	码
-說	说
-這	这
-個	个
-們	们
-樂	乐
-風	风
-開	开
-對	对
-會	会
-國	国
-議	议
-變	变
-應	应
-學	学
-發	发
-廠	厂
-廣	广
-裡	里
-幾	几
-為	为
-從	从
-後	后
-麵	面
-術	术
-隻	只
-頭	头
-話	话
-`;
+        // --- 簡繁轉換表 (將從 ts.txt 外部檔案載入，若失敗則為空) ---
+        let TS_MAP = {}; 
+        
+        // 移除 FALLBACK_TS_MAP_RAW，完全依賴外部檔案載入。
         
         /**
          * 執行簡體字轉換
@@ -784,8 +752,6 @@
             }
         }
         
-        // --- ADDED: 浮層處理函數 (略，與前版相同) ---
-        
         /**
          * 處理表情符號/編輯器的浮層顯示與隱藏
          */
@@ -920,12 +886,16 @@
              overlay("editor", 0);
         }
         
-        // --- REMOVED: startVoiceInput function ---
-        
         // --- ADDED: 工具列邏輯 ---
         
         function showToolbar() {
             candidateDisplay.innerHTML = '';
+            
+            // 1. 如果浮層開啟 (Emoji/Editor)
+            if (overlayDiv.dataset.show) {
+                 showToolbar(); 
+                 return;
+            }
             
             // **CHANGE: Replaced '🎤' with '簡/繁' toggle**
             const toolbarItems = [
@@ -957,6 +927,9 @@
                  isSimplifiedMode = !isSimplifiedMode;
                  showCandidates(); // Redraw toolbar to update "簡" / "繁" label
                  console.log("Mode switched to:", isSimplifiedMode ? "Simplified" : "Traditional");
+                 if (Object.keys(TS_MAP).length === 0 && isSimplifiedMode) {
+                     alert("警告：簡繁轉換表 (ts.txt) 尚未載入或內容為空，轉換功能將不會生效。");
+                 }
             } else if (tool === "2") {
                 overlay("emoji", 0);
             } else if (tool === "3") {
@@ -1338,42 +1311,46 @@
          */
         async function loadTSMap() {
             const fileName = './ts.txt'; 
-            let textToParse = FALLBACK_TS_MAP_RAW;
+            let textToParse = ''; // 預設為空，如果載入失敗則保持為空
             
             try {
                 const response = await fetch(fileName);
                 if (response.ok) {
                     const responseText = await response.text();
-                    // 檢查檔案內容是否有效，如果只有空白或註解，則使用備用內容
+                    // 檢查檔案內容是否有效，如果只有空白或註解，則不使用該內容
                     if (responseText.trim().replace(/^#.*$/gm, '').trim().length > 0) {
                          textToParse = responseText;
+                         console.log(`成功載入簡繁轉換表: ${fileName}`);
+                    } else {
+                         console.warn(`載入外部簡繁轉換表: ${fileName} 成功，但內容為空或僅包含註解。`);
                     }
-                    console.log(`成功載入簡繁轉換表: ${fileName}`);
                 } else {
-                     console.warn(`無法載入外部簡繁轉換表 (${response.status})，使用備用內容。`);
+                     console.error(`無法載入外部簡繁轉換表 (${response.status})，TS_MAP 將保持為空。`);
                 }
             } catch (error) {
-                console.error('外部簡繁轉換表讀取錯誤:', error.message, '已切換至備用內容。');
+                console.error('外部簡繁轉換表讀取錯誤:', error.message, 'TS_MAP 將保持為空。');
             }
             
-            // 解析內容 (與 parseCinData 類似的邏輯)
+            // 解析內容
             const newTSMap = {};
-            const lines = textToParse.trim().split('\n');
-            lines.forEach(line => {
-                // 忽略註解行
-                if (line.startsWith('#') || line.trim() === '') return; 
-                
-                // 使用 Tab 或多個空格分隔
-                const parts = line.split(/[\t\s]+/); 
-                
-                if (parts.length >= 2) {
-                    const traditionalChar = parts[0].trim();
-                    const simplifiedChar = parts[1].trim(); 
-                    if (traditionalChar.length === 1 && simplifiedChar.length === 1) {
-                        newTSMap[traditionalChar] = simplifiedChar;
+            if (textToParse.length > 0) {
+                const lines = textToParse.trim().split('\n');
+                lines.forEach(line => {
+                    // 忽略註解行
+                    if (line.startsWith('#') || line.trim() === '') return; 
+                    
+                    // 使用 Tab 或多個空格分隔
+                    const parts = line.split(/[\t\s]+/); 
+                    
+                    if (parts.length >= 2) {
+                        const traditionalChar = parts[0].trim();
+                        const simplifiedChar = parts[1].trim(); 
+                        if (traditionalChar.length === 1 && simplifiedChar.length === 1) {
+                            newTSMap[traditionalChar] = simplifiedChar;
+                        }
                     }
-                }
-            });
+                });
+            }
             
             TS_MAP = newTSMap;
             console.log(`簡繁轉換表已載入，共 ${Object.keys(TS_MAP).length} 條轉換規則。`);
@@ -1703,7 +1680,7 @@
         // 頁面啟動
         document.addEventListener('DOMContentLoaded', () => {
             drawKeyboard(); 
-            loadTSMap(); // **新增：載入簡繁轉換表**
+            loadTSMap(); // **重要：完全依賴外部檔案載入**
             loadSecondaryCodemap(); 
             
             textOutput.addEventListener('click', handleTextTap);
