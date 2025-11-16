@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
     <style>
         /* ----------------------------------------------------- */
-        /* 樣式定義 */
+        /* 樣式定義 (略，與前版相同) */
         /* ----------------------------------------------------- */
 
         :root {
@@ -101,7 +101,10 @@
             background-color: var(--primary-color);
             color: white;
             cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 5px rgba
+
+[Image of X]
+(0, 0, 0, 0.1);
             transition: background-color 0.2s;
         }
 
@@ -440,6 +443,9 @@
         let cursorPosition = 0; 
         let preferredOffset = -1; 
         
+        // --- ADDED: 簡繁切換狀態 ---
+        let isSimplifiedMode = false; // 預設為繁體模式
+
         // --- 長按相關狀態 ---
         let longPressTimer = null;
         let longPressCommitted = false; 
@@ -484,7 +490,33 @@
         const KEYCODE_DOWN=0xff54;
         const KEYCODE_DEL_F=0xff;
 
-        // --- 鍵盤配置 ---
+        // --- 簡繁轉換表 (基礎示範用，完整轉換需要更大的字典) ---
+        const TS_MAP = {
+            '體': '体', '碼': '码', '說': '说', '這': '这', '個': '个', 
+            '們': '们', '樂': '乐', '風': '风', '開': '开', '對': '对',
+            '會': '会', '國': '国', '議': '议', '變': '变', '應': '应',
+            '學': '学', '發': '发', '廠': '厂', '廣': '广', '裡': '里',
+            '幾': '几', '為': '为', '從': '从', '後': '后', '麵': '面',
+            '術': '术', '隻': '只', '頭': '头', '話': '话', '裡': '里'
+        };
+
+        /**
+         * 執行簡體字轉換
+         */
+        function convertToSimplified(text) {
+            if (!isSimplifiedMode) {
+                return text; // 繁體模式，不轉換
+            }
+
+            let simplifiedText = '';
+            for (const char of text) {
+                // 簡單的字符替換
+                simplifiedText += TS_MAP[char] || char; 
+            }
+            return simplifiedText;
+        }
+
+        // --- 鍵盤配置 (略，與前版相同) ---
         var Keyboards = {
             english: {
                 shifted : false,
@@ -493,7 +525,7 @@
                     'q':'Ｑ', 'w':'Ｗ', 'e':'Ｅ', 'r':'Ｒ', 't':'Ｔ', 'y':'Ｙ', 'u':'Ｕ', 'i':'Ｉ', 'o':'Ｏ', 'p':'Ｐ',
                     'a':'Ａ', 's':'Ｓ', 'd':'Ｄ', 'f':'Ｆ', 'g':'Ｇ', 'h':'Ｈ', 'j':'Ｊ', 'k':'Ｋ', 'l':'Ｌ',
                     
-                    // **修正點：新增底部一排 (zxcvbnm) 的全形字元**
+                    // 底部一排 (zxcvbnm)
                     'z':'Ｚ', 'x':'Ｘ', 'c':'Ｃ', 'v':'Ｖ', 'b':'Ｂ', 'n':'Ｎ', 'm':'Ｍ', 
 
                     // 標點符號
@@ -727,67 +759,55 @@
             }
         }
         
-        // --- ADDED: 浮層處理函數 ---
+        // --- ADDED: 浮層處理函數 (略，與前版相同) ---
         
         /**
          * 處理表情符號/編輯器的浮層顯示與隱藏
-         * @param {string} type - 'emoji' 或 'editor'
-         * @param {number|boolean} show - 0, 1 (emoji sub index) 或 false (hide)
          */
         function overlay(type, show) {
-            // 使用現有的 overlayDiv 元素
             const div = overlayDiv; 
             
-            // 隱藏/清理舊浮層
             const isShowing = div.dataset.show;
             if (isShowing) {
                 div.style.display = 'none';
                 div.innerHTML = '';
                 delete div.dataset.show;
-                // 如果點擊了當前正在顯示的按鈕，則隱藏後返回
                 if (isShowing == show && div.className == type) return;
             }
 
             if (show === false) return;
 
-            // --- 修正點: 取得鍵盤的實際位置和尺寸，使其覆蓋整個按鍵區 (#keyboard) ---
             const keyboard = document.getElementById('keyboard');
-            const rect = keyboard.getBoundingClientRect(); // 取得鍵盤元素在視窗中的位置和尺寸
+            const rect = keyboard.getBoundingClientRect(); 
 
             const width = rect.width;
-            const height = rect.height; // 取得按鍵區的實際高度
+            const height = rect.height; 
 
-            // 配置浮層 div
             div.dataset.show = show;
             div.style.display = 'block';
-            div.className = type; // 應用 class for styling
+            div.className = type; 
 
-            // 確保浮層與鍵盤位置重合，使用 fixed 定位來精確覆蓋鍵盤 (#keyboard)
             div.style.position = 'fixed'; 
             div.style.left = rect.left + 'px'; 
-            div.style.top = rect.top + 'px'; // 從鍵盤頂部開始
+            div.style.top = rect.top + 'px'; 
             div.style.width = width + 'px';
             div.style.height = height + 'px';
 
             const div2 = document.createElement('DIV');
             div2.style.width = width + 'px';
             div2.style.height = height + 'px';
-            div2.style.overflowY = 'auto'; // 讓內容可滾動
+            div2.style.overflowY = 'auto'; 
             
-            // --- FIX: Add Flexbox setup for 10-column layout ---
             if (type === "emoji") {
                 div2.style.display = 'flex';
                 div2.style.flexWrap = 'wrap';
                 div2.style.alignContent = 'flex-start';
-                // 調整 padding 以容納按鍵間距
                 div2.style.padding = '3px'; 
             }
-            // --- END FIX ---
 
-            div.innerHTML = ''; // 清空內容
+            div.innerHTML = ''; 
             div.appendChild(div2);
-            // --- 結束修正點 ---
-
+            
             if (type === "emoji") {
                 const emojis = [[
                     "😀","😁","😂","😃","😄","😅","😆","😇","😈","😉",
@@ -815,41 +835,28 @@
                 
                 const emojiSet = emojis[show] || emojis[0];
                 const rowLength = 10;
-                const displayRows = 4; // <--- 固定顯示 4 行
+                const displayRows = 4; 
                 
-                // 由於 CSS 樣式新增了 2px margin，這裡需要調整寬度計算
-                // 為了簡單起見並使用 flexbox，我們設定按鈕寬度為 10%
-                
-                const keyHeight = height / displayRows; // <--- 按鈕高度為浮層高度的 1/4
+                const keyHeight = height / displayRows; 
                 
                 for (let i = 0; i < emojiSet.length; i++) {
                     const one = document.createElement('button');
                     one.textContent = emojiSet[i];
                     
-                    // --- FIX: 使用百分比寬度和計算高度確保 10 欄精確排列 ---
-                    one.style.width = `calc(${100 / rowLength}% - 4px)`; /* 10% 減去左右 margin (2px*2) */
-                    one.style.height = keyHeight - 4 + "px"; /* 高度減去上下 margin (2px*2) */
+                    one.style.width = `calc(${100 / rowLength}% - 4px)`; 
+                    one.style.height = keyHeight - 4 + "px"; 
                     
                     one.style.fontSize = '1.8rem';
-                    // 移除內聯樣式，讓 CSS 來控制按鍵外觀
-                    // one.style.border = 'none'; 
-                    // one.style.background = 'none';
-                    // one.style.margin = '0'; 
-                    // one.style.padding = '0';
+
                     div2.appendChild(one);
                 }
                 
                 div2.addEventListener('click', function(e) {
-                    // 確保點擊到的是 button
                     if (e.target.tagName !== 'BUTTON') return; 
                     
                     const text = e.target.textContent;
-                    // 過濾掉可能存在的空白佔位符
                     if (text && text.length > 0 && text !== '　') 
                         commitText(text); 
-                    
-                    // **修正 1：點擊後不再隱藏浮層，以滿足連續輸入的需求**
-                    // overlay("emoji", false); // <--- 已移除此行
                 });
                 
             } else if (type === "editor") {
@@ -888,82 +895,16 @@
              overlay("editor", 0);
         }
         
-        // --- ADDED: 語音輸入邏輯 ---
-        
-        /**
-         * 啟動 Web Speech API 語音辨識
-         */
-        function startVoiceInput() {
-            // 檢查瀏覽器是否支援 Web Speech API
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-
-            if (!SpeechRecognition) {
-                alert('抱歉，您的瀏覽器不支援 Web 語音輸入功能 (Speech Recognition API)。建議使用 Chrome 瀏覽器。');
-                return;
-            }
-
-            // 建立 Recognition 物件
-            const recognition = new SpeechRecognition();
-
-            // 設定：
-            recognition.lang = 'cmn-Hant-TW'; // 繁體中文
-            recognition.continuous = false; // 每次只錄製一次
-            recognition.interimResults = false; // 只傳回最終結果
-
-            // 儲存原始 UI 狀態
-            const originalMainInput = mainInput.textContent;
-
-            // 處理事件
-            recognition.onstart = function() {
-                mainInput.textContent = '🔊 正在聆聽... 請開始說話。';
-                candidateDisplay.innerHTML = '<span style="color: red; font-weight: bold;">[語音辨識中...]</span>';
-            };
-
-            recognition.onresult = function(event) {
-                // 取得最終結果
-                const transcript = event.results[event.results.length - 1][0].transcript;
-                
-                // 將結果提交到輸出區
-                if (transcript) {
-                    commitText(transcript); 
-                }
-                
-                // 恢復 UI 狀態
-                recognition.onend();
-            };
-
-            recognition.onerror = function(event) {
-                alert('語音辨識發生錯誤: ' + event.error + ' (請檢查麥克風權限)');
-                console.error('Speech Recognition Error:', event.error);
-                // 恢復 UI 狀態
-                recognition.onend();
-            };
-
-            recognition.onend = function() {
-                // 恢復 UI 狀態
-                mainInput.textContent = originalMainInput;
-                // 重新繪製工具列
-                showCandidates(); 
-            };
-
-            try {
-                recognition.start();
-            } catch (e) {
-                alert('啟動語音輸入失敗，請檢查瀏覽器麥克風權限設定。');
-                console.error('Recognition start failed:', e);
-                // 恢復 UI 狀態
-                mainInput.textContent = originalMainInput;
-                showCandidates(); 
-            }
-        }
+        // --- REMOVED: startVoiceInput function ---
         
         // --- ADDED: 工具列邏輯 ---
         
         function showToolbar() {
             candidateDisplay.innerHTML = '';
             
+            // **CHANGE: Replaced '🎤' with '簡/繁' toggle**
             const toolbarItems = [
-                {title:"🎤",tool:"1"},
+                {title: isSimplifiedMode ? "簡" : "繁", tool:"1"}, // 簡繁切換鍵
                 {title:"😊",tool:"2"}, // Emoji 1
                 {title:"☀",tool:"3"}, // Emoji 2
                 {title:"🌀",tool:"4"}, // Placeholder
@@ -987,7 +928,10 @@
         function handleToolbarClick(target) {
             const tool = target.dataset.tool;
             if (tool === "1") { 
-                 startVoiceInput(); // <-- 呼叫新的語音輸入函式
+                 // **CHANGE: Simplified/Traditional Mode Toggle**
+                 isSimplifiedMode = !isSimplifiedMode;
+                 showCandidates(); // Redraw toolbar to update "簡" / "繁" label
+                 console.log("Mode switched to:", isSimplifiedMode ? "Simplified" : "Traditional");
             } else if (tool === "2") {
                 overlay("emoji", 0);
             } else if (tool === "3") {
@@ -1055,7 +999,6 @@
          */
         function handleFunctionKey(code, keyChar) {
              // 確保在處理功能鍵時隱藏浮層
-             // **注意：如果用戶在 emoji 浮層上點擊了功能鍵（例如切換到 QWERTY），則需要關閉浮層。**
              if (code === KEYCODE_SWITCH_english || code === KEYCODE_SWITCH_number || code === KEYCODE_STATE || code === KEYCODE_DEL || code === KEYCODE_ENTER || code === KEYCODE_SPACE) {
                  overlayDiv.style.display = 'none';
                  delete overlayDiv.dataset.show;
@@ -1338,9 +1281,15 @@
             }
         }
 
+        /**
+         * 提交文字 (包含簡繁轉換邏輯)
+         */
         function commitText(textToCommit) {
-            committedText = committedText.slice(0, cursorPosition) + textToCommit + committedText.slice(cursorPosition);
-            cursorPosition += textToCommit.length; 
+            // **CHANGE: 在提交前進行簡繁轉換**
+            const finalCommitText = convertToSimplified(textToCommit);
+            
+            committedText = committedText.slice(0, cursorPosition) + finalCommitText + committedText.slice(cursorPosition);
+            cursorPosition += finalCommitText.length; 
             preferredOffset = -1; 
             resetInputState();
         }
@@ -1387,7 +1336,7 @@
 
         async function loadSecondaryCodemap() {
             const fileName = './3codes2.txt'; 
-            let textToParse = `# 這是備用的模擬編碼表 (用於測試)\n測\tqwe\n試\trty\n工\taaa\n夫\tqwe\n「\t;'\n」\t';\n這\tqwe\n`; 
+            let textToParse = `# 這是備用的模擬編碼表 (用於測試)\n測\tqwe\n試\trty\n工\taaa\n夫\tqwe\n這\tqwe\n代\tqwe\n碼\tzxc\n說\tzxc\n裡\tqwe\n個\tzxc\n對\tqwe\n會\trty\n國\taaa\n議\tqwe\n變\tqwe\n應\tqwe\n學\trty\n發\taaa\n廠\tqwe\n廣\tqwe\n裡\tqwe\n幾\tqwe\n為\trty\n從\taaa\n後\tqwe\n麵\tqwe\n術\tqwe\n隻\trty\n頭\taaa\n話\tqwe\n裡\tqwe\n「\t;'\n」\t';\n`; 
             let statusMessage = '編碼表載入中...'; 
 
             try {
@@ -1475,14 +1424,12 @@
         
         /**
          * 顯示候選字或工具列 
-         * **修正 2：確保浮層開啟時，工具列（表情符號切換/關閉鍵）依然顯示。**
          */
         function showCandidates() {
             candidateDisplay.innerHTML = '';
             
             // 1. 如果浮層開啟 (Emoji/Editor)
             if (overlayDiv.dataset.show) {
-                 // 修正：浮層開啟時，必須顯示工具列，讓用戶可以切換頁面或關閉浮層。
                  showToolbar(); 
                  return;
             }
@@ -1507,6 +1454,7 @@
 
             currentCandidates.forEach((candidate, index) => {
                 const span = document.createElement('span');
+                // **NOTE: 候選字在顯示時不轉換，僅在選字 commitText 時才轉換。**
                 span.textContent = candidate; 
                 span.onclick = () => selectCandidate(index); 
                 candidateDisplay.appendChild(span);
