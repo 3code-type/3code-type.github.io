@@ -60,7 +60,7 @@
 
         #search-input {
             flex-grow: 0;
-            width: 140px; 
+            width: 120px; /* 修正: 欄寬設為 120px */
             height: 40px;
             padding: 8px;
             font-size: 1.0rem; 
@@ -129,7 +129,7 @@
             height: 40vh; 
             font-size: 1.5rem;
             line-height: 1.6;
-            white-space: pre-wrap; /* 修正：將 normal 改為 pre-wrap 以保留連續空白並允許換行 */
+            white-space: pre-wrap; 
             word-break: break-word;
             color: var(--text-color);
             cursor: text; 
@@ -198,7 +198,6 @@
         }
         
         #candidate-display {
-            /* 修正 1: 調整最小高度 */
             display: flex;
             align-items: center;
             padding: 8px;
@@ -206,7 +205,7 @@
             white-space: nowrap; 
             overflow-x: scroll; 
             -webkit-overflow-scrolling: touch; 
-            min-height: 60px; /* 從 48px 調整為 60px */
+            min-height: 70px; /* 修正: 候選字區域高度調高到 70px */
             background-color: #fff;
             box-shadow: 0 1px 0 var(--border-color);
         }
@@ -216,14 +215,13 @@
         }
 
         #candidate-display span {
-            /* 修正 2: 調整字型大小 */
             cursor: pointer;
             padding: 5px 8px;
             border-radius: 4px;
             transition: all 0.2s;
             user-select: none;
             white-space: nowrap;
-            font-size: 1.4rem; /* 從 1.2rem 調整為 1.4rem */
+            font-size: 1.6rem; /* 修正: 候選字型加大到 1.6rem */
             flex-shrink: 0; 
             text-align: center;
         }
@@ -275,8 +273,17 @@
             min-width: 0;
         }
         
+        /* *** 新增: 強化 Enter 鍵的視覺效果 (data-code="13" 是 KEYCODE_ENTER) *** */
+        .keyboard-key[data-code="13"] .visual-wrapper > span {
+            font-size: 1.5rem; 
+            font-weight: 900; 
+        }
+        .keyboard-key[data-code="13"] {
+             font-weight: bold;
+        }
+        /* *************************************************************** */
+
         .keyboard-key.highlighted {
-            /* 用於 touchstart/mousedown 設置的高亮狀態 */
             background-color: var(--key-active-bg) !important; 
             color: white;
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); 
@@ -316,7 +323,6 @@
         }
         
         .keyboard-key:active {
-             /* 作為降級/輔助的點擊視覺效果，但在 touchstart 設置 highlighted 後會被覆蓋 */
              background-color: var(--key-active-bg); 
              color: white; 
              box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); 
@@ -350,8 +356,7 @@
     
     <div class="search-area">
         <input type="text" id="search-input" placeholder="在此輸入文字" maxlength="1">
-        <div id="search-result">查詢結果顯示在此</div>
-    </div>
+        <div id="search-result">編碼顯示在此</div> </div>
     
     <div id="toolbar">
         <button id="copy-btn">📋 複製文字</button>
@@ -385,7 +390,7 @@
         // --- 長按相關狀態 ---
         let longPressTimer = null;
         let longPressCommitted = false; 
-        const LONG_PRESS_TIMEOUT = 750; 
+        const LONG_PRESS_TIMEOUT = 500; 
         
         // --- 游標 HTML 定義 ---
         const CURSOR_HTML = '<span id="main-cursor" class="cursor">\u200c</span>';
@@ -418,7 +423,7 @@
         const KEYCODE_ENTER=0x0d;
         const KEYCODE_SPACE=0x20;
 
-        // --- 鍵盤配置 (略) ---
+        // --- 鍵盤配置 ---
         var Keyboards = {
             english: {
                 shifted : false,
@@ -514,7 +519,7 @@
         }
 
         /**
-         * 鍵盤渲染函數 (略)
+         * 鍵盤渲染函數
          */
         function drawKeyboard() {
             const layout = currentLayout;
@@ -539,7 +544,7 @@
                     const keyWidth = placeHolderWidth * ratio;
                     
                     let displayChar = keyChar; 
-                    let isSymbolShifted = false; // 新增：判斷是否為數字/符號鍵盤的 Shift 鍵
+                    let isSymbolShifted = false; 
                     
                     // --- FIX: 處理數字/符號鍵盤 (Keyboards.number) 的 Shift 顯示 ---
                     if (currentLayout === Keyboards.number && code === 0) {
@@ -578,14 +583,12 @@
                                  // 英文模式 (無論 Shift On/Off): 顯示半形符號 (符合最新要求)
                                  displayChar = keyChar; 
                             }
-                            // 移除原有的: else if (layout.shifted) { displayChar = layout.upper[keyChar] || keyChar; }
                         }
                     } 
                     
                     // --- 2. 處理功能鍵文字 (MODE, SHIFT 等，覆蓋 QWERTY 邏輯) ---
                     if (code === KEYCODE_STATE) {
                          // 模式切換鍵
-                         // 根據當前鍵盤判斷 MODE 鍵的顯示狀態
                          if (currentLayout === Keyboards.english) {
                              // QWERTY 鍵盤上顯示當前模式
                              displayChar = isEnglishMode ? 'En' : '三碼'; 
@@ -677,7 +680,7 @@
         }
         
         /**
-         * 浮層處理函數 (略)
+         * 浮層處理函數 (保持不變)
          */
         function emoji(subIndex) {
             const emojis=[[
@@ -740,7 +743,7 @@
         }
 
         /**
-         * 處理短按事件：執行編碼或普通字符輸入 (略)
+         * 處理短按事件：執行編碼或普通字符輸入
          */
         function handleShortPress(keyElement) {
             preferredOffset = -1; 
@@ -785,7 +788,7 @@
         }
         
         /**
-         * 處理功能鍵邏輯 (略)
+         * 處理功能鍵邏輯
          */
         function handleFunctionKey(code, keyChar) {
              switch(code) {
@@ -876,18 +879,6 @@
          */
         function bindKeyEvents() {
             document.querySelectorAll('.keyboard-key').forEach(keyElement => {
-                
-                // 1. 為了避免重複綁定，先移除可能已經存在的舊事件處理器 (通過儲存在元素上的屬性)
-                if (keyElement.handlePressDown) {
-                    keyElement.removeEventListener('touchstart', keyElement.handlePressDown);
-                    keyElement.removeEventListener('touchend', keyElement.handlePressUp);
-                    keyElement.removeEventListener('touchcancel', keyElement.handlePressCancel);
-                    keyElement.removeEventListener('mousedown', keyElement.handlePressDown);
-                    keyElement.removeEventListener('mouseup', keyElement.handlePressUp);
-                    keyElement.removeEventListener('mouseleave', keyElement.handlePressCancel);
-                }
-                
-                // 清空舊的 onxxx 屬性 (略)
                 keyElement.onclick = null; 
                 keyElement.oncontextmenu = (e) => e.preventDefault(); 
                 keyElement.ontouchstart = null;
@@ -896,19 +887,14 @@
                 keyElement.onmousedown = null;
                 keyElement.onmouseup = null;
                 keyElement.onmouseleave = null;
-
-                const keyChar = keyElement.dataset.label;
-                // 修正 altChar 檢查，防止 currentLayout.alt 未定義時出錯
-                const altChar = currentLayout.alt ? currentLayout.alt[keyChar] : null; 
                 
-                // 1. 處理按下 (Press Down)
+                const keyChar = keyElement.dataset.label;
+                const altChar = currentLayout.alt[keyChar]; 
+                
                 const handlePressDown = (event) => {
-                    // 只處理左鍵點擊 (滑鼠) 或觸摸事件
-                    if (event.type === 'mousedown' && event.button !== 0) return;
-                    if (event.type.startsWith('touch')) event.preventDefault(); 
-                    
+                    event.preventDefault(); 
                     longPressCommitted = false; 
-                    keyElement.classList.add('highlighted'); // **添加高亮**
+                    keyElement.classList.add('highlighted'); 
 
                     if (currentLayout === Keyboards.english && altChar) {
                         if (longPressTimer) clearTimeout(longPressTimer);
@@ -917,59 +903,46 @@
                         }, LONG_PRESS_TIMEOUT);
                     }
                 };
-                
-                // 2. 處理抬起/點擊 (Press Up)
-                const handlePressUp = (event) => {
-                    // if (event.type.startsWith('touch')) event.preventDefault(); // 移除 preventDefault
 
+                const handlePressUp = (event) => {
+                    event.preventDefault(); 
+                    keyElement.classList.remove('highlighted'); 
+                    
                     if (longPressTimer) {
                         clearTimeout(longPressTimer);
                         longPressTimer = null;
                     }
                     
-                    // 只要不是長按提交的，就視為短按並觸發輸入
-                    if (!longPressCommitted) { 
+                    if (!longPressCommitted) {
                         handleShortPress(keyElement);
                     }
-                    
-                    // 無論如何，抬起時都移除高亮
-                    keyElement.classList.remove('highlighted');
                     longPressCommitted = false;
                 };
                 
-                // 3. 處理取消 (Move/Leave/Cancel)
-                const handlePressCancel = (event) => { // 接受 event
-                     // **重要修正：touchmove 不再觸發此函數來取消計時器**
+                const handlePressCancel = () => {
                      if (longPressTimer) {
                         clearTimeout(longPressTimer);
                         longPressTimer = null;
                     }
-                     // 只有在滑鼠離開 (mouseleave) 或系統明確取消 (touchcancel) 時，才移除高亮。
-                     if (event.type === 'mouseleave' || event.type === 'touchcancel') {
-                         keyElement.classList.remove('highlighted');
-                     }
+                     keyElement.classList.remove('highlighted');
                 };
 
-                // 將函數儲存在 DOM 元素上以便移除
-                keyElement.handlePressDown = handlePressDown;
-                keyElement.handlePressUp = handlePressUp;
-                keyElement.handlePressCancel = handlePressCancel;
-
-                // Touch Events
                 keyElement.addEventListener('touchstart', handlePressDown);
                 keyElement.addEventListener('touchend', handlePressUp);
-                keyElement.addEventListener('touchcancel', handlePressCancel); // 處理觸摸中斷
-                // *** 核心修正：移除 touchmove 綁定 ***
+                keyElement.addEventListener('touchmove', handlePressCancel); 
                 
-                // Mouse Events (用於桌面測試)
-                keyElement.addEventListener('mousedown', handlePressDown);
+                keyElement.addEventListener('mousedown', (e) => {
+                    if (e.button === 0) { 
+                         handlePressDown(e);
+                    }
+                });
                 keyElement.addEventListener('mouseup', handlePressUp);
                 keyElement.addEventListener('mouseleave', handlePressCancel); 
             });
         }
         
         /**
-         * 處理單字符輸入 (用於英文/符號模式或 Shift+字母) (略)
+         * 處理單字符輸入 (用於英文/符號模式或 Shift+字母)
          */
         function handleCharInput(char) {
              if (currentLayout.shifted) {
@@ -984,7 +957,7 @@
             }
         }
         
-        // --- 核心輸入法邏輯 (其餘部分略) ---
+        // --- 核心輸入法邏輯 (其餘部分保持不變) ---
         
         var currentCode = '';
         var currentCandidates = [];
@@ -1246,7 +1219,7 @@
             updateOutputDisplay(); 
         }
 
-        // --- 工具列與查碼功能 (其餘部分略) ---
+        // --- 工具列與查碼功能 (已調整) ---
 
         function copyTextToClipboard() {
             const textToCopy = committedText; 
@@ -1286,20 +1259,22 @@
                 resetInputState();
             }
         }
+        
         function handleSearchInput(event) {
             const charToSearch = searchInput.value;
             if (charToSearch.length === 1) {
                 const codes = currentReverseCodemap[charToSearch];
                 if (codes && codes.length > 0) {
                     const formattedCodes = codes.map(code => formatCode(code));
-                    searchResult.textContent = `編碼：　${formattedCodes.join('　')}`;
+                    searchResult.textContent = `${formattedCodes.join('　')}`; // 修正: 移除「編碼：　」字樣
                 } else {
                     searchResult.textContent = '找不到該字符的編碼。';
                 }
             } else {
-                searchResult.textContent = '查詢結果顯示在此';
+                searchResult.textContent = '編碼顯示在此'; // 修正: 更新為新版預設文字
             }
         }
+        
         function handleSearchKeydown(event) { if (event.key === 'Backspace') { event.stopPropagation(); } }
         
         function mapDOMOffsetToTextIndex(targetNode, targetOffset) {
