@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
     <style>
         /* ----------------------------------------------------- */
-        /* 樣式定義 (略，與前版相同) */
+        /* 樣式定義 */
         /* ----------------------------------------------------- */
 
         :root {
@@ -101,8 +101,7 @@
             background-color: var(--primary-color);
             color: white;
             cursor: pointer;
-            box-shadow: 0 2px 5px rgba
-(0, 0, 0, 0.1);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             transition: background-color 0.2s;
         }
 
@@ -127,7 +126,7 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
             margin-bottom: 5px; 
             padding: 8px; 
-            height: 20vh; /* Reduced from 40vh to 20vh */
+            height: 20vh;
             font-size: 1.5rem;
             line-height: 1.6;
             white-space: pre-wrap;
@@ -231,7 +230,7 @@
             background-color: #e8eaf6;
         }
         
-        /* ADDED: Toolbar item styles */
+        /* Toolbar item styles */
         #candidate-display span.toolbar-tool {
             font-size: 1.2rem;
             padding: 5px 15px;
@@ -352,7 +351,7 @@
             transform: scaleX(2);
         }
         
-        /* ADDED: Overlay styles */
+        /* Overlay styles */
         #keyboard-overlay {
             position: absolute; /* 定位會被 JS 覆蓋 */
             left: 0;
@@ -365,10 +364,8 @@
         
         #keyboard-overlay.emoji button {
             box-sizing: border-box;
-            /* 由於 flexbox 佈局，float: left 被移除 */
             text-align: center;
             font-size: 1.8rem;
-            /* ADDED: 使其看起來像獨立的按鍵 */
             background-color: var(--key-bg); /* 使用鍵盤背景色 #f9f9f9 */
             border: 1px solid var(--border-color); /* 添加邊框 */
             border-radius: 6px; /* 圓角 */
@@ -376,7 +373,7 @@
             margin: 2px; /* 增加微小間隔，讓按鍵更明顯 */
         }
         
-        /* ADDED: 點擊時的反白效果 */
+        /* 點擊時的反白效果 */
         #keyboard-overlay.emoji button:active {
             background-color: var(--key-active-bg); /* 使用點擊時的顏色 #a0a0a0 */
             color: white; /* 讓表情符號更突出 */
@@ -441,7 +438,7 @@
         let cursorPosition = 0; 
         let preferredOffset = -1; 
         
-        // --- ADDED: 簡繁切換狀態 ---
+        // --- 簡繁切換狀態 ---
         let isSimplifiedMode = false; // 預設為繁體模式
 
         // --- 長按相關狀態 ---
@@ -480,7 +477,7 @@
         const KEYCODE_ENTER=0x0d;
         const KEYCODE_SPACE=0x20;
         
-        // --- ADDED: Cursor and forward delete keycodes ---
+        // --- Cursor and forward delete keycodes ---
         const KEYCODE_HOME=0xff50;
         const KEYCODE_LEFT=0xff51;
         const KEYCODE_UP=0xff52;
@@ -488,11 +485,16 @@
         const KEYCODE_DOWN=0xff54;
         const KEYCODE_DEL_F=0xff;
 
-        // --- 簡繁轉換表 (將從 ts.txt 外部檔案載入，若失敗則為空) ---
-        let TS_MAP = {}; 
-        
-        // 移除 FALLBACK_TS_MAP_RAW，完全依賴外部檔案載入。
-        
+        // --- 簡繁轉換表 (基礎示範用，完整轉換需要更大的字典) ---
+        const TS_MAP = {
+            '體': '体', '碼': '码', '說': '说', '這': '这', '個': '个', 
+            '們': '们', '樂': '乐', '風': '风', '開': '开', '對': '对',
+            '會': '会', '國': '国', '議': '议', '變': '变', '應': '应',
+            '學': '学', '發': '发', '廠': '厂', '廣': '广', '裡': '里',
+            '幾': '几', '為': '为', '從': '从', '後': '后', '麵': '面',
+            '術': '术', '隻': '只', '頭': '头', '話': '话', '裡': '里'
+        };
+
         /**
          * 執行簡體字轉換
          */
@@ -509,7 +511,7 @@
             return simplifiedText;
         }
 
-        // --- 鍵盤配置 (略，與前版相同) ---
+        // --- 鍵盤配置 ---
         var Keyboards = {
             english: {
                 shifted : false,
@@ -607,7 +609,7 @@
         }
 
         /**
-         * 鍵盤渲染函數 (略)
+         * 鍵盤渲染函數
          */
         function drawKeyboard() {
             const layout = currentLayout;
@@ -752,6 +754,8 @@
             }
         }
         
+        // --- 浮層處理函數 ---
+        
         /**
          * 處理表情符號/編輯器的浮層顯示與隱藏
          */
@@ -763,7 +767,8 @@
                 div.style.display = 'none';
                 div.innerHTML = '';
                 delete div.dataset.show;
-                if (isShowing == show && div.className == type) return;
+                // 如果是嘗試關閉當前開啟的浮層，則直接返回
+                if (isShowing == show && div.className == type) return; 
             }
 
             if (show === false) return;
@@ -886,16 +891,10 @@
              overlay("editor", 0);
         }
         
-        // --- ADDED: 工具列邏輯 ---
+        // --- 工具列邏輯 ---
         
         function showToolbar() {
             candidateDisplay.innerHTML = '';
-            
-            // 1. 如果浮層開啟 (Emoji/Editor)
-            if (overlayDiv.dataset.show) {
-                 showToolbar(); 
-                 return;
-            }
             
             // **CHANGE: Replaced '🎤' with '簡/繁' toggle**
             const toolbarItems = [
@@ -920,16 +919,27 @@
             candidateDisplay.appendChild(fragment);
         }
         
+        /**
+         * 處理工具列點擊事件 (已修正簡繁切換與浮層衝突)
+         */
         function handleToolbarClick(target) {
             const tool = target.dataset.tool;
-            if (tool === "1") { 
-                 // **CHANGE: Simplified/Traditional Mode Toggle**
+            const isOverlayActive = !!overlayDiv.dataset.show; // 檢查是否有浮層正在開啟
+
+            // **修正**：如果浮層是開啟的，且點擊的是「簡繁切換鍵」(tool 1)，則只切換模式並立即返回，不影響浮層狀態
+            if (isOverlayActive && tool === "1") { 
                  isSimplifiedMode = !isSimplifiedMode;
-                 showCandidates(); // Redraw toolbar to update "簡" / "繁" label
+                 console.log("TS mode switched while overlay active. Overlay preserved.");
+                 // 這裡不需要 showCandidates，因為浮層開啟時，下方的 candidateDisplay 應該保持清空或顯示工具列
+                 // 但我們不希望它觸發重繪 (showCandidates) 導致浮層閃爍，因此直接 return
+                 return; 
+            }
+            
+            if (tool === "1") { 
+                 // Simplified/Traditional Mode Toggle
+                 isSimplifiedMode = !isSimplifiedMode;
+                 showCandidates(); // Redraw toolbar to update "简" / "繁" label
                  console.log("Mode switched to:", isSimplifiedMode ? "Simplified" : "Traditional");
-                 if (Object.keys(TS_MAP).length === 0 && isSimplifiedMode) {
-                     alert("警告：簡繁轉換表 (ts.txt) 尚未載入或內容為空，轉換功能將不會生效。");
-                 }
             } else if (tool === "2") {
                 overlay("emoji", 0);
             } else if (tool === "3") {
@@ -945,7 +955,7 @@
         }
         
         /**
-         * 處理長按事件：提交輔助字符 (略)
+         * 處理長按事件：提交輔助字符
          */
         function handleLongPress(keyElement, altChar) {
             longPressCommitted = true; 
@@ -956,7 +966,7 @@
         }
 
         /**
-         * 處理短按事件：執行編碼或普通字符輸入 (略)
+         * 處理短按事件：執行編碼或普通字符輸入
          */
         function handleShortPress(keyElement) {
             preferredOffset = -1; 
@@ -1110,7 +1120,7 @@
         }
         
         /**
-         * 統一的事件綁定函數 (略)
+         * 統一的事件綁定函數
          */
         function bindKeyEvents() {
             document.querySelectorAll('.keyboard-key').forEach(keyElement => {
@@ -1184,7 +1194,7 @@
         }
         
         /**
-         * 處理單字符輸入 (用於英文/符號模式或 Shift+字母) (略)
+         * 處理單字符輸入 (用於英文/符號模式或 Shift+字母)
          */
         function handleCharInput(char) {
              if (currentLayout.shifted) {
@@ -1198,7 +1208,7 @@
             }
         }
         
-        // --- 核心輸入法邏輯 (其餘部分略) ---
+        // --- 核心輸入法邏輯 ---
         
         var currentCode = '';
         var currentCandidates = [];
@@ -1283,7 +1293,7 @@
          * 提交文字 (包含簡繁轉換邏輯)
          */
         function commitText(textToCommit) {
-            // **CHANGE: 在提交前進行簡繁轉換**
+            // 在提交前進行簡繁轉換
             const finalCommitText = convertToSimplified(textToCommit);
             
             committedText = committedText.slice(0, cursorPosition) + finalCommitText + committedText.slice(cursorPosition);
@@ -1303,57 +1313,6 @@
                 updateOutputDisplay();
                 resetInputState(); 
             }
-        }
-
-        /**
-         * 解析並載入簡繁轉換表 (ts.txt)
-         * 預期檔案格式：繁體字\t簡體字 (一行一個)
-         */
-        async function loadTSMap() {
-            const fileName = './ts.txt'; 
-            let textToParse = ''; // 預設為空，如果載入失敗則保持為空
-            
-            try {
-                const response = await fetch(fileName);
-                if (response.ok) {
-                    const responseText = await response.text();
-                    // 檢查檔案內容是否有效，如果只有空白或註解，則不使用該內容
-                    if (responseText.trim().replace(/^#.*$/gm, '').trim().length > 0) {
-                         textToParse = responseText;
-                         console.log(`成功載入簡繁轉換表: ${fileName}`);
-                    } else {
-                         console.warn(`載入外部簡繁轉換表: ${fileName} 成功，但內容為空或僅包含註解。`);
-                    }
-                } else {
-                     console.error(`無法載入外部簡繁轉換表 (${response.status})，TS_MAP 將保持為空。`);
-                }
-            } catch (error) {
-                console.error('外部簡繁轉換表讀取錯誤:', error.message, 'TS_MAP 將保持為空。');
-            }
-            
-            // 解析內容
-            const newTSMap = {};
-            if (textToParse.length > 0) {
-                const lines = textToParse.trim().split('\n');
-                lines.forEach(line => {
-                    // 忽略註解行
-                    if (line.startsWith('#') || line.trim() === '') return; 
-                    
-                    // 使用 Tab 或多個空格分隔
-                    const parts = line.split(/[\t\s]+/); 
-                    
-                    if (parts.length >= 2) {
-                        const traditionalChar = parts[0].trim();
-                        const simplifiedChar = parts[1].trim(); 
-                        if (traditionalChar.length === 1 && simplifiedChar.length === 1) {
-                            newTSMap[traditionalChar] = simplifiedChar;
-                        }
-                    }
-                });
-            }
-            
-            TS_MAP = newTSMap;
-            console.log(`簡繁轉換表已載入，共 ${Object.keys(TS_MAP).length} 條轉換規則。`);
         }
         
         function parseCinData(data) { 
@@ -1385,6 +1344,7 @@
 
         async function loadSecondaryCodemap() {
             const fileName = './3codes2.txt'; 
+            // 這是備用的模擬編碼表 (用於測試，請確保您實際的 3codes2.txt 檔案存在並可讀取)
             let textToParse = `# 這是備用的模擬編碼表 (用於測試)\n測\tqwe\n試\trty\n工\taaa\n夫\tqwe\n這\tqwe\n代\tqwe\n碼\tzxc\n說\tzxc\n裡\tqwe\n個\tzxc\n對\tqwe\n會\trty\n國\taaa\n議\tqwe\n變\tqwe\n應\tqwe\n學\trty\n發\taaa\n廠\tqwe\n廣\tqwe\n裡\tqwe\n幾\tqwe\n為\trty\n從\taaa\n後\tqwe\n麵\tqwe\n術\tqwe\n隻\trty\n頭\taaa\n話\tqwe\n裡\tqwe\n「\t;'\n」\t';\n`; 
             let statusMessage = '編碼表載入中...'; 
 
@@ -1394,6 +1354,7 @@
                      throw new Error(`無法載入外部檔案 (${response.status})。`);
                 }
                 const responseText = await response.text();
+                // 檢查是否真的讀到了有用的內容，否則使用備用內容
                 if (responseText.trim().replace(/^#.*$/gm, '').trim().length > 0) {
                     textToParse = responseText;
                 }
@@ -1503,7 +1464,7 @@
 
             currentCandidates.forEach((candidate, index) => {
                 const span = document.createElement('span');
-                // **NOTE: 候選字在顯示時不轉換，僅在選字 commitText 時才轉換。**
+                // NOTE: 候選字在顯示時不轉換，僅在選字 commitText 時才轉換。
                 span.textContent = candidate; 
                 span.onclick = () => selectCandidate(index); 
                 candidateDisplay.appendChild(span);
@@ -1528,7 +1489,7 @@
             updateOutputDisplay(); 
         }
 
-        // --- 工具列與查碼功能 (略) ---
+        // --- 工具列與查碼功能 ---
 
         function copyTextToClipboard() {
             const textToCopy = committedText; 
@@ -1680,7 +1641,6 @@
         // 頁面啟動
         document.addEventListener('DOMContentLoaded', () => {
             drawKeyboard(); 
-            loadTSMap(); // **重要：完全依賴外部檔案載入**
             loadSecondaryCodemap(); 
             
             textOutput.addEventListener('click', handleTextTap);
