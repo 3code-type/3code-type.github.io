@@ -440,7 +440,7 @@
         
         // --- 簡繁切換狀態 ---
         let isSimplifiedMode = false; // 預設為繁體模式
-        // 將 TS_MAP 改為可變的變數，並非同步載入
+        // 簡繁轉換表將從 ts.txt 非同步載入
         let TS_MAP = null; 
 
         /**
@@ -458,7 +458,7 @@
                 const text = await response.text();
                 
                 const newMap = {};
-                // 根據換行符號切割，然後遍歷每一行
+                // 每一行是一個轉換對：繁體字\t簡體字
                 const lines = text.trim().split('\n');
 
                 for (const line of lines) {
@@ -958,6 +958,7 @@
             // **修正**：如果浮層是開啟的，且點擊的是「簡繁切換鍵」(tool 1)，則只切換模式並立即返回，不影響浮層狀態
             if (isOverlayActive && tool === "1") { 
                  isSimplifiedMode = !isSimplifiedMode;
+                 target.innerHTML = isSimplifiedMode ? "简" : "繁"; // 立即更新按鈕文字
                  console.log("TS mode switched while overlay active. Overlay preserved.");
                  // 這裡不需要 showCandidates，因為浮層開啟時，下方的 candidateDisplay 應該保持清空或顯示工具列
                  // 但我們不希望它觸發重繪 (showCandidates) 導致浮層閃爍，因此直接 return
@@ -1114,7 +1115,8 @@
                      }
                      break;
                 case KEYCODE_RIGHT:
-                     if (cursorPosition < committedText.length) {
+                     // 游標位置的限制應是邏輯字符的數量
+                     if (cursorPosition < Array.from(committedText).length) {
                          cursorPosition++;
                          updateOutputDisplay();
                      }
@@ -1122,10 +1124,11 @@
                 case KEYCODE_UP:
                 case KEYCODE_DOWN:
                      // 簡化處理：在沒有完整編輯器邏輯時，上下鍵暫時模擬左右移動
+                     const maxLen = Array.from(committedText).length;
                      if (code === KEYCODE_UP && cursorPosition > 0) {
                          cursorPosition--;
                          updateOutputDisplay();
-                     } else if (code === KEYCODE_DOWN && cursorPosition < committedText.length) {
+                     } else if (code === KEYCODE_DOWN && cursorPosition < maxLen) {
                          cursorPosition++;
                          updateOutputDisplay();
                      }
@@ -1135,8 +1138,10 @@
                      updateOutputDisplay();
                      break;
                 case KEYCODE_DEL_F: // Forward Delete
-                     if (cursorPosition < committedText.length) {
-                         committedText = committedText.slice(0, cursorPosition) + committedText.slice(cursorPosition + 1);
+                     const chars = Array.from(committedText);
+                     if (cursorPosition < chars.length) {
+                         chars.splice(cursorPosition, 1);
+                         committedText = chars.join('');
                          updateOutputDisplay();
                      }
                      break;
@@ -1283,12 +1288,14 @@
                 compositionHtml = formatComposition(currentCode);
             } 
             
-            const fullTextLength = committedText.length;
+            // 關鍵：使用 Array.from 處理 committedText，確保能正確遍歷 Emoji
+            const committedChars = Array.from(committedText);
+            const fullTextLength = committedChars.length;
 
             while (currentPos <= fullTextLength) {
                 
                 if (softWrapPoints.includes(currentPos)) {
-                    if (currentPos > 0 && committedText[currentPos - 1] !== '\n') {
+                    if (currentPos > 0 && committedChars[currentPos - 1] !== '\n') {
                          outputHtml += NON_BREAK_ANCHOR; 
                     }
                 }
@@ -1299,7 +1306,7 @@
                 }
                 
                 if (currentPos < fullTextLength) {
-                    const char = committedText[currentPos];
+                    const char = committedChars[currentPos];
                     if (char === '\n') {
                         outputHtml += '<br>';
                     } else {
@@ -1320,24 +1327,46 @@
 
         /**
          * 提交文字 (包含簡繁轉換邏輯)
+         * [修正：使用 Array.from() 確保 Emoji 正確插入]
          */
         function commitText(textToCommit) {
             // 在提交前進行簡繁轉換
             const finalCommitText = convertToSimplified(textToCommit);
             
-            committedText = committedText.slice(0, cursorPosition) + finalCommitText + committedText.slice(cursorPosition);
-            cursorPosition += finalCommitText.length; 
+            // 關鍵修改：使用 Array.from() 將字串轉換為可正確處理代理對的字符陣列
+            const committedChars = Array.from(committedText); 
+            const charsToInsert = Array.from(finalCommitText);
+            
+            // 在游標位置插入新的字符
+            committedChars.splice(cursorPosition, 0, ...charsToInsert);
+            committedText = committedChars.join(''); // 重組字串
+            
+            // 游標移動的步數是插入字符的數量
+            cursorPosition += charsToInsert.length; 
+
             preferredOffset = -1; 
             resetInputState();
         }
 
+        /**
+         * 處理刪除鍵
+         * [修正：使用 Array.from() 確保 Emoji 正確刪除]
+         */
         function backspaceOutput() {
             if (!isEnglishMode && !isSymbolMode && currentCode.length > 0) {
                  currentCode = currentCode.slice(0, -1);
                  updateStateAndDisplay();
             } else if (cursorPosition > 0) {
-                committedText = committedText.slice(0, cursorPosition - 1) + committedText.slice(cursorPosition);
-                cursorPosition -= 1;
+                
+                // 關鍵修改：使用 Array.from() 將字串轉換為可正確處理 Emoji 的字符陣列
+                const committedChars = Array.from(committedText);
+                
+                // 刪除游標前的一個字符 (無論它佔用多少個碼元)
+                committedChars.splice(cursorPosition - 1, 1);
+                
+                committedText = committedChars.join(''); // 重組字串
+                cursorPosition -= 1; // 游標只移動一步 (因為刪除了一個可視字符)
+                
                 preferredOffset = -1;
                 updateOutputDisplay();
                 resetInputState(); 
@@ -1574,6 +1603,10 @@
         }
         function handleSearchKeydown(event) { if (event.key === 'Backspace') { event.stopPropagation(); } }
         
+        /**
+         * 將 DOM 文本節點偏移量 (UTF-16 碼元索引) 映射到邏輯字符索引 (可視字符索引)
+         * [修正：使用 Array.from() 處理 Emoji 代理對]
+         */
         function mapDOMOffsetToTextIndex(targetNode, targetOffset) {
             let committedIndex = 0;
             const outputDiv = document.getElementById('text-output');
@@ -1582,6 +1615,7 @@
                 outputDiv,
                 NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT,
                 { acceptNode: (node) => {
+                     // 排除游標和正在編輯的文字
                      if (node.nodeType === Node.ELEMENT_NODE && (node.classList.contains('cursor') || node.classList.contains('composition-text'))) {
                          return NodeFilter.FILTER_SKIP;
                      }
@@ -1595,30 +1629,56 @@
                 if (node.nodeType === Node.TEXT_NODE) {
                     const textContent = node.textContent;
                     
+                    // 關鍵：將內容分解為可視字符（Grapheme Clusters）
+                    const fullChars = Array.from(textContent); 
+                    
                     if (node === targetNode) {
-                        let count = 0;
-                        for (let i = 0; i < targetOffset; i++) {
-                            const char = textContent[i];
+                        let codeUnitCount = 0; // 累積的 UTF-16 碼元數
+                        let charCount = 0;     // 累積的邏輯字符數
+                        
+                        for (const char of fullChars) {
+                            if (codeUnitCount >= targetOffset) {
+                                 // 點擊發生在該字符的開頭或之前，charCount 即為正確位置。
+                                 break;
+                            }
+                            
+                            // 累積碼元數 (Emoji 可能會讓 char.length > 1)
+                            codeUnitCount += char.length; 
+                            
+                            // 累積邏輯字符數 (排除特殊錨點)
                             if (char !== NON_BREAK_ANCHOR && char !== '\u200c') {
-                                count++;
+                                charCount++;
+                            }
+                            
+                            // 邊界修正：如果點擊恰好落在字元中間，瀏覽器可能會給出字元內部的 offset。
+                            // 為了保險，如果 targetOffset 在當前字符範圍內，但更接近字符結尾，我們將游標放在字符之後。
+                            // 這裡我們採用最簡單的：只要 currentCodeUnitIndex 加上該字符長度大於 targetOffset，就停止。
+                            if (codeUnitCount >= targetOffset) {
+                                 // 如果 targetOffset 落在這個字元中間或結尾，我們通常將游標放在這個字元之後。
+                                 // 由於上面的 charCount 已經累加，這裡直接跳出即可。
+                                 // *若要實現更精確的「四捨五入」游標，此處需複雜邏輯，但為了穩定性，我們信任單向累加。*
+                                 break;
                             }
                         }
-                        committedIndex += count;
+                        
+                        committedIndex += charCount;
                         return committedIndex; 
                     }
                     
-                    for (const char of textContent) {
+                    // 如果不是目標節點，計算完整的字符數
+                    for (const char of fullChars) {
                         if (char !== NON_BREAK_ANCHOR && char !== '\u200c') {
                             committedIndex++;
                         }
                     }
                     
                 } else if (node.nodeName === 'BR') {
-                    committedIndex++; 
+                    committedIndex++; // 換行符佔一個字符
                 } 
             }
 
-            return committedText.length;
+            // 如果遍歷結束仍未返回，則表示點擊在文字末尾
+            return Array.from(committedText).length;
         }
 
         function handleTextTap(event) {
@@ -1657,8 +1717,9 @@
                         updateOutputDisplay();
                     }
                 } else if (newNode === textOutput && newOffset === textOutput.childNodes.length) {
-                    if (cursorPosition !== committedText.length) {
-                         cursorPosition = committedText.length;
+                    // 點擊在文本結尾的空白處
+                    if (cursorPosition !== Array.from(committedText).length) {
+                         cursorPosition = Array.from(committedText).length;
                          preferredOffset = -1;
                          updateOutputDisplay();
                     }
@@ -1668,9 +1729,9 @@
 
 
         // 頁面啟動
-        document.addEventListener('DOMContentLoaded', async () => { // **改為 async**
+        document.addEventListener('DOMContentLoaded', async () => { // **注意：這裡必須改成 async**
             drawKeyboard(); 
-            await loadTSMap(); // **新增：載入簡繁轉換表**
+            await loadTSMap(); // **在這裡等待轉換表載入**
             loadSecondaryCodemap(); 
             
             textOutput.addEventListener('click', handleTextTap);
