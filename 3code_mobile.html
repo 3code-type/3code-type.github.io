@@ -440,7 +440,45 @@
         
         // --- 簡繁切換狀態 ---
         let isSimplifiedMode = false; // 預設為繁體模式
+        // 將 TS_MAP 改為可變的變數，並非同步載入
+        let TS_MAP = null; 
 
+        /**
+         * 從 ts.txt 檔案載入並解析簡繁轉換表。
+         * 檔案格式：每一行是「繁體字\t簡體字」。
+         */
+        async function loadTSMap() {
+            console.log("Loading ts.txt for Traditional/Simplified conversion...");
+            try {
+                // 假設 ts.txt 位於同一個目錄
+                const response = await fetch('ts.txt');
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch ts.txt: ${response.statusText}`);
+                }
+                const text = await response.text();
+                
+                const newMap = {};
+                // 根據換行符號切割，然後遍歷每一行
+                const lines = text.trim().split('\n');
+
+                for (const line of lines) {
+                    // 使用 Tab 符號 (\t) 作為分隔符
+                    const parts = line.split('\t');
+                    if (parts.length === 2 && parts[0].trim() && parts[1].trim()) {
+                        const traditional = parts[0].trim();
+                        const simplified = parts[1].trim();
+                        newMap[traditional] = simplified;
+                    }
+                }
+                TS_MAP = newMap; // 將解析後的結果賦值給全域變數
+                console.log(`T/S map loaded with ${Object.keys(TS_MAP).length} entries.`);
+            } catch (error) {
+                console.error('Error loading or parsing T/S map. T/S conversion disabled.', error);
+                // 載入失敗時，將 TS_MAP 設為空物件，避免後續函式出錯
+                TS_MAP = {}; 
+            }
+        }
+        
         // --- 長按相關狀態 ---
         let longPressTimer = null;
         let longPressCommitted = false; 
@@ -485,22 +523,13 @@
         const KEYCODE_DOWN=0xff54;
         const KEYCODE_DEL_F=0xff;
 
-        // --- 簡繁轉換表 (基礎示範用，完整轉換需要更大的字典) ---
-        const TS_MAP = {
-            '體': '体', '碼': '码', '說': '说', '這': '这', '個': '个', 
-            '們': '们', '樂': '乐', '風': '风', '開': '开', '對': '对',
-            '會': '会', '國': '国', '議': '议', '變': '变', '應': '应',
-            '學': '学', '發': '发', '廠': '厂', '廣': '广', '裡': '里',
-            '幾': '几', '為': '为', '從': '从', '後': '后', '麵': '面',
-            '術': '术', '隻': '只', '頭': '头', '話': '话', '裡': '里'
-        };
-
         /**
          * 執行簡體字轉換
          */
         function convertToSimplified(text) {
-            if (!isSimplifiedMode) {
-                return text; // 繁體模式，不轉換
+            // 檢查是否為簡體模式 *以及* TS_MAP 是否已載入
+            if (!isSimplifiedMode || !TS_MAP) { 
+                return text; // 繁體模式或地圖未載入，不轉換
             }
 
             let simplifiedText = '';
@@ -1639,8 +1668,9 @@
 
 
         // 頁面啟動
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => { // **改為 async**
             drawKeyboard(); 
+            await loadTSMap(); // **新增：載入簡繁轉換表**
             loadSecondaryCodemap(); 
             
             textOutput.addEventListener('click', handleTextTap);
@@ -1655,5 +1685,6 @@
         
     </script>
 </body>
+
 
 </html>
