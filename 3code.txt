@@ -1,5 +1,7 @@
 ﻿encode=UTF-8
-name=三碼中文輸入法 v.20250912.1 碼≠ecd 褫=eff≠ef' 唬=of≠of' a/n=鍾=飪=錘 剌=yoj
+name=三碼中文輸入法
+#版本：v.20251026.1
+#
 #作者：無書自通（改編）源自王堯世先生創作之象形王碼第二代
 key=;',./abcdefghijklmnopqrstuvwxyz
 len=3
@@ -11,7 +13,6 @@ wildcard=?
 dwf=0
 [data]
 #自建、符號
-s.. …
 sc ㄛ
 sy ㄚ
 sa ㄝ
@@ -39,6 +40,7 @@ lxl ～>_<～
 ... ∴
 ... …
 ... ·
+s.. …
 qo ○
 oq ○
 rr （
@@ -53,8 +55,8 @@ s/ ？
 s; ：
 sj ；
 si ！
-se –
 se －
+se –
 se ─
 sl ～
 sx ※
