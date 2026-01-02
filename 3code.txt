@@ -1,7 +1,7 @@
-﻿encode=UTF-8
+encode=UTF-8
 name=三碼中文輸入法
-#版本：v.20260101.1
-#新增一碼字
+#版本：v.20260102.1
+#刪除重複的一碼字
 #作者：無書自通（改編）源自王堯世先生創作之象形王碼輸入法
 key=;',./abcdefghijklmnopqrstuvwxyz
 len=3
@@ -293,11 +293,6 @@ sqq Ⓦ
 sqq Ⓧ
 sqq Ⓨ
 sqq Ⓩ
-s ，
-s 。
-s 、
-s ：
-s ；
 s ！
 s ？
 s –
@@ -442,11 +437,6 @@ mmm ∩
 s// ／
 s'' 〃
 #常用字
-' 八
-' 九
-' 儿
-' 几
-' 尢
 '' 仇
 ''c 益
 ''d 份
@@ -733,9 +723,6 @@ s'' 〃
 'yj 剁
 'z 仔
 'zm 俑
-, 中
-, 申
-, 虫
 ,' 六
 ,' 亢
 ,'' 說
@@ -1117,7 +1104,6 @@ s'' 〃
 ,zm 蛹
 ,zm 譎
 ,zx 敦
-. 心
 .'' 悅
 .'. 怵
 .'i 惟
@@ -1232,7 +1218,6 @@ s'' 〃
 .yo 悚
 .yr 懶
 .z 之
-/ 夕
 /'' 稅
 /'. 慇
 /'c 盤
@@ -1532,7 +1517,6 @@ s'' 〃
 /z 孚
 /zc 艋
 /zl 乳
-; 水
 ;'. 汍
 ;'. 汎
 ;'a 濮
@@ -1886,11 +1870,6 @@ s'' 〃
 ;zm 涌
 ;zr 澦
 ;zu 涵
-a 人
-a 入
-a 大
-a 夫
-a 金
 a'' 銳
 a'. 釩
 a'c 鎰
@@ -2156,8 +2135,6 @@ azc 錳
 azj 舒
 azo 含
 azr 貪
-b 乃
-b 耳
 b'c 隘
 b'e 際
 b'j 附
@@ -2241,9 +2218,6 @@ bxx 娶
 bxz 聚
 byq 陳
 bz 孕
-c 四
-c 西
-c 皿
 c' 匹
 c', 飄
 c'c 醫
@@ -2358,10 +2332,6 @@ cxv 豎
 cxw 緊
 cy 栗
 cz 眾
-d 力
-d 刀
-d 弓
-d 丑
 d'i 雊
 d'i 雛
 d,s 弦
@@ -2458,8 +2428,6 @@ dud 芻
 dux 匈
 dx 匆
 dyd 粥
-e 一
-e 示
 e' 兀
 e', 虺
 e'a 袱
@@ -2785,7 +2753,6 @@ eyq 霜
 eyy 霖
 ezn 霾
 eys 鬆
-f 虎
 f', 瘋
 f'. 應
 f'd 鷹
@@ -3000,7 +2967,6 @@ fyy 糜
 fzj 序
 fzj 劇
 fzm 痛
-g 穴
 g' 究
 g' 冗
 g'd 鴆
@@ -3107,8 +3073,6 @@ gym 竊
 gz 字
 gz 家
 gz 冢
-h 廿
-h 廾
 h' 共
 h'a 葵
 h'a 鑿
@@ -3397,11 +3361,6 @@ hzw 蒸
 hzw 荻
 hzw 蓀
 hzy 鞣
-i 工
-i 五
-i 王
-i 亞
-i 卜
 i'. 恐
 i'l 玳
 i't 珮
@@ -3547,7 +3506,6 @@ ixy 璨
 iyi 班
 iyy 琳
 iz 琢
-j 丁
 j' 扒
 j'a 揆
 j'd 拋
@@ -3781,8 +3739,6 @@ jyc 揀
 jze 拯
 jzj 抒
 jzy 揉
-k 片
-k 竹
 k'a 篌
 k'i 雉
 k'j 符
@@ -3932,11 +3888,6 @@ kym 策
 kyq 箱
 kyq 籍
 kyr 籟
-l 七
-l 乙
-l 戊
-l 戈
-l 弋
 l'a 送
 l'i 進
 l'j 遵
@@ -4078,9 +4029,6 @@ lzi 逛
 lzm 通
 lzw 遜
 lzw 逖
-m 月
-m 門
-m 鬥
 m' 肌
 m'' 脫
 m'' 閱
@@ -4257,8 +4205,6 @@ my 閑
 my; 膝
 myc 闌
 mz 豚
-n 土
-n 士
 n'a 堠
 n'b 聲
 n'd 勢
@@ -4487,8 +4433,6 @@ nxw 煞
 nxw 熬
 nyl 栽
 nzx 教
-o 口
-o 田
 o' 只
 o' 兄
 o' 叭
@@ -4846,8 +4790,6 @@ ozj 野
 ozl 吼
 ozn 墅
 ozy 蹂
-p 戶
-p 尸
 p'i 雇
 p'm 臀
 p'x 殿
@@ -4912,10 +4854,6 @@ px. 愍
 pxo 啟
 pxt 肇
 pzz 孱
-q 日
-q 目
-q 曰
-q 曲
 q' 見
 q' 典
 q'a 睽
@@ -5053,7 +4991,6 @@ qy 杲
 qy 昧
 qya 睞
 qyt 晰
-r 貝
 r,a 賅
 r,o 賠
 r/z 貶
@@ -5259,9 +5196,6 @@ syc 練
 syd 勦
 syj 剿
 szj 紓
-t 十
-t 巾
-t 丰
 t'. 帆
 t'i 帷
 t'j 擊
@@ -5388,8 +5322,6 @@ txa 麩
 txx 輟
 tyl 栽
 tzd 勃
-u 山
-u 臼
 u' 兒
 u', 嵐
 u'i 崔
@@ -5488,7 +5420,6 @@ uys 崧
 uz; 函
 uza 嶽
 uzz 豳
-v 羊
 v' 羌
 v'c 益
 v,e 羶
@@ -5533,8 +5464,6 @@ vum 朔
 vw 羔
 vwa 羹
 vx 姜
-w 小
-w 火
 w'd 粉
 w'v 燈
 w,' 炕
@@ -5678,8 +5607,6 @@ wy' 糞
 wyc 煉
 wyx 敉
 wyz 籽
-x 又
-x 女
 x'i 雒
 x'x 殺
 x,d 妨
@@ -5799,11 +5726,6 @@ xyx 嫩
 xz 好
 xzj 妤
 xzx 教
-y 木
-y 未
-y 末
-y 耒
-y 丫
 y' 機
 y', 楓
 y'i 椎
@@ -6047,11 +5969,6 @@ yze 極
 yzj 杼
 yzm 桶
 yzm 橘
-z 了
-z 子
-z 孑
-z 孓
-z 豕
 z'a 猴
 z'c 猶
 z,' 疏
