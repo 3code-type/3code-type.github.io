@@ -334,7 +334,6 @@ ss	δ
 ss	ε
 ss	τ
 ss	η
-ss	ω
 ss	φ
 ss	∞
 sss	℃
