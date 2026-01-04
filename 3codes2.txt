@@ -1,6 +1,9 @@
 #自建
 /d	的
 sc	ㄛ
+sy#自建
+/d	的
+sc	ㄛ
 sy	ㄚ
 sa	ㄝ
 sn	ㄋ
@@ -334,7 +337,6 @@ ss	δ
 ss	ε
 ss	τ
 ss	η
-ss	ω
 ss	φ
 ss	∞
 sss	℃
@@ -9622,7 +9624,6 @@ hbr	藬
 hbx	菆
 hby	蔯
 hby	蒢
-hc	茜
 hcd	茞
 hce	莤
 hce	蔈
@@ -9715,7 +9716,6 @@ hfj	藦
 hfj	蘮
 hfl	菧
 hfl	蔍
-hfn	茬
 hfo	茩
 hfo	蓎
 hfo	菪
@@ -10439,7 +10439,6 @@ jo.	摁
 jo.	揌
 jok	揋
 jok	攌
-jol	挹
 jon	捚
 joo	撂
 jor	摜
@@ -12786,7 +12785,6 @@ wd	炄
 wd	鶼
 wd,	糨
 wd/	粅
-wda	炔
 wdd	糑
 wdd	翷
 wdh	熽
