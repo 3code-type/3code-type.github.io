@@ -1,10 +1,10 @@
 #三碼中文輸入法_次常用字版
-#版本：v.20260102.1 
-#刪除重複的一碼字
+#版本：v.20260104.1 
+#刪除重複的編碼字
 #作者：無書自通（改編）源自王堯世先生創作之象形王碼第二代（收錄BIG5碼13060個漢字）
 %ename 3code:en;三码:zh_CN;三碼:zh;
-%cname 三碼
-#sname 三碼
+%cname 三碼輸入法
+#sname 三碼輸入法
 %selkey 1234567890
 %keyname begin
 '	’
@@ -376,7 +376,6 @@ ss	δ
 ss	ε
 ss	τ
 ss	η
-ss	ω
 ss	φ
 ss	∞
 sss	℃
@@ -9664,7 +9663,6 @@ hbr	藬
 hbx	菆
 hby	蔯
 hby	蒢
-hc	茜
 hcd	茞
 hce	莤
 hce	蔈
@@ -9757,7 +9755,6 @@ hfj	藦
 hfj	蘮
 hfl	菧
 hfl	蔍
-hfn	茬
 hfo	茩
 hfo	蓎
 hfo	菪
@@ -10481,7 +10478,6 @@ jo.	摁
 jo.	揌
 jok	揋
 jok	攌
-jol	挹
 jon	捚
 joo	撂
 jor	摜
@@ -12828,7 +12824,6 @@ wd	炄
 wd	鶼
 wd,	糨
 wd/	粅
-wda	炔
 wdd	糑
 wdd	翷
 wdh	熽

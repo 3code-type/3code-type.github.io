@@ -1,7 +1,7 @@
 encode=UTF-8
 name=三碼中文輸入法
-#版本：v.20260102.1
-#刪除重複的一碼字
+#版本：v.20260104.1
+#刪除重複的編碼字
 #作者：無書自通（改編）源自王堯世先生創作之象形王碼輸入法
 key=;',./abcdefghijklmnopqrstuvwxyz
 len=3
@@ -348,7 +348,6 @@ ss δ
 ss ε
 ss τ
 ss η
-ss ω
 ss φ
 ss ∞
 sss ℃
