@@ -1,4 +1,4 @@
-##自建
+#自建
 /d	的
 sc	ㄛ
 sy	ㄚ
@@ -29,7 +29,6 @@ lxl	～>_<～
 ,	申
 ,	虫
 ,	亠
-,	讠
 .	心
 .	忄
 .	、
@@ -39,6 +38,7 @@ lxl	～>_<～
 /	㇏
 /	爫
 ;	水
+;	氺
 ;	氵
 ;	冫
 a	人
@@ -48,9 +48,6 @@ a	夫
 a	金
 a	亼
 a	釒
-a	钅
-a	飠
-a	饣
 b	乃
 b	耳
 b	阝
@@ -59,6 +56,7 @@ c	西
 c	皿
 c	罒
 c	匚
+c	覀
 d	力
 d	刀
 d	弓
@@ -66,11 +64,11 @@ d	丑
 d	𠃌
 d	勹
 d	彐
+d	⺕
 e	一
 e	示
 e	礻
 e	衤
-e	马
 f	虎
 f	虍
 f	厂
@@ -99,7 +97,6 @@ k	片
 k	竹
 k	爿
 k	⺮
-k	长
 l	七
 l	乙
 l	戊
@@ -112,10 +109,10 @@ l	廴
 m	月
 m	門
 m	鬥
-m	门
 m	冂
 n	土
 n	士
+n	⺈
 o	口
 o	田
 o	囗
@@ -127,7 +124,6 @@ q	目
 q	曰
 q	曲
 r	貝
-r	贝
 s	，
 s	。
 s	、
@@ -146,6 +142,7 @@ u	臼
 u	屮
 u	凵
 v	羊
+v	⺷
 w	小
 w	火
 w	灬
@@ -155,6 +152,9 @@ x	女
 x	乂
 x	卍
 x	卐
+x	攵
+x	夂
+x	夊
 y	木
 y	未
 y	末
@@ -182,7 +182,9 @@ z	㇇
 ...	·
 s..	…
 qo	○
+qo	●
 oq	○
+oq	●
 rr	（
 tt	）
 ff	「
@@ -422,6 +424,18 @@ uuu	∪
 mmm	∩
 s//	／
 s''	〃
+sb	⿰
+sb	⿱
+sb	⿲
+sb	⿳
+sb	⿴
+sb	⿵
+sb	⿶
+sb	⿷
+sb	⿸
+sb	⿹
+sb	⿺
+sb	⿻
 #常用字
 ''	仇
 ''c	益
@@ -2068,6 +2082,7 @@ aqk	銀
 aql	錕
 aql	餛
 aqo	倉
+aqs	飠
 aqt	銲
 aqx	鏝
 aqx	饅
@@ -2866,6 +2881,7 @@ fmb	郁
 fmb	鄘
 fmd	勵
 fme	疽
+fmm	癇
 fn	庄
 fn.	痣
 fna	欣
@@ -2911,6 +2927,7 @@ ft.	斥
 fte	丘
 ftm	廟
 ftq	盾
+ftr	癲
 ftt	庫
 ftu	岳
 fu	疝
@@ -3992,6 +4009,7 @@ ls	巡
 lsl	邋
 lso	迨
 lt	戎
+lt	卂
 ltt	連
 lva	送
 lvh	迸
@@ -4407,6 +4425,7 @@ nw'	魷
 nwb	郝
 nwm	趙
 nwm	趟
+nwn	𩵚
 nwt	鱗
 nwv	鮮
 nww	燄
@@ -5167,6 +5186,7 @@ svo	繕
 svw	縑
 sw	災
 sw	糸
+sw	糹
 sw,	紳
 sw/	紗
 swd	紐
