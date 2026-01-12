@@ -1167,7 +1167,7 @@ sb	⿻
 .kw	憮
 .kx	愎
 .ky	愾
-.l'	慎
+.l'	愼
 .l.	憾
 .ma	怏
 .ml	惘
@@ -1527,7 +1527,6 @@ sb	⿻
 ;'o	沿
 ;'o	浴
 ;'v	澄
-;'x	沒
 ;'x	没
 ;'x	潑
 ;'y	染
@@ -1616,6 +1615,7 @@ sb	⿻
 ;ce	酒
 ;ce	漂
 ;ck	澴
+;ci	滙
 ;cl	澠
 ;cn	湮
 ;cq	潛
@@ -1819,6 +1819,7 @@ sb	⿻
 ;sy	灤
 ;t	斗
 ;t	汁
+;t'	滇
 ;td	渤
 ;td	瀚
 ;tj	溥
@@ -2015,7 +2016,7 @@ akc	鑑
 akd	飭
 akj	鏘
 akt	飾
-al'	鎮
+al'	鎭
 ald	鵪
 all	錢
 all	餞
@@ -2253,6 +2254,7 @@ cd	巨
 cd,	蜀
 cd.	酌
 cda	臥
+cdi	卧
 cdl	配
 ce	票
 ce	酉
@@ -2515,7 +2517,6 @@ edd	翮
 edl	砲
 edl	袍
 edl	馳
-edl	雹
 edo	祠
 edo	裙
 edo	駒
@@ -2705,6 +2706,8 @@ eqo	碣
 eqo	褐
 eqv	禮
 er	頁
+erl	貮
+esc	䦉
 esl	磯
 esn	至
 eso	殆
@@ -3978,8 +3981,7 @@ llc	盞
 lle	比
 llq	皆
 llt	迅
-lm'	真
-lma	真
+lm'	眞
 lmm	過
 lmo	週
 lmo	迥
@@ -4328,7 +4330,7 @@ nk	表
 nkc	鹽
 nkd	觴
 nkl	裁
-nl'	填
+nl'	塡
 nla	填
 nld	城
 nle	域
@@ -5165,6 +5167,7 @@ ssa	鑾
 ssd	彎
 ssd	鷥
 ssd	鸞
+sse	叄
 ssj	攣
 ssl	幾
 ssl	畿
@@ -5280,7 +5283,6 @@ tkl	裁
 tli	軾
 tlr	頓
 tm'	真
-tma	真
 tme	直
 tml	輞
 tmq	帽
@@ -8347,7 +8349,6 @@ cd/	覅
 cdd	翾
 cdd	翲
 cdd	鸀
-cdi	卧
 cdl	酏
 cdl	匜
 cdu	醄
@@ -8538,6 +8539,7 @@ dol	毠
 dop	卲
 dor	頵
 dot	彃
+dov	羣
 dow	焄
 dq'	覗
 dq'	飁
@@ -12686,6 +12688,7 @@ ux;	鼨
 uxb	鄋
 uxo	峈
 uxo	峉
+uxt	峯
 uya	崍
 uyi	嵀
 uyq	崠
