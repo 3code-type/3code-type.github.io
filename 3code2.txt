@@ -1,41 +1,19 @@
 encode=UTF-8
 name=三碼中文輸入法_次常用字版
-#版本：v.20260118.1
+#版本：v.20260120.1
 #增修文字：
-#dov 羣（次常）
-#uxt 峯（次常）
-#lma 真（刪除）
-#tma 真（刪除）
-#lm' 眞≠真
-#.l' 愼≠慎
-#;t' 滇
-#;'x 沒（刪除）
-#al' 鎭≠鎮
-#nl' 塡≠填
-#;ci 滙
-#cdi 卧（次常→常用）
-#edl 雹（刪除）
-#erl 貮
-#sse 叄
-#esc 䦉
-#pxo 啓≠啟
-#m ㄇ（一碼字增加「ㄇ」字元）
-#/dw 爲
-#'/d 僞
-#ho' 黄（次常）
-#d/v 羣
-#ss √（數學符號增加「√」）
-#s. 。
-#s; ；
-#i 丨（一碼字增加「丨」字元）
-#d ㄅ（一碼字增加「ㄅ」字元）
-#v 丷（一碼字增加「丷」字元）
-#lg. 𰻞（罕用）
-#,il 𪚥（罕用）
-#eml 𱁬（罕用）
-#eoo 靐（罕用）
-#nww 鱻（罕用）
-#,il 龘（次常）
+#ij 刂
+#k 𠂉（一碼字增加「𠂉」）
+#aaa 众（罕用）
+#.. 㣺（罕用）
+#j 刂（一碼字增加「刂」）
+#lj 划
+#aj 釗
+#zj 剢（次常）
+#bj 刵（次常）
+#mj 刖（次常）
+#'cj 颬（次常）
+#dl 乜（次常）
 #作者：無書自通（改編）源自王堯世先生創作之象形王碼輸入法（收錄BIG5碼13060個漢字）
 key=;',./abcdefghijklmnopqrstuvwxyz
 len=3
@@ -96,6 +74,7 @@ a 夫
 a 金
 a 亼
 a 釒
+a 𡗗
 b 乃
 b 耳
 b 阝
@@ -133,6 +112,7 @@ h 廾
 h 卌
 h 丱
 h 业
+h 艹
 i 工
 i 五
 i 王
@@ -143,10 +123,12 @@ i 丨
 j 丁
 j 亅
 j 扌
+j 刂
 k 片
 k 竹
 k 爿
 k ⺮
+k 𠂉
 l 七
 l 乙
 l 戊
@@ -160,7 +142,6 @@ m 月
 m 門
 m 鬥
 m 冂
-m ㄇ
 m ㄇ
 n 土
 n 士
@@ -246,6 +227,7 @@ vv 』
 s, ，
 s. 、
 s. 。
+s. ．
 s/ ？
 s; ：
 s; ；
@@ -493,6 +475,7 @@ sb ⿺
 sb ⿻
 #常用字
 '' 仇
+''; 佻
 ''c 益
 ''d 份
 ''m 佾
@@ -551,6 +534,7 @@ sb ⿻
 '/x 倭
 '/y 侏
 '/z 俘
+'; 兆
 'a 伕
 'a 釜
 'a. 伶
@@ -751,7 +735,6 @@ sb ⿻
 'vd 偽
 'vh 併
 'vl 儀
-,vm 商
 'vq 僧
 'w 伙
 'wl 倦
@@ -1113,6 +1096,7 @@ sb ⿻
 ,vd 旁
 ,vl 議
 ,vl 蟻
+,vm 商
 ,vn 童
 ,vq 音
 ,vq 譜
@@ -1314,6 +1298,7 @@ sb ⿻
 //. 憩
 /// 移
 /// 穆
+/// 彡
 //a 秩
 //i 徨
 //j 衝
@@ -2066,6 +2051,7 @@ aii 釧
 aij 釗
 aio 鈾
 aj 釘
+aj 釗
 ajo 奇
 akc 鑑
 akd 飭
@@ -2689,6 +2675,7 @@ ekx 複
 el' 驥
 el' 冀
 el' 覜
+el/ 北
 el; 兆
 ela 礙
 elb 邶
@@ -3031,6 +3018,7 @@ fzj 劇
 fzm 痛
 g' 究
 g' 冗
+g'; 窕
 g'd 鴆
 g'e 察
 g'j 冠
@@ -3509,6 +3497,7 @@ iio 齬
 iiq 璿
 iir 順
 iiz 琴
+ij 刂
 ile 此
 ile 些
 ili 雌
@@ -3569,6 +3558,7 @@ iyi 班
 iyy 琳
 iz 琢
 j' 扒
+j'; 挑
 j'a 揆
 j'd 拋
 j'd 扮
@@ -3950,6 +3940,7 @@ kym 策
 kyq 箱
 kyq 籍
 kyr 籟
+l'; 逃
 l'a 送
 l'i 進
 l'j 遵
@@ -3995,6 +3986,7 @@ ldo 遛
 ldt 建
 ldt 違
 ldt 肄
+le 匕
 le 戌
 lei 逕
 lej 迂
@@ -4030,9 +4022,11 @@ lij 划
 lio 迪
 liw 戚
 lix 收
+lj 划
 ljt 逝
 lkl 迄
 lkl 迤
+ll/ 比
 llc 盞
 lle 比
 llq 皆
@@ -4500,6 +4494,7 @@ o' 只
 o' 兄
 o' 叭
 o'/ 咿
+o'; 跳
 o'a 喉
 o'd 吩
 o'd 嗡
@@ -4919,6 +4914,7 @@ pxt 肇
 pzz 孱
 q' 見
 q' 典
+q'; 眺
 q'a 睽
 q'd 盼
 q'i 睢
@@ -5671,6 +5667,7 @@ wy' 糞
 wyc 煉
 wyx 敉
 wyz 籽
+x'; 姚
 x'i 雒
 x'x 殺
 x,d 妨
@@ -5792,6 +5789,7 @@ xzj 妤
 xzx 教
 y' 機
 y', 楓
+y'; 桃
 y'i 椎
 y's 松
 y'w 樵
@@ -6199,6 +6197,7 @@ zzc 猛
 'cd 佢
 'ce 僄
 'cj 伢
+'cj 颬
 'ck 儇
 'cl 僊
 'cl 僶
@@ -6344,6 +6343,7 @@ zzc 猛
 'qx 僈
 'rd 儩
 's 厹
+'s 仏
 'sl 儠
 'sl 瓮
 'so 佁
@@ -6631,7 +6631,7 @@ zzc 猛
 ,hx 蠖
 ,hy 蠂
 ,hz 蠓
-,I, 蠪
+,i, 蠪
 ,ia 龑
 ,id 鸗
 ,ie 龒
@@ -8327,6 +8327,7 @@ bie 騭
 bij 刵
 bio 阽
 bj 耵
+bj 刵
 bke 阼
 bkl 阣
 bl 耴
@@ -8440,7 +8441,6 @@ chw 醼
 cio 酟
 cix 斀
 cix 敺
-cj 颬
 cjo 酠
 ckc 盬
 cke 酢
@@ -8578,6 +8578,7 @@ did 鸐
 djb 鄩
 djd 匑
 dku 匋
+dl 乜
 dlb 邔
 dlh 异
 dlw 炰
@@ -9175,6 +9176,7 @@ eww 礯
 eww 裧
 ewx 襒
 ewx 駇
+ewx 嫑
 ex. 憨
 ex. 衩
 exb 郠
@@ -9436,6 +9438,7 @@ fz, 瓥
 g' 宄
 g' 冘
 g'; 沊
+g'; 宨
 g'b 邥
 g'b 鄍
 g'l 戭
@@ -10984,6 +10987,7 @@ mhx 雘
 mhy 腜
 mil 骴
 mix 鬫
+mj 刖
 mjo 閜
 mke 胙
 mkl 肐
@@ -13767,6 +13771,7 @@ zi 孲
 zid 鵟
 zij 剢
 zil 獩
+zj 剢
 zjf 虢
 zjm 矞
 zjt 狾
@@ -13849,6 +13854,7 @@ aa 𠓜
 'aa 𠇒
 /aa 𫡑
 /aa 𠂹
+aaa 众
 aaa 𠉭
 'aa 𬾀
 oo 吕
@@ -13860,3 +13866,4 @@ lg. 𰻞
 eml 𱁬
 eoo 靐
 nww 鱻
+.. 㣺
