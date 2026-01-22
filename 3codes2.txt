@@ -112,6 +112,7 @@ l	戉
 l	乚
 l	辶
 l	廴
+l	㇈
 m	月
 m	門
 m	鬥
@@ -167,6 +168,7 @@ y	未
 y	末
 y	耒
 y	丫
+y	朩
 z	了
 z	子
 z	孑
@@ -296,6 +298,7 @@ s	！
 s	？
 s	–
 s	～
+s	○
 s	「
 s	」
 s	『
@@ -320,7 +323,6 @@ s	‘
 s	’
 s	“
 s	”
-s	○
 s	◎
 s	㊣
 ss	×
@@ -1787,6 +1789,7 @@ sb	⿻
 ;o'	況
 ;o'	潠
 ;oa	泅
+;oc	溫
 ;ol	浥
 ;om	涓
 ;om	渭
@@ -1808,7 +1811,7 @@ sb	⿻
 ;q	汨
 ;q/	渺
 ;q;	瀑
-;qc	溫
+;qc	温
 ;qc	盪
 ;qd	湯
 ;qk	濃
@@ -3066,7 +3069,7 @@ gl/	它
 gme	宜
 gml	寵
 gmm	窩
-gn;	冤
+gn'	冤
 gno	害
 gnr	竇
 goj	割
@@ -9282,7 +9285,6 @@ feo	癗
 fet	皯
 ff	虒
 ff	虤
-fff	麤
 ffl	厎
 ffl	疧
 ffl	麤
@@ -13841,3 +13843,5 @@ eml	𱁬
 eoo	靐
 nww	鱻
 ..	㣺
+n''	𠓗
+vvv	羴
