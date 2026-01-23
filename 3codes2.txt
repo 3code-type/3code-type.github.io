@@ -1,4 +1,4 @@
-﻿#自建
+#自建
 /d	的
 sc	ㄛ
 sy	ㄚ
@@ -66,6 +66,8 @@ d	𠃌
 d	勹
 d	彐
 d	⺕
+d	コ
+d	𫝀
 d	ㄅ
 e	一
 e	示
@@ -137,6 +139,7 @@ s	。
 s	、
 s	：
 s	；
+s	！
 s	ㄠ
 s	ㄙ
 s	𠂎
@@ -144,12 +147,14 @@ s	巛
 t	十
 t	巾
 t	丰
+t	㐄
 u	山
 u	臼
 u	屮
 u	凵
 v	羊
 v	⺷
+v	䒑
 v	丷
 w	小
 w	火
@@ -294,7 +299,6 @@ sqq	Ⓦ
 sqq	Ⓧ
 sqq	Ⓨ
 sqq	Ⓩ
-s	！
 s	？
 s	–
 s	～
@@ -954,8 +958,8 @@ sb	⿻
 ,lm	肓
 ,ln	蜓
 ,lo	譴
-,lq	諧
 ,lq	盲
+,lq	諧
 ,lq	詣
 ,lt	訊
 ,lx	妄
@@ -2101,7 +2105,6 @@ aqk	銀
 aql	錕
 aql	餛
 aqo	倉
-aqs	飠
 aqt	銲
 aqx	鏝
 aqx	饅
@@ -2584,10 +2587,8 @@ eft	褲
 efw	騵
 efx	被
 efx	破
-eg	雨
 eg'	霓
 eg.	零
-eg;	雨
 ega	靛
 egd	雪
 egd	雩
@@ -2624,7 +2625,6 @@ ehl	襪
 eho	褡
 ehy	碟
 ei	下
-ei.	下
 ei.	忑
 eid	丐
 eid	勁
@@ -5218,7 +5218,6 @@ svo	繕
 svw	縑
 sw	災
 sw	糸
-sw	糹
 sw,	紳
 sw/	紗
 swd	紐
@@ -8163,10 +8162,12 @@ aql	鈀
 aqo	鍻
 aqo	餲
 aqq	錩
+aqs	飠
 aqx	嫢
 aqx	钁
 aqy	槼
 arj	鍘
+as	飠
 as'	鈗
 as/	鏒
 asj	飣
@@ -8876,11 +8877,13 @@ eft	褯
 efx	祓
 efx	袚
 efz	袸
+eg	⻗
 eg	袕
 eg'	霬
 eg'	殥
 eg'	衴
 eg/	霦
+eg;	⻗
 ega	碇
 ega	霙
 ega	雵
@@ -11230,6 +11233,7 @@ neo	嚭
 neo	堛
 net	赶
 nex	鯁
+nf	厃
 nf/	瓡
 nf/	觚
 nfc	壚
@@ -12330,6 +12334,7 @@ svh	絣
 svi	縒
 svj	繜
 svt	縌
+sw	糹
 sw'	絖
 swj	糽
 swl	綣

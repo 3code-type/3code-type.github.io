@@ -1,4 +1,4 @@
-﻿#自建
+#自建
 /d	的
 sc	ㄛ
 sy	ㄚ
@@ -877,8 +877,8 @@ sb	⿻
 ,lm	肓
 ,ln	蜓
 ,lo	譴
-,lq	諧
 ,lq	盲
+,lq	諧
 ,lq	詣
 ,lt	訊
 ,lx	妄
@@ -2507,10 +2507,8 @@ eft	褲
 efw	騵
 efx	被
 efx	破
-eg	雨
 eg'	霓
 eg.	零
-eg;	雨
 ega	靛
 egd	雪
 egd	雩
@@ -2547,7 +2545,6 @@ ehl	襪
 eho	褡
 ehy	碟
 ei	下
-ei.	下
 ei.	忑
 eid	丐
 eid	勁

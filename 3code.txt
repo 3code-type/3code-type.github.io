@@ -1,11 +1,10 @@
 encode=UTF-8
 name=三碼中文輸入法
-#版本：v.20260122.1
+#版本：v.20260124.1
 #增修文字：
-#gn' 冤（編碼修正）
-#一碼字元刪除輔助字元（方便視障者及小朋友學習）
-#;oc 溫（;qc改為;oc）
-#;qc 温
+#增修文字：
+#eg 雨（刪除）
+#eg; 雨（刪除）
 #作者：無書自通（改編）源自王堯世先生創作之象形王碼輸入法
 key=;',./abcdefghijklmnopqrstuvwxyz
 len=3
@@ -895,8 +894,8 @@ sb ⿻
 ,lm 肓
 ,ln 蜓
 ,lo 譴
-,lq 諧
 ,lq 盲
+,lq 諧
 ,lq 詣
 ,lt 訊
 ,lx 妄
@@ -2525,10 +2524,8 @@ eft 褲
 efw 騵
 efx 被
 efx 破
-eg 雨
 eg' 霓
 eg. 零
-eg; 雨
 ega 靛
 egd 雪
 egd 雩
@@ -2565,7 +2562,6 @@ ehl 襪
 eho 褡
 ehy 碟
 ei 下
-ei. 下
 ei. 忑
 eid 丐
 eid 勁
