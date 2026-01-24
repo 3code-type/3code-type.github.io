@@ -3,4 +3,6 @@ Disallow: /admin/
 
 
 Sitemap: https://3code-type.github.io/
+Sitemap: https://3code-type.github.io/mobile/
 Sitemap: https://3code-type.github.io/3code_mobile.html
+
