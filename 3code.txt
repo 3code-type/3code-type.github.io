@@ -1,10 +1,18 @@
 encode=UTF-8
 name=三碼中文輸入法
-#版本：v.20260124.1
+#版本：v.20260209.1
 #增修文字：
-#增修文字：
-#eg 雨（刪除）
-#eg; 雨（刪除）
+#/cz 衆（眾→衆）
+#,ke 蚱詐→詐蚱
+#l.a 以
+#xla 姒
+#'la 似
+#ipl 珉
+#aod 鍔鴿→鴿鍔
+#fk 辰
+#fej 辱
+#fvj 厨
+#fdj 麝
 #作者：無書自通（改編）源自王堯世先生創作之象形王碼輸入法
 key=;',./abcdefghijklmnopqrstuvwxyz
 len=3
@@ -563,6 +571,7 @@ sb ⿻
 'l 代
 'l 伐
 'l/ 化
+'la 似
 'le 化
 'lk 袋
 'll 仳
@@ -867,8 +876,8 @@ sb ⿻
 ,k' 旗
 ,ka 族
 ,ka 旋
-,ke 蚱
 ,ke 詐
+,ke 蚱
 ,kj 旖
 ,kk 旅
 ,kl 施
@@ -1251,7 +1260,7 @@ sb ⿻
 /co 軀
 /cp 卹
 /ct 釋
-/cz 眾
+/cz 衆
 /d. 的
 /d/ 物
 /d/ 穋
@@ -2012,8 +2021,8 @@ ao 鈿
 ao; 錄
 aob 郃
 aoc 盒
-aod 鍔
 aod 鴿
+aod 鍔
 aoi 鉀
 aoj 創
 aoj 拿
@@ -2041,7 +2050,6 @@ aqk 銀
 aql 錕
 aql 餛
 aqo 倉
-aqs 飠
 aqt 銲
 aqx 鏝
 aqx 饅
@@ -2766,6 +2774,7 @@ fd/ 廖
 fd; 康
 fda 庚
 fda 鏖
+fdj 麝
 fdl 鹿
 fdl 皰
 fdl 厄
@@ -2788,6 +2797,7 @@ fee 症
 fee 痱
 fei 痙
 fej 厨
+fej 辱
 fek 辰
 fem 病
 feo 痞
@@ -2821,6 +2831,7 @@ fin 在
 fio 店
 fiz 存
 fjj 麝
+fk 辰
 fka 疾
 fkj 辱
 fkl 疙
@@ -2895,6 +2906,7 @@ fua 庾
 fux 瘦
 fv 庠
 fva 厥
+fvj 厨
 fvk 癢
 fvl 戲
 fvw 廉
@@ -3440,6 +3452,7 @@ ion 理
 ioo 噩
 iox 敔
 iox 鹵
+ipl 珉
 ipn 齷
 ipx 瑕
 iq' 現
@@ -3865,6 +3878,7 @@ l,o 遣
 l,r 遺
 l,z 遊
 l. 戍
+l.a 以
 l/ 匕
 l/, 虱
 l/a 迭
@@ -5155,7 +5169,6 @@ svo 繕
 svw 縑
 sw 災
 sw 糸
-sw 糹
 sw, 紳
 sw/ 紗
 swd 紐
@@ -5643,6 +5656,7 @@ xij 刈
 xio 妯
 xj 刈
 xkw 嫵
+xla 姒
 xli 弒
 xll 妣
 xme 姐

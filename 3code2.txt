@@ -1,19 +1,26 @@
 encode=UTF-8
 name=三碼中文輸入法_次常用字版
-#版本：v.20260124.1
+#版本：v.20260209.1
 #增修文字：
-#eg 雨（刪除）
-#eg; 雨（刪除）
-#eg ⻗（次常）
-#eg; ⻗（次常）
-#sw 糹（常用改次常）
-#as 飠（次常）
-#aqs 飠（常用改次常）
-#v 䒑（一碼字元「v」增加「䒑」）
-#d コ（一碼字元「d」增加「コ」）
-#d 𫝀（一碼字元「d」增加「𫝀」）
-#t 㐄（一碼字元「t」增加「㐄」）
-#nf 厃（次常）
+#/cz 衆（眾→衆）
+#z 乑 一碼字元增加「乑」
+#l 𠄌 一碼字元增加「𠄌」
+#,ke 蚱詐→詐蚱
+#l.a 以
+#xla 姒
+#'la 似
+#hla 苡（次常）
+#ala 鉯（次常）
+#haa 薿（次常）
+#g.m 𡩋（次常）
+#g.m 寗（次常）
+#ipl 珉
+#aod 鍔鴿→鴿鍔
+#fk 辰
+#fej 辱
+#fvj 厨
+#fdj 麝
+#hxj 薅（次常）
 #作者：無書自通（改編）源自王堯世先生創作之象形王碼輸入法（收錄BIG5碼13060個漢字）
 key=;',./abcdefghijklmnopqrstuvwxyz
 len=3
@@ -141,6 +148,7 @@ l 乚
 l 辶
 l 廴
 l ㇈
+l 𠄌
 m 月
 m 門
 m 鬥
@@ -208,6 +216,7 @@ z 豕
 z 犭
 z 豸
 z 孒
+z 乑
 z ㇇
 #符號
 .. 。
@@ -653,6 +662,7 @@ sb ⿻
 'l 代
 'l 伐
 'l/ 化
+'la 似
 'le 化
 'lk 袋
 'll 仳
@@ -957,8 +967,8 @@ sb ⿻
 ,k' 旗
 ,ka 族
 ,ka 旋
-,ke 蚱
 ,ke 詐
+,ke 蚱
 ,kj 旖
 ,kk 旅
 ,kl 施
@@ -1341,7 +1351,7 @@ sb ⿻
 /co 軀
 /cp 卹
 /ct 釋
-/cz 眾
+/cz 衆
 /d. 的
 /d/ 物
 /d/ 穋
@@ -2102,8 +2112,8 @@ ao 鈿
 ao; 錄
 aob 郃
 aoc 盒
-aod 鍔
 aod 鴿
+aod 鍔
 aoi 鉀
 aoj 創
 aoj 拿
@@ -2855,6 +2865,7 @@ fd/ 廖
 fd; 康
 fda 庚
 fda 鏖
+fdj 麝
 fdl 鹿
 fdl 皰
 fdl 厄
@@ -2877,6 +2888,7 @@ fee 症
 fee 痱
 fei 痙
 fej 厨
+fej 辱
 fek 辰
 fem 病
 feo 痞
@@ -2910,6 +2922,7 @@ fin 在
 fio 店
 fiz 存
 fjj 麝
+fk 辰
 fka 疾
 fkj 辱
 fkl 疙
@@ -2984,6 +2997,7 @@ fua 庾
 fux 瘦
 fv 庠
 fva 厥
+fvj 厨
 fvk 癢
 fvl 戲
 fvw 廉
@@ -3529,6 +3543,7 @@ ion 理
 ioo 噩
 iox 敔
 iox 鹵
+ipl 珉
 ipn 齷
 ipx 瑕
 iq' 現
@@ -3954,6 +3969,7 @@ l,o 遣
 l,r 遺
 l,z 遊
 l. 戍
+l.a 以
 l/ 匕
 l/, 虱
 l/a 迭
@@ -5731,6 +5747,7 @@ xij 刈
 xio 妯
 xj 刈
 xkw 嫵
+xla 姒
 xli 弒
 xll 妣
 xme 姐
@@ -8097,6 +8114,7 @@ al 釓
 al 戣
 al. 鋱
 al. 銊
+ala 鉯
 ald 鋮
 ale 鋋
 ali 鉽
@@ -9458,6 +9476,8 @@ g,x 窔
 g./ 宓
 g.c 寍
 g.m 甯
+g.m 𡩋
+g.m 寗
 g/ 穸
 g/. 窸
 g/. 惌
@@ -9675,6 +9695,7 @@ h;y 蒤
 h;y 莯
 ha 菳
 haa 薟
+haa 薿
 hab 鄚
 had 荂
 had 荑
@@ -9878,6 +9899,7 @@ hkl 芞
 hko 蘠
 hkw 蘩
 hl 芅
+hla 苡
 hla 藗
 hla 薿
 hld 鷰
@@ -10083,7 +10105,7 @@ hx. 憼
 hx; 苳
 hxd 鴱
 hxj 蒘
-hxk 薅
+hxj 薅
 hxo 菇
 hxo 茖
 hxt 莃
