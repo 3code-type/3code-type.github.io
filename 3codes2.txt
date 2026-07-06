@@ -1,4 +1,6 @@
-﻿#自建
+#自建
+cg	§
+cs	§
 /d	的
 sc	ㄛ
 sy	ㄚ
@@ -29,8 +31,10 @@ lxl	～>_<～
 ,	申
 ,	虫
 ,	亠
+,	讠
 .	心
 .	忄
+.	㣺
 .	、
 /	夕
 /	彳
@@ -47,6 +51,7 @@ a	大
 a	夫
 a	金
 a	亼
+a	亽
 a	釒
 a	𡗗
 b	乃
@@ -85,10 +90,13 @@ g	宀
 g	乛
 h	廿
 h	廾
+h	卅
 h	卌
+h	丌
 h	丱
 h	业
 h	艹
+h	𣶒
 i	工
 i	五
 i	王
@@ -96,6 +104,7 @@ i	卜
 i	亞
 i	亜
 i	丨
+i	⺊
 j	丁
 j	亅
 j	扌
@@ -104,6 +113,7 @@ k	片
 k	竹
 k	爿
 k	⺮
+k	𥫗
 k	𠂉
 l	七
 l	乙
@@ -114,15 +124,21 @@ l	戉
 l	乚
 l	辶
 l	廴
+l	⻌
 l	㇈
 l	𠄌
+l	㔾
 m	月
 m	門
 m	鬥
 m	冂
 m	ㄇ
+m	円
+m	⺼
+m	冃
 n	土
 n	士
+n	龶
 n	⺈
 o	口
 o	田
@@ -140,20 +156,23 @@ s	。
 s	、
 s	：
 s	；
-s	！
 s	ㄠ
 s	ㄙ
 s	𠂎
+s	巜
 s	巛
 t	十
 t	巾
 t	丰
+t	𰀁
+t	𠀆
 t	㐄
 u	山
 u	臼
 u	屮
 u	凵
 v	羊
+v	𦍌
 v	⺷
 v	䒑
 v	丷
@@ -183,6 +202,7 @@ z	豕
 z	犭
 z	豸
 z	孒
+z	𧰨
 z	乑
 z	㇇
 #符號
@@ -211,6 +231,7 @@ s,	，
 s.	、
 s.	。
 s.	．
+s.	‰
 s/	？
 s;	：
 s;	；
@@ -301,6 +322,7 @@ sqq	Ⓦ
 sqq	Ⓧ
 sqq	Ⓨ
 sqq	Ⓩ
+s	！
 s	？
 s	–
 s	～
@@ -455,6 +477,16 @@ sb	⿸
 sb	⿹
 sb	⿺
 sb	⿻
+oe	㊀
+oe	㊁
+oe	㊂
+oe	㊃
+oe	㊄
+oe	㊅
+oe	㊆
+oe	㊇
+oe	㊈
+oe	㊉
 #常用字
 ''	仇
 '';	佻
@@ -517,6 +549,8 @@ sb	⿻
 '/y	侏
 '/z	俘
 ';	兆
+';'	覜
+';r	頫
 'a	伕
 'a	釜
 'a.	伶
@@ -540,6 +574,7 @@ sb	⿻
 'bb	爺
 'ca	奠
 'ca	猷
+'cc	尷
 'ce	酋
 'ci	儸
 'cj	尊
@@ -737,7 +772,7 @@ sb	⿻
 'xt	斧
 'xw	鯈
 'xy	條
-'xy	絛
+'xw	絛
 'y	休
 'y	朵
 'ye	体
@@ -802,9 +837,9 @@ sb	⿻
 ,.i	註
 ,.i	蛀
 ,.t	辨
-,yi	辨
 ,.w	譙
 ,/.	蟋
+,/a	畝
 ,/b	誘
 ,/e	蚯
 ,/i	蝗
@@ -984,7 +1019,6 @@ sb	⿻
 ,n'	讒
 ,n'	蟯
 ,n.	誌
-,na	畝
 ,nj	詩
 ,nj	剷
 ,nk	褻
@@ -995,6 +1029,7 @@ sb	⿻
 ,nn	蛙
 ,no	諮
 ,no	詰
+,no	誥
 ,no	蟾
 ,no	譆
 ,no	譫
@@ -1016,6 +1051,7 @@ sb	⿻
 ,ok	哀
 ,ok	裏
 ,ok	裹
+,ok	襄
 ,ol	毫
 ,ol	亳
 ,om	高
@@ -1068,7 +1104,6 @@ sb	⿻
 ,tm	誧
 ,tm	蝴
 ,to	蛄
-,to	啻
 ,to	詁
 ,ua	諛
 ,uk	裒
@@ -1081,6 +1116,7 @@ sb	⿻
 ,vl	蟻
 ,vm	商
 ,vn	童
+,vo	啻
 ,vq	音
 ,vq	譜
 ,vt	章
@@ -1091,7 +1127,6 @@ sb	⿻
 ,w	亦
 ,w'	就
 ,wa	奕
-,wd	彎
 ,wh	弈
 ,wl	蜷
 ,wm	誚
@@ -1099,12 +1134,11 @@ sb	⿻
 ,wt	帟
 ,ww	談
 ,ww	讜
-,wx	變
 ,x	文
 ,x	史
 ,x/	彥
 ,xb	郊
-,xd	效
+,xd	効
 ,xn	產
 ,xo	吝
 ,xo	詻
@@ -1127,9 +1161,9 @@ sb	⿻
 ,zm	譎
 ,zx	敦
 .''	悅
-.'.	怵
 .'i	惟
 .'s	忪
+.'w	憔
 .,.	憶
 .,k	懷
 .,l	忙
@@ -1185,6 +1219,7 @@ sb	⿻
 .io	悟
 .it	悼
 .j.	忖
+.kl	愾
 .ko	悔
 .kw	憮
 .kx	愎
@@ -1198,15 +1233,16 @@ sb	⿻
 .mx	憫
 .nj	恃
 .nm	情
-.no	誥
 .ns	怯
 .nt	悻
 .nt	懈
+.oc	慍
 .od	愕
 .or	慣
 .ot	憚
 .pl	怩
-.qc	慍
+.q'	慨
+.qc	愠
 .qd	惕
 .qe	怛
 .qi	懼
@@ -1237,6 +1273,7 @@ sb	⿻
 .wt	憐
 .xn	怪
 .xo	恪
+.y.	怵
 .yo	悚
 .yr	懶
 .z	之
@@ -1273,6 +1310,9 @@ sb	⿻
 /,x	皎
 /./	秘
 /.i	往
+/.q	稽
+/.u	嵇
+/.w	然
 /.z	乏
 //	多
 //'	魏
@@ -1314,7 +1354,9 @@ sb	⿻
 /aw	忝
 /ay	徐
 /c	血
+/c'	兜
 /ca	眾
+/cc	艦
 /co	軀
 /cp	卹
 /ct	釋
@@ -1369,6 +1411,7 @@ sb	⿻
 /hx	穫
 /i	外
 /i'	兵
+/i.	乓
 /i/	乒
 /i/	乓
 /ia	徙
@@ -1378,9 +1421,11 @@ sb	⿻
 /il	穢
 /io	黏
 /io	釉
+/ir	順
 /iu	岳
 /j	手
 /jd	躬
+/jd	鵝
 /jj	射
 /jj	掣
 /jk	製
@@ -1397,6 +1442,8 @@ sb	⿻
 /l.	怨
 /l/	牝
 /ld	鵝
+/ld	鴛
+/le	牝
 /ln	艇
 /lp	即
 /lt	毽
@@ -1455,6 +1502,7 @@ sb	⿻
 /qd	島
 /qd	鳥
 /qd	梟
+/qd	裊
 /qh	鼻
 /qi	皇
 /qj	得
@@ -1465,10 +1513,10 @@ sb	⿻
 /qk	穠
 /ql	皂
 /qt	帛
+/qt	皋
 /qt	稈
 /qu	島
 /qw	鳥
-/qy	皋
 /qy	臬
 /qy	梟
 /s	么
@@ -1491,6 +1539,7 @@ sb	⿻
 /to	牯
 /ty	桀
 /u	舀
+/u'	兜
 /ud	鷂
 /uv	皚
 /ux	微
@@ -1593,7 +1642,7 @@ sb	⿻
 ;.t	準
 ;/	汐
 ;/'	洗
-;/'	溉
+;/'	漑
 ;/a	沃
 ;/a	溪
 ;/a	溴
@@ -1612,7 +1661,6 @@ sb	⿻
 ;/w	添
 ;/x	激
 ;/x	湲
-;/x	逶
 ;/z	浮
 ;/z	泛
 ;;	冰
@@ -1622,7 +1670,6 @@ sb	⿻
 ;a.	泠
 ;aa	浹
 ;aa	湊
-;aa	瀲
 ;aj	渝
 ;al	淹
 ;am	淪
@@ -1632,8 +1679,10 @@ sb	⿻
 ;ap	冷
 ;ap	泠
 ;aw	潦
+;ax	瀲
 ;b	洱
 ;c	泗
+;cc	濫
 ;cd	濁
 ;ce	酒
 ;ce	漂
@@ -1696,7 +1745,6 @@ sb	⿻
 ;fl	泜
 ;fm	洧
 ;fn	涯
-;fq	湣
 ;ft	沂
 ;fw	源
 ;fw	濂
@@ -1816,6 +1864,7 @@ sb	⿻
 ;px	汲
 ;pz	潺
 ;q	汨
+;q'	溉
 ;q/	渺
 ;q;	瀑
 ;qc	温
@@ -1933,6 +1982,7 @@ a/'	餽
 a/a	奏
 a/b	銹
 a/d	鎢
+a/i	釧
 a/j	錚
 a/l	餓
 a/m	餉
@@ -1941,6 +1991,7 @@ a/n	飪
 a/n	錘
 a/o	銘
 a/q	鉑
+a/r	鑽
 a/t	錦
 a/w	鍬
 a/x	餒
@@ -2058,11 +2109,13 @@ amh	侖
 amj	俞
 amm	鍋
 amo	銅
+ams	兪
 amu	鋼
 an	全
-an'	鐃
 an'	饒
 an'	饞
+an'	銑
+an'	鐃
 ana	飲
 ana	欽
 ana	歙
@@ -2134,6 +2187,7 @@ ato	鈷
 au	舂
 auv	鎧
 aux	餿
+av'	鋭
 ava	鎂
 avc	鎰
 avd	銻
@@ -2188,7 +2242,6 @@ bab	鄹
 bap	聆
 bas	陰
 bay	除
-baz	聆
 bb	耶
 bbb	聶
 bbx	陬
@@ -2209,6 +2262,7 @@ bg'	耽
 bgl	陀
 bhh	阱
 bhn	陞
+bid	聘
 bjo	阿
 blm	隨
 bln	陛
@@ -2220,6 +2274,7 @@ bna	陡
 bnn	陸
 bnu	陷
 bnx	陵
+bom	隅
 bon	聖
 bor	隕
 bqa	隄
@@ -2250,6 +2305,7 @@ c'c	醫
 c'd	酚
 c'd	翳
 c'i	雅
+c'w	醮
 c'x	醱
 c'x	毆
 c,c	醯
@@ -2260,6 +2316,7 @@ c,t	醉
 c,z	醇
 c.i	酬
 c.i	罹
+c.i	雅
 c.w	醮
 c/'	醜
 c/a	眾
@@ -2275,6 +2332,7 @@ cay	酴
 caz	黔
 cc,	蠶
 cd	巨
+cd'	兜
 cd,	蜀
 cd.	酌
 cda	臥
@@ -2323,6 +2381,7 @@ cnt	睪
 cnw	黑
 cnz	酵
 co	叵
+coc	醞
 cod	鷗
 coi	匣
 coj	罰
@@ -2331,7 +2390,7 @@ cor	頤
 cow	熙
 cox	釅
 cpm	匾
-cqc	醞
+cqc	醖
 cqn	醒
 cqt	覃
 cqv	醴
@@ -2359,8 +2418,10 @@ cxv	豎
 cxw	緊
 cy	栗
 cz	眾
+d'd	勉
 d'i	雊
 d'i	雛
+d'l	戳
 d,s	弦
 d.	刃
 d.	勺
@@ -2403,7 +2464,6 @@ deo	司
 deo	匐
 df/	弧
 dfl	危
-dfx	皴
 dfx	皺
 dgt	帚
 dh	弗
@@ -2451,11 +2511,12 @@ ds	弘
 ds,	強
 dt	聿
 dtb	那
+dtd	韌
 dtm	匍
 dud	芻
 dux	匈
+dwd	粥
 dx	匆
-dyd	粥
 e'	兀
 e',	虺
 e'a	袱
@@ -2465,7 +2526,7 @@ e'o	裕
 e'r	頑
 e't	碎
 e'v	磴
-e'x	歿
+e'x	殁
 e'y	褓
 e,	神
 e,'	硫
@@ -2489,6 +2550,7 @@ e/a	祆
 e/a	襖
 e/c	面
 e/e	鬃
+e/i	馴
 e/j	列
 e/l	死
 e/l	髦
@@ -2496,9 +2558,9 @@ e/l	戛
 e/l	髭
 e/l	鬣
 e/m	而
-e/m	髯
-e/m	鬍
 e/m	驕
+e/m	鬍
+e/m	髯
 e/n	甦
 e/n	衽
 e/o	石
@@ -2525,8 +2587,8 @@ eaa	驗
 eaa	殮
 eaj	騎
 eaj	褕
+eak	餮
 eal	殲
-eas	餮
 eay	臻
 eb	祁
 ebx	敢
@@ -2548,6 +2610,7 @@ edo	駒
 edq	殉
 edq	褶
 edt	肆
+edx	歿
 ee	二
 ee	非
 ee'	元
@@ -2592,7 +2655,6 @@ efx	被
 efx	破
 eg'	霓
 eg.	零
-ega	靛
 egd	雪
 egd	雩
 ege	靂
@@ -2605,6 +2667,7 @@ egk	震
 egl	電
 egl	碗
 egl	豌
+egl	霆
 egl	雹
 egl	駝
 egm	需
@@ -2792,7 +2855,6 @@ f'm	膺
 f'r	贗
 f'x	廢
 f'x	疫
-f'x	痠
 f,;	瘀
 f,b	廓
 f,l	龐
@@ -2818,9 +2880,10 @@ fa/	疹
 fad	痍
 fah	疥
 fai	痊
-faj	劂
 faj	瘉
+faj	劂
 fal	庵
+fam	瘠
 fan	座
 fao	瘡
 faw	療
@@ -2866,7 +2929,6 @@ ffe	瘧
 ffl	底
 ffr	質
 ffx	疲
-fgm	宥
 fh'	廣
 fh'	麒
 fhe	虛
@@ -2923,6 +2985,7 @@ fo	后
 fo.	慮
 foa	虞
 foc	盧
+foc	瘟
 fod	虜
 fom	膚
 fon	厘
@@ -2944,9 +3007,9 @@ fqn	壓
 fqx	廄
 fqz	厚
 frj	廁
-fs'	疣
 fs/	瓜
 fso	瘤
+fsx	痠
 ft	斤
 ft	布
 ft'	兵
@@ -3031,6 +3094,7 @@ gcd	宦
 gcj	穿
 gck	寰
 gd	穹
+gd'	冤
 gd/	寥
 gdo	窘
 gdx	竅
@@ -3047,7 +3111,9 @@ gen	窒
 geo	富
 ger	賓
 get	罕
+gew	宗
 gfk	宸
+gfm	宥
 gfs	宏
 gh'	寬
 gh;	寒
@@ -3068,6 +3134,7 @@ gir	寶
 gix	寂
 gj.	守
 gjd	窮
+glj	剜
 gke	窄
 gko	寤
 gkx	寢
@@ -3092,12 +3159,12 @@ gqx	宴
 gsd	窈
 gt	帘
 gt.	憲
+gto	害
 gtt	軍
 gud	寫
 gul	竄
 gvw	窯
 gwm	宵
-gwv	蘚
 gwx	寂
 gx	安
 gxo	客
@@ -3122,6 +3189,7 @@ h'm	期
 h'n	基
 h'n	荏
 h'o	蓓
+h'q	蓿
 h'u	舊
 h'w	恭
 h'w	蕉
@@ -3138,10 +3206,9 @@ h,m	蒿
 h,o	蓄
 h,o	菩
 h,t	革
-h,t	芾
-h,t	莘
 h,t	萃
 h,t	蒂
+h,t	莘
 h.	芯
 h..	蕊
 h.z	芝
@@ -3196,12 +3263,14 @@ hc	茜
 hc/	夢
 hcc	藍
 hcd	苣
+hci	蘿
 hcj	芽
 hcl	蔑
 hcl	甍
 hcq	薯
 hct	蕈
 hcw	蘸
+hd'	菟
 hd.	芍
 hd;	菸
 hdd	荔
@@ -3274,6 +3343,7 @@ hjo	苛
 hkj	蔣
 hkl	藏
 hkn	莊
+hko	莓
 hkw	蕪
 hl	世
 hl	茂
@@ -3312,20 +3382,20 @@ hns	藝
 hnx	菱
 ho	苗
 ho'	黃
-ho,	莓
 hoa	茵
 hoa	躉
 hod	萼
-hok	襄
 hom	萬
 hom	葫
 hoo	藹
 hoo	茴
 hoo	莒
 hoq	藷
-hot	薜
 hot	薛
+hot	薜
 hoy	菌
+hpj	蔚
+hpt	薜
 hpx	葭
 hq	昔
 hq	苜
@@ -3371,6 +3441,7 @@ hwc	蘊
 hwi	蘿
 hwj	薊
 hwm	鞘
+hwv	蘚
 hwx	菽
 hwy	蘇
 hx	艾
@@ -3448,7 +3519,6 @@ iee	上
 iei	卡
 iel	歲
 iem	肯
-ieq	睿
 ier	項
 ier	頊
 iet	顰
@@ -3461,6 +3531,7 @@ ifz	璩
 ige	瑄
 ige	琮
 igo	琯
+igq	睿
 igt	琿
 igw	琮
 igy	琛
@@ -3476,6 +3547,7 @@ iie	止
 iii	川
 iil	琵
 iil	琶
+iil	齜
 iio	玷
 iio	齬
 iiq	璿
@@ -3485,7 +3557,6 @@ ij	刂
 ile	此
 ile	些
 ili	雌
-ill	齜
 ilo	鹹
 ilo	訾
 ilr	貲
@@ -3545,9 +3616,12 @@ iz	琢
 j'	扒
 j';	挑
 j'a	揆
+j'b	擲
 j'd	拋
 j'd	扮
+j'h	拼
 j'i	推
+j'j	撙
 j'x	投
 j'x	撥
 j,'	抗
@@ -3571,6 +3645,7 @@ j,x	掖
 j,x	抆
 j.	寸
 j.i	拄
+j.w	撚
 j/	才
 j/d	搗
 j/j	掙
@@ -3611,12 +3686,14 @@ jaw	撩
 jaw	撚
 jb	扔
 jbb	攝
+jc'	攬
 jcd	拒
 jcl	擺
 jcp	抑
 jct	擇
 jct	撢
 jd	扭
+jd'	挽
 jda	抉
 jdb	挪
 jdh	拂
@@ -3644,6 +3721,7 @@ jfk	振
 jfl	抵
 jfl	扼
 jfn	捱
+jfo	誓
 jfo	哲
 jfo	搪
 jft	折
@@ -3715,6 +3793,7 @@ jnr	擷
 jo	可
 jo	扣
 jo'	撰
+jo.	拇
 jo,	拇
 joa	捉
 job	揖
@@ -3746,10 +3825,10 @@ jsa	挨
 jsd	拗
 jsh	拚
 jso	抬
+jt;	抖
 jta	捷
 jtj	搏
 jtm	捕
-jto	誓
 jtt	擀
 jtx	技
 ju'	攪
@@ -3796,6 +3875,7 @@ k/c	醬
 k/i	篁
 k/j	將
 k/j	箏
+k/l	篦
 k/m	矯
 k/n	笙
 k/n	箠
@@ -3819,6 +3899,7 @@ kci	筐
 kcl	篾
 kcq	簪
 kct	罈
+kd/	第
 kda	缺
 kda	簇
 kdd	篛
@@ -3929,6 +4010,7 @@ l';	逃
 l'a	送
 l'i	進
 l'j	遵
+l'r	顚
 l,,	蝨
 l,m	適
 l,o	這
@@ -3963,6 +4045,7 @@ lcl	遷
 lcp	迎
 ld	成
 ld	切
+ld'	逸	
 ld;	逮
 ldc	盛
 ldl	迆
@@ -3974,6 +4057,9 @@ ldt	違
 ldt	肄
 le	匕
 le	戌
+le.	感
+le.	惑
+le,	虱
 lei	逕
 lej	迂
 lel	逃
@@ -3984,7 +4070,6 @@ leo	咸
 leq	旨
 ler	頃
 ler	貳
-ler	穎
 lev	逗
 lex	威
 lff	遞
@@ -4039,6 +4124,7 @@ lpm	遍
 lpt	遲
 lpt	避
 lpx	遐
+lq'	眞
 lqd	遢
 lqi	暹
 lqk	退
@@ -4064,6 +4150,7 @@ lwy	迷
 lxt	逢
 ly.	述
 lyo	速
+lyr	穎
 lz	逐
 lz'	邈
 lza	疑
@@ -4123,6 +4210,7 @@ mb	聞
 mce	膘
 mcx	腰
 md	肋
+md'	冕
 md/	膠
 mdl	胞
 mdt	闈
@@ -4141,6 +4229,7 @@ meq	冒
 met	肝
 mev	脰
 mew	闖
+mex	闞
 mfc	臚
 mfj	腑
 mfk	脈
@@ -4164,7 +4253,7 @@ mhz	朦
 mi	肛
 mi	閏
 mij	刖
-mix	闞
+mj	刖
 mj.	肘
 mj/	閉
 mkx	腹
@@ -4178,6 +4267,8 @@ mlt	腱
 mm	朋
 mm	閒
 mmd	鵬
+mme	册
+mmj	删
 mmo	胴
 mn	肚
 mn	冉
@@ -4217,6 +4308,7 @@ msl	臘
 mso	腦
 mso	胎
 mt	用
+mt'	闐
 mtj	膊
 mtl	肫
 mtm	脯
@@ -4226,7 +4318,9 @@ mtz	脖
 mu	凸
 mua	腴
 muj	剛
-mv'	脫
+mv'	脱
+mv'	閲
+mva	朕
 mva	闕
 mvh	胼
 mvl	罔
@@ -4283,6 +4377,7 @@ n.	志
 n/'	塊
 n/d	考
 n/d	塢
+n/i	圳
 n/j	靜
 n/l	老
 n/n	耋
@@ -4346,7 +4441,7 @@ nfo	塘
 nft	圻
 nft	坼
 nfx	坡
-nge	壺
+nga	靛
 ngi	壺
 ngj	壽
 ngv	壹
@@ -4363,7 +4458,7 @@ nj.	寺
 njo	坷
 njt	幫
 nk	表
-nkc	鹽
+nkc	塩
 nkd	觴
 nkl	裁
 nl'	塡
@@ -4399,8 +4494,10 @@ nnw	赫
 nnx	觼
 no	吉
 no'	毚
+no.	毒
 no,	毒
 no.	鰓
+noc	塭
 noj	壽
 nok	喪
 nok	袁
@@ -4413,6 +4510,7 @@ non	鯉
 noo	喜
 noq	魯
 nor	頡
+not	毒
 now	魚
 now	熹
 npt	墀
@@ -4430,6 +4528,7 @@ nqe	坦
 nqj	塒
 nqk	垠
 nql	色
+nqp	鯽
 nqq	鯧
 nqt	趕
 nqx	鰻
@@ -4482,14 +4581,17 @@ o'	叭
 o'/	咿
 o';	跳
 o'a	喉
+o'b	躑
 o'd	吩
 o'd	嗡
+o'd	咿
 o'i	雖
 o'i	唯
 o'j	咐
 o'j	蹲
 o'v	蹬
 o'y	咻
+o'y	跺
 o,	呻
 o,'	吭
 o,'	蹴
@@ -4521,6 +4623,7 @@ o/a	噢
 o/a	蹊
 o/d	嗚
 o/d	鳴
+o/i	甽
 o/j	呼
 o/j	嚼
 o/l	哦
@@ -4557,14 +4660,15 @@ oaj	畸
 oam	噙
 oao	哈
 oao	嗆
+oas	喩
 oaw	嘹
 oaz	吟
 obb	囁
 obb	躡
 obj	啊
 obl	戢
-oby	跺
 oc	哂
+oc/	呀
 ocd	距
 ocd	躅
 oci	囉
@@ -4603,10 +4707,10 @@ oej	吁
 oej	咧
 oek	畏
 oel	跳
+oel	嘎
 oem	嚅
 oew	嗎
 oex	哽
-oex	嘎
 of	唬
 of/	呱
 ofa	蹶
@@ -4624,11 +4728,11 @@ ofy	嘛
 ofz	噱
 oga	啶
 oge	喧
-oge	蹤
+oge	踪
 ogj	嚀
 ogl	跎
 ogo	喀
-ogw	蹤
+ogw	踪
 ogy	彙
 oh'	異
 oh'	哄
@@ -4757,6 +4861,7 @@ oqk	噥
 oql	吧
 oql	邑
 oqo	喝
+oqp	唧
 oqq	唱
 or	員
 ord	勛
@@ -4796,8 +4901,10 @@ ouu	咄
 ov	咩
 ovb	躑
 ove	踫
+ovh	踫
 ovi	嗟
 ovi	蹉
+ovj	蹲
 ow/	吵
 owd	嘮
 owl	圈
@@ -4834,8 +4941,10 @@ ozj	野
 ozl	吼
 ozn	墅
 ozy	蹂
+p'h	屏
 p'i	雇
 p'm	臀
+p'q	層
 p'x	殿
 p,d	房
 p,d	劈
@@ -4874,6 +4983,7 @@ pjk	褽
 pjw	熨
 pl	民
 pl/	尼
+ple	尼
 pll	屁
 plz	屘
 pm	肩
@@ -4904,9 +5014,7 @@ q';	眺
 q'a	睽
 q'd	盼
 q'i	睢
-q'l	匙
 q'v	瞪
-q'w	暸
 q,k	曩
 q,l	矓
 q,n	瞳
@@ -4929,9 +5037,11 @@ q/y	睬
 q/z	眨
 qa.	昤
 qaa	瞼
+qal	匙
 qap	昤
 qar	題
 qaw	瞭
+qaw	暸
 qbx	最
 qc	晒
 qc'	既
@@ -4987,7 +5097,9 @@ qkk	鼎
 qko	晦
 ql	巴
 ql'	瞋
+ql/	匙
 qld	晟
+qle	匙
 qll	昆
 qly	瞇
 qm	明
@@ -5005,7 +5117,6 @@ qno	瞻
 qnq	暑
 qnq	睹
 qoa	曷
-qom	隅
 qoy	睏
 qpd	矚
 qpl	眠
@@ -5020,6 +5131,7 @@ qqq	晶
 qsp	即
 qst	眸
 qt	早
+qt'	瞋
 qta	睫
 qtl	盹
 qu'	睨
@@ -5036,6 +5148,8 @@ qy	杲
 qy	昧
 qya	睞
 qyt	晰
+r'q	贈
+r'w	賺
 r,a	賅
 r,o	賠
 r/z	貶
@@ -5051,6 +5165,7 @@ rij	則
 rio	貼
 rj	則
 rj/	財
+rkl	贓
 rlc	贓
 rll	賤
 rlr	膩
@@ -5073,6 +5188,7 @@ s'c	縊
 s'd	紛
 s'i	維
 s'q	繒
+s'w	縑
 s,'	統
 s,d	紡
 s,l	織
@@ -5140,6 +5256,7 @@ sex	緻
 sfl	紙
 sfn	纏
 sfx	紱
+sfx	皴
 sg'	縯
 sga	綻
 sge	綜
@@ -5217,6 +5334,7 @@ ssx	變
 ssy	樂
 ssy	繅
 ssz	孿
+st'	縝
 stb	綁
 stj	縛
 stl	純
@@ -5224,6 +5342,7 @@ sum	繃
 suu	絀
 svc	縊
 svo	繕
+svq	繒
 svw	縑
 sw	災
 sw	糸
@@ -5308,7 +5427,6 @@ tft	斬
 tgo	轄
 tgw	索
 tgz	孛
-th	卅
 th	卉
 thr	賁
 tio	軸
@@ -5333,6 +5451,7 @@ to'	克
 to.	惠
 tob	輯
 tod	鴣
+toe	幗
 toj	專
 tok	衷
 tok	囊
@@ -5411,6 +5530,7 @@ ugw	爨
 ugz	學
 uha	嵌
 ui'	與
+uio	譽
 uio	岫
 uio	鼬
 uio	鼯
@@ -5483,6 +5603,7 @@ vca	猷
 vce	酋
 vcj	尊
 vcq	曾
+vd/	弟
 vdd	翔
 vdi	弟
 vdj	剃
@@ -5511,6 +5632,7 @@ vwa	羹
 vx	姜
 w'd	粉
 w'v	燈
+w.w	燃
 w,'	炕
 w,l	熾
 w,o	焙
@@ -5580,7 +5702,6 @@ wha	糢
 whq	糟
 why	煤
 wio	粘
-wio	黏
 wke	炸
 wlo	糙
 wlz	燧
@@ -5653,7 +5774,9 @@ wyc	煉
 wyx	敉
 wyz	籽
 x';	姚
+x'h	姘
 x'i	雒
+x'w	嫌
 x'x	殺
 x,d	妨
 x,j	婷
@@ -5666,6 +5789,7 @@ x.k	娘
 x/.	媳
 x/a	妖
 x/d	嬝
+x/k	嬝
 x/l	娥
 x/l	媲
 x/m	嬌
@@ -5682,6 +5806,7 @@ xce	嫖
 xco	姬
 xco	嫗
 xd	妞
+xd'	娩
 xd.	妁
 xdb	娜
 xdi	姊
@@ -5735,6 +5860,7 @@ xo.	恕
 xo.	姆
 xoa	姻
 xoa	娛
+xoc	媼
 xom	娟
 xon	娌
 xot	嬋
@@ -5744,7 +5870,7 @@ xp	妒
 xpl	妮
 xpl	娓
 xpq	媚
-xqc	媼
+xqc	媪
 xqq	娼
 xso	始
 xta	婕
@@ -5755,8 +5881,8 @@ xvd	娣
 xvh	姘
 xvw	嫌
 xw/	妙
-xwt	姅
 xwt	嫦
+xwt	姅
 xx	奴
 xx	爻
 xx.	怒
@@ -5772,12 +5898,14 @@ xyj	剎
 xyx	嫩
 xz	好
 xzj	妤
-xzx	教
+xzx	敎
 y'	機
 y',	楓
 y';	桃
 y'i	椎
+y'j	樽
 y's	松
+y'v	橙
 y'w	樵
 y,'	杭
 y,'	梳
@@ -5790,6 +5918,7 @@ y,e	檀
 y,m	槁
 y,t	柿
 y,t	梓
+y,t	樟
 y,x	校
 y,x	樓
 y.	朮
@@ -5808,14 +5937,12 @@ y/l	耗
 y/l	橇
 y/m	橋
 y/q	柏
-y/q	粕
 y/t	棉
 y/u	榣
 y/x	檄
 y/y	株
 y;t	枓
 ya/	麥
-ya;	榛
 yaa	來
 yaa	檢
 yaa	樅
@@ -5826,7 +5953,7 @@ yao	槍
 yaq	檜
 yat	棒
 yau	樁
-yav	橙
+yay	榛
 ybb	椰
 ybc	楹
 ybm	橢
@@ -5984,7 +6111,6 @@ ytx	棲
 yv;	樣
 yvd	梯
 yvj	樽
-yvt	樟
 yw	杰
 yw/	杪
 ywm	梢
@@ -6027,6 +6153,8 @@ z,x	狡
 z.j	予
 z.j	矛
 z.k	狼
+z.m	甬
+z.y	柔
 z/'	貌
 z/j	猙
 z/t	獅
@@ -6051,8 +6179,6 @@ zf'	獷
 zf/	孤
 zf/	狐
 zfa	獗
-zgj	予
-zgj	矛
 zgj	狩
 zgj	獰
 zho	貓
@@ -6408,6 +6534,7 @@ zzc	猛
 ,,e	蟺
 ,,h	蠐
 ,,j	蝏
+,,k	衷
 ,,k	蠰
 ,,l	蟙
 ,,m	謞
@@ -6797,6 +6924,7 @@ zzc	猛
 ,ux	蝬
 ,ux	謏
 ,v	蛘
+,v'	説
 ,v'	蜣
 ,vc	謚
 ,vc	蝤
@@ -7379,6 +7507,7 @@ zzc	猛
 ;,'	湸
 ;,.	澺
 ;,.	漶
+;,a	湙
 ;,a	鎏
 ;,b	漷
 ;,d	汸
@@ -7652,6 +7781,7 @@ zzc	猛
 ;mt	灛
 ;mx	潣
 ;my	澖
+;n	坔
 ;n'	浼
 ;n'	瀺
 ;na	鍌
@@ -7662,6 +7792,7 @@ zzc	猛
 ;nl	洈
 ;nl	渽
 ;nm	凊
+;nm	淸
 ;nn	洼
 ;nn	淕
 ;no	洁
@@ -7712,6 +7843,7 @@ zzc	猛
 ;pd	灟
 ;pl	浘
 ;po	涺
+;pq	湣
 ;pq	潳
 ;pt	澼
 ;pu	淈
@@ -8567,6 +8699,7 @@ did	鸐
 djb	鄩
 djd	匑
 dku	匋
+dl	㔾
 dl	乜
 dlb	邔
 dlh	异
@@ -8594,6 +8727,7 @@ dqb	郇
 dqc	韞
 dql	弝
 dqx	彏
+dqz	㝁
 drb	鄪
 dso	謽
 dst	舝
@@ -8836,6 +8970,7 @@ eee	礓
 eee	駓
 eee	驫
 eee	裶
+eeh	亓
 eei	硜
 eei	礭
 eej	揅
@@ -9196,6 +9331,7 @@ ezb	霩
 eze	殛
 ezm	驈
 ezy	騥
+f'.	疣
 f'/	庬
 f'/	痝
 f'/	厖
@@ -9570,6 +9706,7 @@ h,n	堇
 h,n	蕫
 h,q	萻
 h,r	蕢
+h,t	芾
 h,v	苙
 h,x	蔞
 h,x	芠
@@ -9758,6 +9895,7 @@ hei	藿
 hei	芐
 hej	菿
 hel	茈
+het	羋
 hem	薾
 hem	荋
 hem	薷
@@ -9841,6 +9979,7 @@ hio	苖
 hio	蓾
 hir	顴
 his	蕹
+hit	羋
 hix	蒆
 hj	艼
 hj.	懟
@@ -10013,6 +10152,7 @@ hsl	鞿
 hso	菑
 hst	蕼
 hsx	荾
+ht	𦍋
 ht'	蓻
 ht;	莍
 hta	萐
@@ -10032,6 +10172,7 @@ htt	蘄
 htt	莗
 htt	蓒
 htt	蔪
+htt	芾
 htw	蘻
 htx	蕔
 hty	靺
@@ -10115,19 +10256,19 @@ hzq	藸
 hzu	菡
 hzx	藙
 hzy	葇
-I',	蛩
-I'a	跫
-I'a	銎
-I'c	齸
+i',	蛩
+i'a	跫
+i'a	銎
+i'c	齸
 i'd	玢
-I'v	璒
+i'v	璒
 i,	珅
-I,	蝁
+i,	蝁
 i,'	珫
-I,a	璇
-I,h	璾
-I,l	齥
-I,o	琣
+i,a	璇
+i,h	璾
+i,l	齥
+i,o	琣
 i,s	玹
 i,x	珓
 i.	玊
@@ -10791,6 +10932,7 @@ l//	迻
 l/a	迗
 l/b	郔
 l/o	适
+l/x	逶
 l;/	逤
 l;r	潁
 la.	迖
@@ -10981,7 +11123,6 @@ mhx	雘
 mhy	腜
 mil	骴
 mix	鬫
-mj	刖
 mjo	閜
 mke	胙
 mkl	肐
@@ -11144,6 +11285,7 @@ n./	鮅
 n.e	堩
 n.k	埌
 n.w	趭
+n/	耂
 n//	趍
 n/a	墺
 n/d	耇
@@ -11154,6 +11296,7 @@ n/j	埩
 n/j	鯓
 n/j	埒
 n/j	垀
+n/l	耄
 n/l	魠
 n/l	甏
 n/m	鱎
@@ -11162,6 +11305,7 @@ n/n	埵
 n/n	堹
 n/o	鱕
 n/o	趏
+n/q	耆
 n/q	闍
 n/t	鰤
 n/u	鰩
@@ -11324,6 +11468,7 @@ nlr	壝
 nlr	頠
 nlt	鰎
 nlz	鱁
+nm	靑
 nm'	埧
 nm,	触
 nma	坱
@@ -11648,6 +11793,7 @@ oed	嘕
 oee	咺
 oeh	彞
 oeh	趼
+oeh	畀
 oej	趶
 oel	咷
 oel	跐
@@ -11898,6 +12044,7 @@ ozm	踊
 ozm	噊
 p'	尻
 p'n	壂
+p't	屛
 p,.	憵
 p,a	躄
 p,d	鷿
@@ -12541,6 +12688,7 @@ u'd	鼢
 u'd	鶂
 u'd	鸒
 u'j	嶟
+u'l	巀
 u'm	雟
 u'm	巂
 u'm	嶲
@@ -12827,6 +12975,7 @@ w/l	粍
 w/m	燆
 w/n	煄
 w/o	燔
+w/q	粕
 w/s	粼
 w/t	粺
 w/t	粁
@@ -13232,6 +13381,7 @@ xxj	剟
 xxj	嬼
 xxl	毲
 xxo	砮
+xxx	叕
 xxx	敪
 xxz	孥
 xy	妺
@@ -13655,6 +13805,7 @@ yxt	桸
 yxx	嫠
 yxx	棳
 yxx	樧
+yxy	槡
 yxz	孷
 yy	枺
 yy'	檒
@@ -13865,3 +14016,6 @@ nww	鱻
 ..	㣺
 n''	𠓗
 vvv	羴
+vbl	𦏁
+/f	龵
+mm	冎
