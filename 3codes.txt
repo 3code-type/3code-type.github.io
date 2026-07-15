@@ -1,3 +1,15 @@
+﻿#世=lh
+;lh	泄
+lh	世
+slh	紲
+#⿰右部「斤斥」→「F」
+,yf	新
+,of	訴
+,of	訢
+eof	斫
+h'f	斯
+lsf	斷
+ttf	斬
 #自建
 cg	§
 cs	§
@@ -19,6 +31,7 @@ by	掰掰～^^
 lml	～^_^～
 lnl	～^_<～
 lxl	～>_<～
+qeq	@_@
 #一碼字元
 '	八
 '	九
@@ -391,11 +404,13 @@ oe	㊉
 '';	佻
 ''c	益
 ''d	份
+''h	併
 ''m	佾
 ''o	俗
 ''t	佩
 ',	伸
 ',	仲
+',	虺
 ','	伉
 ',.	億
 ',d	仿
@@ -648,6 +663,7 @@ oe	㊉
 'ui	催
 'ux	颼
 'v	佯
+/v'	税
 'vb	鄧
 'vd	偽
 'vh	併
@@ -711,6 +727,7 @@ oe	㊉
 ,,d	謗
 ,,d	螃
 ,,k	讓
+,,k	衷
 ,,l	識
 ,,l	虻
 ,,n	堃
@@ -1253,6 +1270,7 @@ oe	㊉
 /aw	忝
 /ay	徐
 /c	血
+/c'	旣
 /c'	兜
 /ca	眾
 /cc	艦
@@ -1268,6 +1286,7 @@ oe	㊉
 /dd	翻
 /dd	翱
 /dd	鴛
+/de	的
 /dh	彿
 /dj	衛
 /dj	爭
@@ -1344,7 +1363,7 @@ oe	㊉
 /ld	鴛
 /le	牝
 /ln	艇
-/lp	即
+/lp	卽
 /lt	毽
 /m,	舟
 /m.	舟
@@ -2353,6 +2372,7 @@ ddq	習
 ddt	翠
 ddv	翌
 de	勺
+dec	盡
 ded	弼
 dee	疆
 dee	彊
@@ -2445,7 +2465,6 @@ e/'	魂
 e/'	髡
 e//	衫
 e/;	泵
-e/a	祆
 e/a	襖
 e/c	面
 e/e	鬃
@@ -2514,6 +2533,7 @@ ee	二
 ee	非
 ee'	元
 ee.	悲
+eea	祆
 eed	翡
 eed	鵡
 eee	三
@@ -2828,6 +2848,7 @@ ffe	瘧
 ffl	底
 ffr	質
 ffx	疲
+fh	虛
 fh'	廣
 fh'	麒
 fhe	虛
@@ -3196,7 +3217,6 @@ hee	韁
 heh	葬
 hei	莖
 hej	芋
-hej	蔚
 hek	萇
 hel	甚
 hen	基
@@ -3944,7 +3964,7 @@ lcl	遷
 lcp	迎
 ld	成
 ld	切
-ld'	逸	
+ld'	逸
 ld;	逮
 ldc	盛
 ldl	迆
@@ -4195,6 +4215,7 @@ mp;	脲
 mpt	闢
 mpx	服
 mq	間
+mq	冒
 mq'	腆
 mqd	腸
 mqd	髑
@@ -4982,6 +5003,7 @@ qgo	瞎
 qgt	暉
 qgt	暈
 qgx	晏
+qh	鼎
 qh;	暴
 qhm	瞞
 qho	瞄
@@ -5278,6 +5300,7 @@ t,t	幛
 t,x	較
 t,x	吏
 t,x	轍
+t.	下
 t/a	軼
 t/m	轎
 t/o	幡
@@ -5362,6 +5385,8 @@ tot	辜
 tox	故
 tpk	輾
 tq'	幌
+tqe	直
+tql	直
 tql	輥
 tqx	幔
 tso	輜
@@ -5521,7 +5546,7 @@ vmj	前
 vmn	塑
 vmw	煎
 vna	歉
-vo'	兌
+vo'	兑
 vqo	羯
 vs.	慈
 vsz	孳
