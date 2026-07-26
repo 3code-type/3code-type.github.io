@@ -1,4 +1,4 @@
-﻿#自建
+#自建
 cs	§
 /d	的
 sc	ㄛ
@@ -12,7 +12,6 @@ sk	呵…
 su	唷！
 sn	嗯…
 sm	嗎？
-lo	囉！
 hi	哈囉～^^
 by	掰掰～^^
 lml	～^_^～
@@ -538,6 +537,7 @@ oe	㊉
 'eq	佰
 'ev	登
 'ew	係
+'ew	兼
 'ex	便
 'ex	優
 'ex	佞
@@ -637,6 +637,7 @@ oe	㊉
 'px	假
 'px	伋
 'q	旭
+'q'	覜
 'qd	颺
 'qe	但
 'qk	儂
@@ -830,6 +831,7 @@ oe	㊉
 ,f/	瓤
 ,fa	讞
 ,fe	蚯
+,fi	訴
 ,fl	詆
 ,fm	蠣
 ,fn	產
@@ -1516,6 +1518,7 @@ oe	㊉
 /zl	乳
 ;'.	汍
 ;'.	汎
+;';	洮
 ;'a	濮
 ;'c	溢
 ;'d	汾
@@ -1974,7 +1977,7 @@ adl	鉋
 ado	飼
 ado	鉤
 ado	餾
-ads	鉤
+ads	鈎
 ady	麴
 ae	奈
 aea	奏
@@ -2233,7 +2236,6 @@ c'c	醫
 c'd	酚
 c'd	翳
 c'i	雅
-c'i	雅
 c'w	醮
 c'x	醱
 c'x	毆
@@ -2418,7 +2420,7 @@ do	加
 do	召
 do	句
 do	甸
-do,	強
+do,	强
 do.	勰
 dob	郡
 dob	邵
@@ -2452,6 +2454,7 @@ e'	兀
 e',	虺
 e'a	袱
 e'i	碓
+e'i	霍
 e'j	駙
 e'o	裕
 e'r	頑
@@ -2715,6 +2718,7 @@ ep	印
 epk	碾
 epm	騙
 epm	褊
+ept	霹
 epx	霞
 eq'	視
 eq'	硯
@@ -2868,6 +2872,7 @@ fh'	廣
 fh'	麒
 fhe	虛
 fhe	疳
+fhf	廝
 fhi	癱
 fhm	厲
 fhm	癘
@@ -2878,6 +2883,7 @@ fht	廝
 fhw	庶
 fhx	度
 fi	左
+fi	斥
 fi'	兵
 fi/	爪
 fie	丘
@@ -3657,6 +3663,7 @@ jf,	蜇
 jf/	抓
 jfa	掀
 jfd	擄
+jfi	拆
 jfk	振
 jfl	抵
 jfl	扼
@@ -4379,6 +4386,7 @@ nfa	鱖
 nfc	鱸
 nfe	壢
 nfe	墟
+nfi	坼
 nfl	危
 nfm	墉
 nfm	鮪
@@ -4964,6 +4972,7 @@ pzz	孱
 q'	見
 q'	典
 q';	眺
+q';	晁
 q'a	睽
 q'd	盼
 q'i	睢
@@ -5955,6 +5964,7 @@ yew	杯
 yex	梗
 yex	橄
 yex	榎
+yfi	柝
 yfj	耨
 yfj	櫥
 yfl	柢
