@@ -1,64 +1,13 @@
 encode=UTF-8
 name=三碼中文輸入法_次常用字版
 #作者：無書自通（改編）源自王堯世先生創作之象形王碼輸入法（收錄BIG5碼13060個漢字）
-#版本：v.20260726.1
-#增修內容：
-#新增香港字集1408個編碼
-#次常用字重新排序
-#'ew 兼
-#ge 马（次常）
-#g 𢎘（似马外框之字元，形如小寫g）
-#og 𠮤（次常）
-#oge 吗（次常）
-#l ㄣ（如吳⿳口ㄣ大=ＯＬＡ）
-#g ㄢ（形如小寫g）
-#ex ㄞ （下部形如X）
-#m'w 膲（刪除）→m.w 膲
-#zde 马（次常）
-#o'w 嗛（次常）
-#fi 斥
-#wmw 㡀（次常）
-#fhf 廝
-#,fi 訴
-#jfi 拆
-#nfi 坼
-#yfi 柝
-#ept 霹
-#tqc 輼（次常）
-#mqc 腽（次常）
-#sqc 緼（次常）
-#wqc 煴（次常）
-#; 𡿨（一碼字元）
-#e'i 霍
-#tt 车（次常）
-#jqc 揾（次常）
-#s 幺（一碼字元）
-#o 〇（一碼字元）
-#ads 鈎
-#do. 强
-#nrj 鰂（次常）
-#tlb 邨（次常）
-#qno 晧（次常）
-#''i 㺸（次常）
-#old 吔（次常）
-#odl 吔（次常）
-#uql 崐（次常）
-#vfq 着（次常）
-#;'; 洮
-#'q' 覜
-#q'; 晁
-#,hm 蟎（次常）
-#fdl 疱（次常）
-#cko 酶（次常）
-#/el 䠷（次常）
-#/'; 䠷（次常）
-#wfa 焿（次常）
-#ehj 礴（次常）
-#e;j 礴（次常）
-#ehj 刑礴礡（順序調整）磅礴
-%ename 3code:en;三码:zh_CN;三碼:zh;
+#網址：https://3code-type.github.io/
+#版本：v.20260727.1
+#增修內容參照：https://3code-type.github.io/3code2.txt
+%ename 3code
 %cname 三碼輸入法
-#sname 三碼輸入法
+%sname 三碼
+%version v.20260727.1
 %selkey 1234567890
 %keyname begin
 '	〃
@@ -10652,7 +10601,6 @@ h,x	鞻
 h,x	菨
 h,x	茭
 h,z	鞟
-h.	丼
 h..	戁
 h./	苾
 h.i	黈
@@ -10919,6 +10867,7 @@ hgo	菪
 hgu	蔤
 hgx	荌
 hh'	萁
+hh.	丼
 hhe	苷
 hhl	葚
 hhl	靾

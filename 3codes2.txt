@@ -2378,7 +2378,6 @@ c'c	醫
 c'd	酚
 c'd	翳
 c'i	雅
-c'i	雅
 c'w	醮
 c'x	醱
 c'x	毆
@@ -10557,7 +10556,6 @@ h,x	鞻
 h,x	菨
 h,x	茭
 h,z	鞟
-h.	丼
 h..	戁
 h./	苾
 h.i	黈
@@ -10824,6 +10822,7 @@ hgo	菪
 hgu	蔤
 hgx	荌
 hh'	萁
+hh.	丼
 hhe	苷
 hhl	葚
 hhl	靾
