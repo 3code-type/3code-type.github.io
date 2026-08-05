@@ -396,6 +396,37 @@ oe	㊆
 oe	㊇
 oe	㊈
 oe	㊉
+ba	Ａ
+ba	Ｂ
+ba	Ｃ
+ba	Ｄ
+ba	Ｅ
+ba	Ｆ
+ba	Ｇ
+ba	Ｈ
+ba	Ｉ
+ba	Ｊ
+ba	Ｋ
+ba	Ｌ
+ba	Ｍ
+ba	Ｎ
+ba	Ｏ
+ba	Ｐ
+ba	Ｑ
+ba	Ｒ
+ba	Ｓ
+ba	Ｔ
+ba	Ｕ
+ba	Ｖ
+ba	Ｗ
+ba	Ｘ
+ba	Ｙ
+ba	Ｚ
+ba	〃
+ba	，
+ba	．
+ba	／
+ba	；
 #常用字
 ''	仇
 '';	佻
@@ -1418,6 +1449,7 @@ oe	㊉
 /ox	囪
 /ox	稷
 /oy	稞
+/pd	爲
 /pe	禦
 /q	白
 /q	自
@@ -2107,6 +2139,7 @@ asy	鑠
 at	針
 at	奉
 at'	鎮
+at;	斜
 ath	奔
 atl	鐵
 atl	鈍
@@ -2286,8 +2319,10 @@ che	酣
 cho	匿
 chq	醋
 ci	匡
+cia	臥
 cid	臣
 cid	劻
+cii	卧
 cio	點
 cit	罩
 cj/	牙
@@ -2523,6 +2558,7 @@ eaj	騎
 eaj	褕
 eak	餮
 eal	殲
+eao	吞
 eay	臻
 eb	祁
 ebx	敢
@@ -2693,6 +2729,7 @@ eno	禧
 enq	褚
 enr	磧
 ens	砝
+ens	丟
 enx	致
 eo'	祝
 eo,	砷
@@ -3007,7 +3044,7 @@ fzm	痛
 g'	究
 g'	冗
 g';	窕
-g'd	鴆
+g'd	鶴
 g'e	察
 g'j	冠
 g'o	容
@@ -3488,17 +3525,21 @@ iha	璞
 ihn	瑾
 ii	玨
 ii.	瑟
+ii/	步
 iie	止
 iii	川
 iil	琵
 iil	琶
+iil	歲
 iil	齜
+iim	肯
 iio	玷
 iio	齬
 iiq	璿
 iir	順
+iiu	齒
 iiz	琴
-ij	刂
+il/	此
 ile	此
 ile	些
 ili	雌
@@ -3724,6 +3765,7 @@ jlq	揩
 jlv	撻
 jm	捫
 jmo	擱
+jmx	撮
 jmy	攔
 jn'	挽
 jn'	撓
@@ -3933,6 +3975,7 @@ kpm	篇
 kpm	牖
 kq'	筧
 kqh	算
+kqk	鼎
 kql	笆
 kqs	篡
 kqw	纂
@@ -4020,6 +4063,7 @@ ler	頃
 ler	貳
 lev	逗
 lex	威
+lf	戎
 lff	遞
 lfo	逅
 lfq	遁
@@ -4159,6 +4203,7 @@ mal	腌
 mao	閤
 maq	膾
 mb	聞
+mbx	最
 mce	膘
 mcx	腰
 md	肋
@@ -4215,6 +4260,7 @@ mle	閾
 mlk	腿
 mlm	髓
 mlq	脂
+rlr	膩
 mlt	腱
 mm	朋
 mm	閒
@@ -4295,6 +4341,7 @@ my	閑
 my;	膝
 myc	闌
 mz	豚
+mzx	闞
 n'a	堠
 n'b	聲
 n'd	勢
@@ -4592,7 +4639,6 @@ o/n	呈
 o/n	唾
 o/n	踵
 o/o	呂
-o/p	唧
 o/q	咱
 o/t	啤
 o/t	嗥
@@ -4661,7 +4707,6 @@ oe'	趴
 oea	趺
 oee	啡
 oee	呸
-oeh	彝
 oej	吁
 oej	咧
 oek	畏
@@ -5112,6 +5157,7 @@ qy	杲
 qy	昧
 qya	睞
 qyt	晰
+qzx	瞰
 r'q	贈
 r'w	賺
 r,a	賅
@@ -5132,7 +5178,6 @@ rj/	財
 rkl	贓
 rlc	贓
 rll	賤
-rlr	膩
 rlt	賊
 rno	贍
 rnq	賭
@@ -5439,6 +5484,7 @@ tt'	兢
 tt'	軌
 tt.	慧
 ttd	彗
+ttd	軔
 ttf	斬
 ttj	轉
 ttj	博
@@ -5595,6 +5641,7 @@ vmn	塑
 vmw	煎
 vna	歉
 vo'	兑
+vpd	為
 vqo	羯
 vs.	慈
 vsz	孳
@@ -6118,6 +6165,7 @@ yze	極
 yzj	杼
 yzm	桶
 yzm	橘
+yzx	橄
 z'a	猴
 z'c	猶
 z,'	疏
@@ -6140,6 +6188,7 @@ z;e	丞
 z;u	函
 zaa	狹
 zaz	矜
+zbx	敢
 zc	孟
 zcd	獨
 zci	玀
