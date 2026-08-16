@@ -1,7 +1,9 @@
 encode=UTF-8
 name=三碼中文輸入法
+#授權宣告：CC BY-NC-SA 4.0（免費分享、禁止商用）
 #作者：無書自通（改編）源自王堯世先生創作之象形王碼輸入法
-#版本：v.20260805.2
+#版本：v.20260816.2
+#網址：https://3code-type.github.io/
 key=;',./abcdefghijklmnopqrstuvwxyz
 len=3
 commit=0 0 0
@@ -74,7 +76,6 @@ f 虎
 g 穴
 h 廿
 h 廾
-h 卅
 i 工
 i 五
 i 王
@@ -104,9 +105,6 @@ q 曲
 r 貝
 s ，
 s 。
-s 、
-s ：
-s ；
 t 十
 t 巾
 t 丰
@@ -155,6 +153,7 @@ s. 。
 s. ．
 s. ‰
 s/ ？
+s/ ／
 s; ：
 s; ；
 sj ；
@@ -244,6 +243,9 @@ sqq Ⓦ
 sqq Ⓧ
 sqq Ⓨ
 sqq Ⓩ
+s 、
+s ：
+s ；
 s ！
 s ？
 s –
@@ -440,6 +442,41 @@ ba ，
 ba ．
 ba ／
 ba ；
+us ¹
+us ²
+us ³
+us ⁴
+us ⁵
+us ⁶
+us ⁷
+us ⁸
+us ⁹
+us ⁰
+us ‧
+us ⁺
+us ⁻
+us ˣ
+us ᐟ
+us ⁼
+us ⁽
+us ⁾
+us ⁿ
+us ꜝ
+is ₁
+is ₂
+is ₃
+is ₄
+is ₅
+is ₆
+is ₇
+is ₈
+is ₉
+is ₀
+is ₊
+is ₋
+is ₌
+is ₍
+is ₎
 #常用字
 '' 仇
 ''; 佻
@@ -1357,6 +1394,7 @@ ba ；
 /et 秤
 /et 拜
 /et 鼾
+/ew 舔
 /ex 段
 /fl 牴
 /fl 舐
@@ -1773,6 +1811,7 @@ ba ；
 ;kc 濫
 ;kl 汽
 ;ko 海
+;l 氾
 ;l' 滇
 ;la 凝
 ;ld 池
@@ -2983,6 +3022,7 @@ fon 厘
 fou 癌
 fpm 瘺
 fpt 癖
+fq 看
 fq' 魘
 fq' 覷
 fqa 厭
@@ -3077,6 +3117,7 @@ g/o 窖
 g/t 牢
 g;n 窪
 ga' 窺
+ga, 蛋
 ga. 突
 gaj 寄
 gaw 寮
@@ -3761,6 +3802,7 @@ jio 拈
 jio 捂
 jit 掉
 jj 打
+jjo 哥
 jk' 攬
 jkl 拖
 jkw 撫
@@ -4428,6 +4470,7 @@ ndd 趨
 ndd 翹
 ndl 地
 ndl 鮑
+ndl 龜
 ndo 超
 ndo 嘉
 ndt 解
@@ -4490,6 +4533,7 @@ nm, 坍
 nma 奐
 nmd 觔
 nmd 塌
+nml 龜
 nmm 堝
 nmn 角
 nmo 鯛
@@ -5089,6 +5133,7 @@ qel 曬
 qel 眺
 qel 晁
 qen 量
+qer 題
 qes 曇
 qet 旱
 qex 瞰
@@ -5568,6 +5613,7 @@ uit 舉
 uix 叟
 ukl 屹
 ull 鼠
+ull 崑
 ulx 崴
 um' 興
 umm 崩
@@ -5643,6 +5689,7 @@ vdw 為
 vdw 兼
 vel 瓶
 vh 并
+vh 並
 vhe 並
 vho 善
 vhq 普
@@ -6011,6 +6058,7 @@ ydr 賴
 ydy 樑
 ydz 橡
 ye 本
+yec 麵
 yed 朽
 yee 桓
 yel 桃
@@ -6228,6 +6276,7 @@ zj/ 豺
 zjr 預
 zjy 柔
 zl 孔
+zl 犯
 zm. 恿
 zmd 勇
 zme 狙
