@@ -2,7 +2,7 @@ encode=UTF-8
 name=三碼中文輸入法
 #授權宣告：CC BY-NC-SA 4.0（免費分享、禁止商用）
 #作者：無書自通（改編）源自王堯世先生創作之象形王碼輸入法
-#版本：v.20260816.2
+#版本：v.20260824.1
 #網址：https://3code-type.github.io/
 key=;',./abcdefghijklmnopqrstuvwxyz
 len=3
@@ -44,6 +44,16 @@ em 🙏
 em 👌
 em 👍
 em ❤️
+em 😍
+em 😎
+em 😁
+em 😭
+em 😜
+em 😱
+em 🤔
+em 😡
+em 💪
+em 👏
 #一碼字元
 ' 八
 ' 九
@@ -144,9 +154,17 @@ oq ●
 rr （
 tt ）
 ff 「
+ff ‵
+ff ‘
 gg 」
+gg ′
+gg ’
 cc 『
+cc 〝
+cc “
 vv 』
+vv 〞
+vv ”
 s, ，
 s. 、
 s. 。
@@ -165,6 +183,14 @@ sl ～
 sx ※
 sg 【
 sg 】
+sg 〈
+sg 〉
+sg 《
+sg 》 
+sg 〔
+sg 〕
+sg ｛
+sg ｝
 sv ˇ
 sv ☑
 sq ①
@@ -477,6 +503,16 @@ is ₋
 is ₌
 is ₍
 is ₎
+bn １
+bn ２
+bn ３
+bn ４
+bn ５
+bn ６
+bn ７
+bn ８
+bn ９
+bn ０
 #常用字
 '' 仇
 ''; 佻
@@ -2137,6 +2173,7 @@ ana 歙
 and 銬
 anj 鑄
 ank 錶
+anl 鐵
 ann 奎
 anq 奢
 anr 鑽
@@ -2300,7 +2337,6 @@ bsh 聯
 bsp 聊
 bt. 聽
 btt 陣
-bva 聯
 bvc 隘
 bvn 墜
 bvz 隊
@@ -2937,6 +2973,7 @@ fdr 賡
 fdx 慶
 fdy 麋
 fe 虐
+fe' 兵
 fe' 覷
 fe, 蜃
 feb 邱
@@ -2949,6 +2986,7 @@ fej 辱
 fek 辰
 fem 病
 feo 痞
+feu 岳
 fev 痘
 fex 廈
 ffc 廬
@@ -3435,6 +3473,7 @@ hpt 薜
 hpx 葭
 hq 昔
 hq 苜
+hq 鼎
 hq' 觀
 hq' 覲
 hq' 莧
@@ -4142,6 +4181,7 @@ lio 迪
 liw 戚
 lix 收
 lj 划
+ljf 逝
 ljt 逝
 lkl 迄
 lkl 迤
@@ -4601,7 +4641,6 @@ ns 去
 nsa 埃
 nsc 盍
 nsd 劫
-nsp 卻
 nsw 素
 nt' 執
 nt' 填
@@ -6096,6 +6135,7 @@ yh' 棋
 yha 模
 yha 樸
 yhe 柑
+yhh 耕
 yhi 權
 yhm 構
 yho 楛

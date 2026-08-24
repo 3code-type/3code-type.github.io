@@ -29,6 +29,16 @@ em	🙏
 em	👌
 em	👍
 em	❤️
+em	😍
+em	😎
+em	😁
+em	😭
+em	😜
+em	😱
+em	🤔
+em	😡
+em	💪
+em	👏
 #一碼字元
 '	八
 '	九
@@ -113,6 +123,7 @@ e	ㄧ
 e	礻
 e	衤
 e	⺬
+e	㇀
 f	虎
 f	ㄏ
 f	虍
@@ -308,9 +319,17 @@ oq	●
 rr	（
 tt	）
 ff	「
+ff	‵
+ff	‘
 gg	」
+gg	′
+gg	’
 cc	『
+cc	〝
+cc	“
 vv	』
+vv	〞
+vv	”
 s,	，
 s.	、
 s.	。
@@ -329,6 +348,14 @@ sl	～
 sx	※
 sg	【
 sg	】
+sg	〈
+sg	〉
+sg	《
+sg	》	
+sg	〔
+sg	〕
+sg	｛
+sg	｝
 sv	ˇ
 sv	☑
 sq	①
@@ -641,6 +668,16 @@ is	₋
 is	₌
 is	₍
 is	₎
+bn	１
+bn	２
+bn	３
+bn	４
+bn	５
+bn	６
+bn	７
+bn	８
+bn	９
+bn	０
 #常用字
 ''	仇
 '';	佻
@@ -2301,6 +2338,7 @@ ana	歙
 and	銬
 anj	鑄
 ank	錶
+anl	鐵
 ann	奎
 anq	奢
 anr	鑽
@@ -2464,7 +2502,6 @@ bsh	聯
 bsp	聊
 bt.	聽
 btt	陣
-bva	聯
 bvc	隘
 bvn	墜
 bvz	隊
@@ -3101,6 +3138,7 @@ fdr	賡
 fdx	慶
 fdy	麋
 fe	虐
+fe'	兵
 fe'	覷
 fe,	蜃
 feb	邱
@@ -3113,6 +3151,7 @@ fej	辱
 fek	辰
 fem	病
 feo	痞
+feu	岳
 fev	痘
 fex	廈
 ffc	廬
@@ -3599,6 +3638,7 @@ hpt	薜
 hpx	葭
 hq	昔
 hq	苜
+hq	鼎
 hq'	觀
 hq'	覲
 hq'	莧
@@ -4306,6 +4346,7 @@ lio	迪
 liw	戚
 lix	收
 lj	划
+ljf	逝
 ljt	逝
 lkl	迄
 lkl	迤
@@ -4765,7 +4806,6 @@ ns	去
 nsa	埃
 nsc	盍
 nsd	劫
-nsp	卻
 nsw	素
 nt'	執
 nt'	填
@@ -6259,6 +6299,7 @@ yh'	棋
 yha	模
 yha	樸
 yhe	柑
+yhh	耕
 yhi	權
 yhm	構
 yho	楛
@@ -11209,6 +11250,7 @@ bkl	阣
 bkl	陁
 bl	耴
 bl	聀
+bl	𦔮
 bld	阤
 ble	聝
 bll	阰
@@ -11654,6 +11696,7 @@ ddi	羾
 ddl	毣
 ddl	艴
 ddl	翴
+ddl	䎎
 ddm	脋
 ddm	翯
 ddm	鬻
@@ -12203,6 +12246,7 @@ edx	駸
 edx	夓
 edy	磲
 ee	祘
+ee	＝
 ee'	矹
 ee,	蜚
 ee,	蝅
@@ -13840,6 +13884,7 @@ h,y	藳
 h,z	鞟
 h..	戁
 h./	苾
+h.h	丼
 h.i	黈
 h.k	莨
 h.k	蘹
@@ -14251,6 +14296,7 @@ hgw	藔
 hgx	荌
 hgy	荣
 hgz	茡
+hh	丼
 hh'	萁
 hh.	丼
 hh;	汬
@@ -18719,6 +18765,7 @@ oi.	噁
 oi/	踄
 oia	哫
 oid	鸭
+oie	𧾷
 oif	斲
 oih	哢
 oii	咔
