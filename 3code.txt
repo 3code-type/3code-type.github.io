@@ -2,7 +2,7 @@ encode=UTF-8
 name=三碼中文輸入法
 #授權宣告：CC BY-NC-SA 4.0（免費分享、禁止商用）
 #作者：無書自通（改編）源自王堯世先生創作之象形王碼輸入法
-#版本：v.20260824.1
+#版本：v.20261031.1
 #網址：https://3code-type.github.io/
 key=;',./abcdefghijklmnopqrstuvwxyz
 len=3
@@ -14,11 +14,8 @@ wildcard=?
 dwf=0
 [data]
 #自建
-cs §
-/d 的
 sc ㄛ
 sy ㄚ
-sa ㄝ
 sn ㄋ
 sf ㄏ
 st ㄒ
@@ -179,6 +176,7 @@ si ！
 se －
 se –
 se ─
+se —
 sl ～
 sx ※
 sg 【
@@ -427,6 +425,7 @@ sb ⿸
 sb ⿹
 sb ⿺
 sb ⿻
+sb ⬚
 oe ㊀
 oe ㊁
 oe ㊂
@@ -513,6 +512,34 @@ bn ７
 bn ８
 bn ９
 bn ０
+sa ａ
+sa ｂ
+sa ｃ
+sa ｄ
+sa ｅ
+sa ｆ
+sa ｇ
+sa ｈ
+sa ｉ
+sa ｊ
+sa ｋ
+sa ｌ
+sa ｍ
+sa ｎ
+sa ｏ
+sa ｐ
+sa ｑ
+sa ｒ
+sa ｓ
+sa ｔ
+sa ｕ
+sa ｖ
+sa ｗ
+sa ｘ
+sa ｙ
+sa ｚ
+sa ㄝ
+cs §
 #常用字
 '' 仇
 ''; 佻
@@ -549,8 +576,8 @@ bn ０
 '.m 雋
 '.o 售
 '.w 焦
-'.x 雙
 '.x 隻
+'.x 雙
 '.y 集
 '/' 傀
 '/, 風
@@ -797,6 +824,7 @@ bn ０
 'x. 悠
 'x/ 修
 'xa 倏
+'xf 斧
 'xl 爸
 'xm 脩
 'xq 偺
@@ -1119,6 +1147,7 @@ bn ０
 ,qk 衰
 ,qo 竭
 ,qo 謁
+,qt 章
 ,s 玄
 ,s' 充
 ,sa 亥
@@ -1154,8 +1183,8 @@ bn ０
 ,vo 啻
 ,vq 音
 ,vq 譜
-,vt 章
 ,vt 辛
+,vt 章
 ,vt 帝
 ,vw 謙
 ,vx 妾
@@ -1227,6 +1256,7 @@ bn ０
 .ao 恰
 .ao 愴
 .bb 懾
+.c' 慨
 .ca 愜
 .cd 愣
 .cy 慄
@@ -1348,6 +1378,7 @@ bn ０
 /,x 皎
 /./ 秘
 /.i 往
+/.l 我
 /.q 稽
 /.u 嵇
 /.w 然
@@ -1400,6 +1431,7 @@ bn ０
 /cp 卹
 /ct 釋
 /cz 衆
+/d 的
 /d. 的
 /d/ 物
 /d/ 穋
@@ -1484,13 +1516,14 @@ bn ０
 /l 毛
 /l. 怨
 /l/ 牝
-/ld 牠
 /ld 鵝
+/ld 牠
 /ld 鴛
 /le 牝
 /ln 艇
 /lp 卽
 /lt 毽
+/lw 鴛
 /m, 舟
 /m. 舟
 /ma 秧
@@ -1526,6 +1559,7 @@ bn ０
 /ob 鄱
 /od 烏
 /od 甥
+/od 粵
 /od 鵠
 /oj 刮
 /on 程
@@ -2023,6 +2057,7 @@ a,x 餃
 a,x 鏤
 a. 太
 a. 犬
+a.. 念
 a./ 鉍
 a.d 鴒
 a.m 鐫
@@ -2214,8 +2249,8 @@ aql 錕
 aql 餛
 aqo 倉
 aqt 銲
-aqx 鏝
 aqx 饅
+aqx 鏝
 ar 鋇
 as' 飢
 as, 蝕
@@ -2262,8 +2297,8 @@ ay 余
 ayc 鍊
 ayx 敘
 az 今
-az. 令
 az. 念
+az. 令
 azc 錳
 azj 舒
 azo 含
@@ -2597,6 +2632,7 @@ e,x 駛
 e,x 褸
 e./ 祕
 e.i 駐
+e.l 武
 e.w 礁
 e/ 歹
 e/' 魂
@@ -2628,6 +2664,7 @@ e/r 鬢
 e/s 鬆
 e/t 碑
 e/t 裨
+e/w 舔
 e/x 夏
 e/x 耍
 e/x 憂
@@ -2691,19 +2728,23 @@ ees 云
 eet 輩
 eet 砰
 eew 碼
+eew 舔
 eex 政
 eex 硬
 eex 斐
 eex 霞
 ef' 礦
 efc 驢
+efe 靂
 eff 褫
 efj 褥
+efk 震
 efk 祳
 efl 祇
 efl 砥
 efl 祗
 efl 衹
+efl 舐
 efm 礪
 efo 祐
 eft 祈
@@ -2878,6 +2919,7 @@ evh 駢
 evi 磋
 evr 頭
 evs 磁
+evx 豉
 ew 不
 ew 馬
 ew/ 砂
@@ -3040,6 +3082,7 @@ fmb 郁
 fmb 鄘
 fmd 勵
 fme 疽
+fml 龐
 fmm 癇
 fn 庄
 fn. 痣
@@ -3096,6 +3139,7 @@ fua 庾
 fux 瘦
 fv 庠
 fva 厥
+fvj 廚
 fvj 厨
 fvk 癢
 fvl 戲
@@ -3108,6 +3152,7 @@ fwd 鷓
 fwm 瘠
 fwr 願
 fwt 麟
+fwv 癬
 fww 痰
 fwx 廠
 fx 反
@@ -3129,6 +3174,7 @@ fyy 麻
 fyy 痲
 fyy 痳
 fyy 糜
+fzb 廓
 fzj 序
 fzj 劇
 fzm 痛
@@ -3211,6 +3257,7 @@ gkx 寢
 gky 寐
 gl/ 它
 glj 剜
+gll 竄
 gme 宜
 gml 寵
 gmm 窩
@@ -3219,11 +3266,12 @@ gno 害
 gnr 竇
 goj 割
 gom 寓
-goo 官
 goo 宮
+goo 官
 gor 實
 gor 額
 goy 窠
+gpo 官
 gpu 窟
 gq' 冥
 gqx 宴
@@ -3376,6 +3424,7 @@ hek 萇
 hel 甚
 hen 基
 heo 蕾
+heq 昔
 hes 芸
 het 華
 hev 荳
@@ -3530,6 +3579,7 @@ hy 茉
 hya 萊
 hyb 鄴
 hye 苯
+hyf 薪
 hyj 莉
 hym 藕
 hyq 藉
@@ -3552,8 +3602,9 @@ i,l 瓏
 i,m 璃
 i,t 璋
 i,x 玟
-i. 惡
 i. 玉
+i. 惡
+i.. 惡
 i.a 以
 i.b 瑯
 i.i 班
@@ -3824,6 +3875,7 @@ jh' 拱
 jha 摸
 jha 撲
 jhe 拑
+jhf 撕
 jhi 攤
 jhm 搆
 jho 描
@@ -4176,6 +4228,7 @@ lhq 遭
 lht 蓮
 li 式
 li. 慼
+lia 蹙
 lij 划
 lio 迪
 liw 戚
@@ -4206,6 +4259,7 @@ lnx 遨
 lo' 選
 lo. 感
 lo. 惑
+loa 蹙
 loe 或
 lom 遇
 lon 逞
@@ -4234,6 +4288,7 @@ lvq 道
 lvt 逆
 lvu 逆
 lvz 遂
+lw. 慼
 lwa 蹙
 lwm 逍
 lwt 遴
@@ -4382,8 +4437,8 @@ mo/ 彫
 moa 胭
 moi 胛
 moi 閘
-moo 閭
 moo 闆
+moo 閭
 mot 闡
 moy 髁
 mp; 脲
@@ -4470,6 +4525,7 @@ n,x 墩
 n,x 鮫
 n,z 壕
 n. 志
+n.. 志
 n/' 塊
 n/d 考
 n/d 塢
@@ -4540,7 +4596,7 @@ nft 圻
 nft 坼
 nfx 坡
 nga 靛
-ngi 壺
+nge 壺
 ngj 壽
 ngv 壹
 ngw 燾
@@ -4658,6 +4714,7 @@ nv/ 彭
 nvo 鱔
 nvq 增
 nvt 幸
+nvx 鼓
 nw 赤
 nw' 魷
 nwb 郝
@@ -5487,6 +5544,7 @@ t,x 較
 t,x 吏
 t,x 轍
 t. 下
+t.; 求
 t/a 軼
 t/m 轎
 t/o 幡
@@ -5523,8 +5581,8 @@ tei 輕
 tek 帳
 tem 輛
 ten 輊
-teo 輻
 teo 幅
+teo 輻
 tes 轉
 tet 軒
 tfa 鏨
@@ -5749,6 +5807,7 @@ vw 羔
 vwa 羹
 vx 姜
 w'd 粉
+w'i 雀
 w'v 燈
 w,' 炕
 w,l 熾
@@ -6200,8 +6259,8 @@ yoj 剌
 yom 耦
 yoo 耜
 yox 敕
-yoy 梱
 yoy 棵
+yoy 梱
 yoy 橾
 ypq 楣
 yq 相
